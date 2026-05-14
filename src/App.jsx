@@ -621,7 +621,6 @@ export default function App(){
   const [savedPortfolios,setSavedPortfolios] = useState([]);
   const [saveModalOpen,setSaveModalOpen] = useState(false);
   const [saveName,setSaveName] = useState("");
-  const [saveStartDate,setSaveStartDate] = useState(()=>new Date().toISOString().split('T')[0]);
   const [selectedCompare,setSelectedCompare] = useState([]);
   const [storageReady,setStorageReady] = useState(false);
   const [notification,setNotification] = useState(null);
@@ -901,14 +900,14 @@ export default function App(){
     const autoName = `Portfolio #${savedPortfolios.length+1} · ${new Date().toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit"})}`;
     const name = saveName.trim()||autoName;
     if(editingPortfolioId){
-      const updated = savedPortfolios.map(p=>p.id===editingPortfolioId?{...p,name,assets:[...assets],period,mode,trackingStartDate:saveStartDate,updatedAt:Date.now()}:p);
+      const updated = savedPortfolios.map(p=>p.id===editingPortfolioId?{...p,name,assets:[...assets],period,mode,trackingStartDate:btStartDate,updatedAt:Date.now()}:p);
       if(storage.set("indexlab_portfolios",updated)!==false){
         setSavedPortfolios(updated); setSaveModalOpen(false); setSaveName(""); setEditingPortfolioId(null);
         notify(t('notif_updated')(name));
       } else { notify(t('notif_err'),"error"); }
     } else {
       const color = PORTFOLIO_COLORS[savedPortfolios.length % PORTFOLIO_COLORS.length];
-      const np = { id:`p_${Date.now()}`, name, assets:[...assets], color, savedAt:Date.now(), trackingStartDate:saveStartDate, period, mode };
+      const np = { id:`p_${Date.now()}`, name, assets:[...assets], color, savedAt:Date.now(), trackingStartDate:btStartDate, period, mode };
       const updated = [...savedPortfolios, np];
       if(storage.set("indexlab_portfolios",updated)!==false){
         setSavedPortfolios(updated); setSaveModalOpen(false); setSaveName("");
@@ -920,8 +919,7 @@ export default function App(){
   function loadPortfolio(p){
     setAssets(p.assets); setPeriod(p.period||"3M"); setMode(p.mode||"backtest");
     setSaveName(p.name); setEditingPortfolioId(p.id);
-    setSaveStartDate(p.trackingStartDate||new Date(p.savedAt||Date.now()).toISOString().split('T')[0]);
-    setBtStartDate(new Date().toISOString().split('T')[0]);
+    setBtStartDate(p.trackingStartDate||new Date(p.savedAt||Date.now()).toISOString().split('T')[0]);
     setTab("builder"); if(isMobile) setPanelOpen(false);
     notify(t('notif_loaded')(p.name));
   }
@@ -1309,10 +1307,6 @@ export default function App(){
           <input value={saveName} onChange={e=>setSaveName(e.target.value)}
             style={{width:"100%",background:T.bg,border:`1px solid ${T.b2}`,color:T.t1,borderRadius:6,padding:"8px 12px",fontFamily:"'Space Mono'",fontSize:12,outline:"none",marginBottom:12}}
             placeholder={t('save_name_ph')} />
-          <SL T={T}>{t('save_start_date')}</SL>
-          <input type="date" value={saveStartDate} onChange={e=>setSaveStartDate(e.target.value)}
-            max={new Date().toISOString().split('T')[0]}
-            style={{width:"100%",background:T.bg,border:`1px solid ${T.b2}`,color:T.t1,borderRadius:6,padding:"8px 12px",fontFamily:"'Space Mono'",fontSize:12,outline:"none",marginBottom:16,boxSizing:"border-box"}}/>
           <div style={{display:"flex",gap:8}}>
             <button onClick={()=>setSaveModalOpen(false)} style={{flex:1,padding:"10px",border:`1px solid ${T.b2}`,background:"transparent",color:T.t3,borderRadius:6,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:11}}>{t('save_cancel')}</button>
             <button onClick={savePortfolio} className="run" style={{flex:2,padding:"10px"}}>{editingPortfolioId?t('save_update'):t('save_confirm')}</button>
