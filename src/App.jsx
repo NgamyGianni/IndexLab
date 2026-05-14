@@ -633,7 +633,9 @@ export default function App(){
   const [editingPortfolioId,setEditingPortfolioId] = useState(null);
   const [benchmark,setBenchmark] = useState("^GSPC");
   const [trackModalId,setTrackModalId] = useState(null);
-  const [projHorizon,setProjHorizon] = useState('y1');
+  const [projHorizon,setProjHorizon]     = useState('y1');
+  const [selectedTicker,setSelectedTicker]   = useState(null);
+  const [selectedOptim,setSelectedOptim]     = useState(null);
   const [btStartDate,setBtStartDate] = useState(()=>new Date().toISOString().split('T')[0]);
   const [lang,setLang] = useState(()=>{ try{return localStorage.getItem("indexlab_lang")||"en";}catch{return"en";} });
   const [darkMode,setDarkMode] = useState(()=>{
@@ -701,7 +703,7 @@ export default function App(){
 
   function addAsset(t){ t=t.trim().toUpperCase(); if(!t||assets.find(a=>a.ticker===t)) return; setAssets(prev=>reequalize([...prev,{ticker:t,weight:0}])); }
   function removeAsset(t){ setAssets(prev=>reequalize(prev.filter(a=>a.ticker!==t))); }
-  function setWeight(t,v){ setAssets(prev=>prev.map(a=>a.ticker===t?{...a,weight:parseFloat(v)||0}:a)); }
+  function setWeight(t,v){ setSelectedOptim(null); setAssets(prev=>prev.map(a=>a.ticker===t?{...a,weight:parseFloat(v)||0}:a)); }
 
   // ── Backtest data ──
   const {chartData,assetPerfs,riskContribs,metrics,benchData} = useMemo(()=>{
@@ -1237,26 +1239,30 @@ export default function App(){
             {lk:"opt_equal", icon:"÷", dk:"opt_equal_d", action:()=>setAssets(prev=>reequalize(prev))},
             {lk:"opt_rp",    icon:"⚖", dk:"opt_rp_d",    action:applyRiskParity},
             {lk:"opt_ms",    icon:"◎", dk:"opt_ms_d",    action:applyMaxSharpe},
-          ].map(({lk,icon,dk,action})=>(
-            <button key={lk} onClick={action}
-              style={{padding:"7px 4px",border:`1px solid ${T.b2}`,borderRadius:7,background:"transparent",color:T.t4,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,textAlign:"center",lineHeight:1.5,transition:"all .12s"}}
-              onMouseEnter={e=>{e.currentTarget.style.borderColor="#4ade80";e.currentTarget.style.color="#4ade80";}}
-              onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t4;}}>
+          ].map(({lk,icon,dk,action})=>{
+            const isAct=selectedOptim===lk;
+            return(
+            <button key={lk} onClick={()=>{setSelectedOptim(lk);action();}}
+              style={{padding:"7px 4px",border:`1px solid ${isAct?"#4ade80":T.b2}`,borderRadius:7,background:isAct?"#4ade8012":"transparent",color:isAct?"#4ade80":T.t4,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,textAlign:"center",lineHeight:1.5,transition:"all .12s",boxShadow:isAct?"0 0 0 1px #4ade8033":undefined}}
+              onMouseEnter={e=>{if(!isAct){e.currentTarget.style.borderColor="#4ade80";e.currentTarget.style.color="#4ade80";}}}
+              onMouseLeave={e=>{if(!isAct){e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t4;}}}>
               <div style={{fontSize:14,marginBottom:1}}>{icon}</div>
               <div style={{fontWeight:700,fontSize:9}}>{t(lk)}</div>
-              <div style={{fontSize:7,color:T.t5,marginTop:1}}>{t(dk)}</div>
+              <div style={{fontSize:7,color:isAct?"#4ade8088":T.t5,marginTop:1}}>{t(dk)}</div>
             </button>
-          ))}
+            );
+          })}
         </div>
         {assets.map(({ticker,weight})=>{
           const meta=ASSET_PARAMS[ticker]; const type=meta?.type||"action";
+          const tc=TYPE_COLOR[type]||"#4ade80";
           return(
             <div key={ticker} className="arow">
               <div style={{flex:1,minWidth:0}}>
                 <div style={{fontWeight:700,fontSize:11,color:T.t1}}>{ticker}</div>
                 <div style={{fontSize:9,color:T.t5}}>{meta?.name||"—"}</div>
               </div>
-              <span className="tag" style={{background:TYPE_COLOR[type]+"18",color:TYPE_COLOR[type]}}>{type}</span>
+              <span className="tag" style={{background:tc+"18",color:tc}}>{type}</span>
               <input type="number" min="0" max="100" step="0.1" className="w-in"
                 value={weight} onChange={e=>setWeight(ticker,e.target.value)} />
               <span style={{color:T.t3,fontSize:11}}>%</span>
@@ -1380,7 +1386,7 @@ export default function App(){
               <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
                 {mode==="backtest"
                   ?Object.keys(PERIOD_DAYS).map(p=>(
-                      <button key={p} className={`pill ${period===p?"active":""}`} onClick={()=>{setPeriod(p);const d=new Date();d.setDate(d.getDate()-PERIOD_CAL_DAYS[p]);setBtStartDate(d.toISOString().split('T')[0]);}}>{p}</button>
+                      <button key={p} className={`pill ${period===p?"active":""}`} onClick={()=>setPeriod(p)}>{p}</button>
                     ))
                   :["6M","1A","3A","5A"].map(h=>(
                       <button key={h} className={`pill ${horizon===h?"active":""}`} onClick={()=>setHorizon(h)}>{h}</button>
