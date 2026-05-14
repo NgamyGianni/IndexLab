@@ -561,6 +561,50 @@ function TutorialModal({ lang, setLang, T, onClose }) {
   );
 }
 
+// ── Locale-aware date picker ──────────────────────────────────────────────────
+const _MONTH_NAMES = {
+  fr:["Jan","Fév","Mar","Avr","Mai","Jun","Jul","Aoû","Sep","Oct","Nov","Déc"],
+  en:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+  es:["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"],
+};
+function LocaleDateInput({ value, onChange, max, T, darkMode, lang }){
+  const parts = value ? value.split('-') : ["","",""];
+  const y=parseInt(parts[0])||new Date().getFullYear();
+  const m=parseInt(parts[1])||new Date().getMonth()+1;
+  const d=parseInt(parts[2])||new Date().getDate();
+  const mNames=_MONTH_NAMES[lang]||_MONTH_NAMES.en;
+  const curY=new Date().getFullYear();
+  const daysInM=new Date(y,m,0).getDate();
+
+  const selStyle={flex:1,background:T.bg,border:`1px solid ${T.b2}`,color:T.t1,borderRadius:6,padding:"7px 5px",fontFamily:"'Space Mono'",fontSize:11,outline:"none",cursor:"pointer",colorScheme:darkMode?"dark":"light"};
+
+  const commit=(ny,nm,nd)=>{
+    const maxD=new Date(ny,nm,0).getDate();
+    const cd=Math.min(nd,maxD);
+    const str=`${ny}-${String(nm).padStart(2,'0')}-${String(cd).padStart(2,'0')}`;
+    onChange({target:{value:max&&str>max?max:str}});
+  };
+
+  const dayEl=(
+    <select value={d} onChange={e=>commit(y,m,parseInt(e.target.value))} style={selStyle}>
+      {Array.from({length:daysInM},(_,i)=><option key={i+1} value={i+1}>{String(i+1).padStart(2,'0')}</option>)}
+    </select>
+  );
+  const monthEl=(
+    <select value={m} onChange={e=>commit(y,parseInt(e.target.value),d)} style={selStyle}>
+      {mNames.map((n,i)=><option key={i+1} value={i+1}>{n}</option>)}
+    </select>
+  );
+  const yearEl=(
+    <select value={y} onChange={e=>commit(parseInt(e.target.value),m,d)} style={{...selStyle,flex:1.3}}>
+      {Array.from({length:11},(_,i)=>curY-i).map(yr=><option key={yr} value={yr}>{yr}</option>)}
+    </select>
+  );
+
+  const order=lang==="en"?[monthEl,dayEl,yearEl]:[dayEl,monthEl,yearEl];
+  return <div style={{display:"flex",gap:4}}>{order}</div>;
+}
+
 // ── Main App ──────────────────────────────────────────────────────────────────
 export default function App(){
   const [tab,setTab]           = useState("builder");
@@ -589,7 +633,7 @@ export default function App(){
   const [benchmark,setBenchmark] = useState("^GSPC");
   const [trackModalId,setTrackModalId] = useState(null);
   const [projHorizon,setProjHorizon] = useState('y1');
-  const [btStartDate,setBtStartDate] = useState(()=>{ const d=new Date(); d.setMonth(d.getMonth()-3); return d.toISOString().split('T')[0]; });
+  const [btStartDate,setBtStartDate] = useState(()=>new Date().toISOString().split('T')[0]);
   const [lang,setLang] = useState(()=>{ try{return localStorage.getItem("indexlab_lang")||"en";}catch{return"en";} });
   const [darkMode,setDarkMode] = useState(()=>{
     try { return localStorage.getItem("indexlab_dark")!=="false"; } catch { return true; }
@@ -873,7 +917,7 @@ export default function App(){
     setAssets(p.assets); setPeriod(p.period||"3M"); setMode(p.mode||"backtest");
     setSaveName(p.name); setEditingPortfolioId(p.id);
     setSaveStartDate(p.trackingStartDate||new Date(p.savedAt||Date.now()).toISOString().split('T')[0]);
-    const calD=PERIOD_CAL_DAYS[p.period||"3M"]; const sd=new Date(); sd.setDate(sd.getDate()-calD); setBtStartDate(sd.toISOString().split('T')[0]);
+    setBtStartDate(new Date().toISOString().split('T')[0]);
     setTab("builder"); if(isMobile) setPanelOpen(false);
     notify(t('notif_loaded')(p.name));
   }
@@ -1028,9 +1072,8 @@ export default function App(){
 
       {mode==="backtest"&&<div>
         <SL T={T}>{t('cfg_start_date')}</SL>
-        <input type="date" value={btStartDate} max={new Date().toISOString().split('T')[0]}
-          onChange={e=>setBtStartDate(e.target.value)}
-          style={{width:"100%",background:T.bg,border:`1px solid ${T.b2}`,color:T.t1,borderRadius:6,padding:"7px 11px",fontFamily:"'Space Mono'",fontSize:12,outline:"none",boxSizing:"border-box",colorScheme:darkMode?"dark":"light"}} />
+        <LocaleDateInput value={btStartDate} max={new Date().toISOString().split('T')[0]}
+          onChange={e=>setBtStartDate(e.target.value)} T={T} darkMode={darkMode} lang={lang} />
       </div>}
 
       <div>
