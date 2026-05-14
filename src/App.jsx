@@ -230,15 +230,11 @@ function getPrices(ticker, days){
   return generatePrices(ticker, days);
 }
 
-function getRealDates(days, mois=_MOIS){
+function getRealDates(days){
   if(!_priceData?.bdays) return null;
   const bd = _priceData.bdays;
   const n = days + 1;
-  const slice = bd.length >= n ? bd.slice(bd.length - n) : bd;
-  return slice.map(d => {
-    const p = d.split('-');
-    return `${p[2]} ${mois[parseInt(p[1])-1]}`;
-  });
+  return bd.length >= n ? bd.slice(bd.length - n) : bd;
 }
 
 function portfolioReturns(assets, days){
@@ -428,10 +424,15 @@ const MetricRow = ({label,val,color,highlight,info,T})=>{
 };
 
 // ── Chart Tooltips ─────────────────────────────────────────────────────────────
-const ChartTooltip = ({active,payload,label,invest,T})=>{
+const ChartTooltip = ({active,payload,label,invest,T,mois})=>{
   if(!active||!payload?.length) return null;
+  let displayLabel = label;
+  if(mois&&label&&label.length>=10&&label[4]==='-'){
+    const p = label.split('-');
+    displayLabel = `${p[2]} ${mois[parseInt(p[1])-1]} ${p[0]}`;
+  }
   return <div style={{background:T.bg2,border:`1px solid ${T.b2}`,borderRadius:8,padding:"8px 14px",boxShadow:"0 4px 20px #0009"}}>
-    <div style={{color:T.t4,fontSize:10,marginBottom:4}}>{label}</div>
+    <div style={{color:T.t4,fontSize:10,marginBottom:4}}>{displayLabel}</div>
     {payload.map(p=>(
       <div key={p.dataKey} style={{display:"flex",justifyContent:"space-between",gap:12,marginBottom:2}}>
         <span style={{fontSize:10,color:p.color}}>{p.name}</span>
@@ -711,7 +712,7 @@ export default function App(){
     const returns = portfolioReturns(assets,days);
     const benchPrices = generateBenchmark(days, benchmark);
     const bench = benchPrices.map((p,i,arr)=>(p/arr[0]-1)*100);
-    const realDates = getRealDates(days, moisArr);
+    const realDates = getRealDates(days);
     const pts = returns.map((v,i)=>({date:realDates?realDates[i]:dateLabel(i,days,false,moisArr),value:parseFloat(v.toFixed(3)),bench:parseFloat(bench[i].toFixed(3))}));
 
     const allPrices = {};
@@ -786,7 +787,7 @@ export default function App(){
     const allReturns = activePorts.map(p=>portfolioReturns(p.assets,days));
     const benchPrices2 = generateBenchmark(days, benchmark);
     const bench = benchPrices2.map((p,i,arr)=>(p/arr[0]-1)*100);
-    const realDates2 = getRealDates(days, moisArr);
+    const realDates2 = getRealDates(days);
     const chart = Array.from({length:days+1},(_,i)=>{
       const pt={date:realDates2?realDates2[i]:dateLabel(i,days,false,moisArr),bench:parseFloat(bench[i].toFixed(3))};
       activePorts.forEach((p,pi)=>{ pt[p.id]=parseFloat(allReturns[pi][i].toFixed(3)); });
@@ -1445,9 +1446,9 @@ export default function App(){
                         <stop offset="100%" stopColor={isPos?"#4ade80":"#f87171"} stopOpacity={0}/>
                       </linearGradient>
                     </defs>
-                    <XAxis dataKey="date" tick={{fill:T.t4,fontSize:9}} axisLine={false} tickLine={false} interval="preserveStartEnd" minTickGap={48}/>
+                    <XAxis dataKey="date" tick={{fill:T.t4,fontSize:9}} axisLine={false} tickLine={false} interval="preserveStartEnd" minTickGap={48} tickFormatter={d=>d&&d.length>=10?`${d.slice(8)} ${moisArr[parseInt(d.slice(5,7))-1]}`:d}/>
                     <YAxis tick={{fill:T.t4,fontSize:9}} axisLine={false} tickLine={false} tickFormatter={v=>`${v>0?"+":""}${v.toFixed(0)}%`} width={42}/>
-                    <Tooltip content={<ChartTooltip invest={invest} T={T}/>}/>
+                    <Tooltip content={<ChartTooltip invest={invest} T={T} mois={moisArr}/>}/>
                     <ReferenceLine y={0} stroke={T.b2} strokeDasharray="4 3"/>
                     <Line type="monotone" dataKey="bench" stroke={T.b2} strokeWidth={1.5} dot={false} name={benchmarkLabel} strokeDasharray="4 2"/>
                     <Line type="monotone" dataKey="value" stroke={isPos?"#4ade80":"#f87171"} strokeWidth={2.5} dot={false} name={t('my_index')} activeDot={{r:4}}/>
@@ -1674,9 +1675,9 @@ export default function App(){
                   <div style={{fontSize:8,color:T.t4,letterSpacing:3,textTransform:"uppercase",marginBottom:10}}>{t('cmp_chart')}</div>
                   <ResponsiveContainer width="100%" height={CH+20}>
                     <LineChart data={compareData.chart}>
-                      <XAxis dataKey="date" tick={{fill:T.t4,fontSize:9}} axisLine={false} tickLine={false} interval="preserveStartEnd" minTickGap={48}/>
+                      <XAxis dataKey="date" tick={{fill:T.t4,fontSize:9}} axisLine={false} tickLine={false} interval="preserveStartEnd" minTickGap={48} tickFormatter={d=>d&&d.length>=10?`${d.slice(8)} ${moisArr[parseInt(d.slice(5,7))-1]}`:d}/>
                       <YAxis tick={{fill:T.t4,fontSize:9}} axisLine={false} tickLine={false} tickFormatter={v=>`${v>0?"+":""}${v.toFixed(0)}%`} width={44}/>
-                      <Tooltip content={<ChartTooltip invest={invest} T={T}/>}/>
+                      <Tooltip content={<ChartTooltip invest={invest} T={T} mois={moisArr}/>}/>
                       <ReferenceLine y={0} stroke={T.b2} strokeDasharray="4 3"/>
                       <Line type="monotone" dataKey="bench" stroke={T.b2} strokeWidth={1.5} dot={false} name={benchmarkLabel} strokeDasharray="4 2"/>
                       {compareData.names?.map(({id,name,color})=>(
