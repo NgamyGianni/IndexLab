@@ -164,7 +164,6 @@ const HORIZON_DAYS = { "6M":126, "1A":252, "3A":756, "5A":1260 };
 const MODES = [
   { id:"backtest",    label:"Backtest",    icon:"◀" },
   { id:"monte_carlo", label:"Monte Carlo", icon:"⟁" },
-  { id:"projection",  label:"Projection",  icon:"▶" },
 ];
 const TABS = [
   { id:"builder",  label:"Constructeur" },
@@ -577,13 +576,6 @@ export default function App(){
     });
   },[assets,mode,horizon,hDays,weightOk,lang]);
 
-  // ── Projection ──
-  const projData = useMemo(()=>{
-    if(!assets.length||!weightOk||mode!=="projection") return [];
-    const {mu}=portfolioParams(assets);
-    const step=Math.max(1,Math.floor(hDays/60));
-    return Array.from({length:Math.floor(hDays/step)+1},(_,i)=>({date:dateLabel(i*step,hDays,true,moisArr),value:+((Math.exp(mu*(i*step/252))-1)*100).toFixed(2)}));
-  },[assets,mode,horizon,hDays,weightOk,lang]);
 
   // ── Compare data ──
   const compareData = useMemo(()=>{
@@ -649,8 +641,6 @@ export default function App(){
   const lastBT  = chartData[chartData.length-1]?.value??0;
   const isPos   = lastBT>=0;
   const lastMC  = mcData[mcData.length-1];
-  const lastProj= projData[projData.length-1]?.value??0;
-  const {mu:pMu,sigma:pSigma}=portfolioParams(assets);
   const CH = isMobile?190:240;
 
   // ── CSS ──
@@ -788,7 +778,7 @@ export default function App(){
       <div>
         <SL T={T}>{t('cfg_mode')}</SL>
         <div style={{display:"flex",gap:5}}>
-          {[{id:"backtest",icon:"◀",lk:"mode_backtest"},{id:"monte_carlo",icon:"⟁",lk:"mode_mc"},{id:"projection",icon:"▶",lk:"mode_proj"}].map(m=>(
+          {[{id:"backtest",icon:"◀",lk:"mode_backtest"},{id:"monte_carlo",icon:"⟁",lk:"mode_mc"}].map(m=>(
             <button key={m.id} className={`mode-btn ${mode===m.id?"active":""}`}
               onClick={()=>{ setMode(m.id); if(isMobile) setPanelOpen(false); }}>
               <div style={{fontSize:13}}>{m.icon}</div><div>{t(m.lk)}</div>
@@ -967,7 +957,7 @@ export default function App(){
 
       <div style={{display:"flex",gap:8}}>
         <button className="run" style={{flex:1}} onClick={()=>{ if(isMobile) setPanelOpen(false); }} disabled={!weightOk||!assets.length}>
-          {mode==="backtest"?t('btn_run_bt'):mode==="monte_carlo"?t('btn_run_mc'):t('btn_run_proj')}
+          {mode==="backtest"?t('btn_run_bt'):t('btn_run_mc')}
         </button>
         <button className="save-btn" disabled={!weightOk||!assets.length} onClick={()=>{
           const auto=`Portfolio #${savedPortfolios.length+1} · ${new Date().toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit"})}`;
@@ -1270,45 +1260,6 @@ export default function App(){
               </div>
             </>)}
 
-            {/* PROJECTION */}
-            {mode==="projection"&&(!projData.length?<Empty T={T} label={t('empty_launch')}/>:(()=>{
-              const ar=((Math.exp(pMu)-1)*100).toFixed(1);
-              const av=(pSigma*100).toFixed(1);
-              return <>
-                <div style={{display:"grid",gridTemplateColumns:isMobile?"repeat(2,1fr)":"repeat(3,1fr)",gap:8,marginBottom:14}}>
-                  {[
-                    {l:t('proj_rend'),v:`+${ar}%/an`,c:"#c084fc",s:t('proj_base_sub')},
-                    {l:t('proj_perf')(horizon),v:`${lastProj>=0?"+":""}${lastProj.toFixed(1)}%`,c:lastProj>=0?"#4ade80":"#f87171",s:invest>0?`→ ${(invest*(1+lastProj/100)).toFixed(0)} €`:undefined},
-                    {l:t('proj_vol'),v:`${av}%/an`,c:"#fb923c",s:t('proj_risk_sub')},
-                  ].map(({l,v,c,s})=>(
-                    <div key={l} className="card">
-                      <div style={{fontSize:8,color:T.t4,letterSpacing:1,textTransform:"uppercase",marginBottom:3}}>{l}</div>
-                      <div style={{fontFamily:"'Unbounded'",fontSize:isMobile?16:19,color:c,fontWeight:700}}>{v}</div>
-                      {s&&<div style={{fontSize:8,color:T.t5,marginTop:2}}>{s}</div>}
-                    </div>
-                  ))}
-                </div>
-                <div className="card">
-                  <div style={{display:"flex",flexWrap:"wrap",justifyContent:"space-between",alignItems:"center",gap:8,marginBottom:10}}>
-                    <div style={{fontSize:8,color:T.t4,letterSpacing:3,textTransform:"uppercase"}}>{t('ch_proj')(horizon)}</div>
-                    <div style={{fontSize:8,color:"#f87171",background:"#f8717112",padding:"3px 7px",borderRadius:3}}>{t('ch_proj_warn')}</div>
-                  </div>
-                  <ResponsiveContainer width="100%" height={CH}>
-                    <AreaChart data={projData}>
-                      <defs><linearGradient id="pg" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#c084fc" stopOpacity={0.18}/>
-                        <stop offset="100%" stopColor="#c084fc" stopOpacity={0}/>
-                      </linearGradient></defs>
-                      <XAxis dataKey="date" tick={{fill:T.t4,fontSize:9}} axisLine={false} tickLine={false} interval="preserveStartEnd" minTickGap={48}/>
-                      <YAxis tick={{fill:T.t4,fontSize:9}} axisLine={false} tickLine={false} tickFormatter={v=>`+${v.toFixed(0)}%`} width={44}/>
-                      <Tooltip content={<ChartTooltip invest={invest} T={T}/>}/>
-                      <ReferenceLine y={0} stroke={T.b2} strokeDasharray="4 3"/>
-                      <Area type="monotone" dataKey="value" stroke="#c084fc" strokeWidth={2.5} fill="url(#pg)" dot={false} activeDot={{r:4}} name="Projection"/>
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-              </>;
-            })())}
             {isMobile&&<div style={{height:80}}/>}
           </>}
 
