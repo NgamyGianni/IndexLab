@@ -616,6 +616,7 @@ export default function App(){
   const [custom,setCustom]     = useState("");
   const [panelOpen,setPanelOpen] = useState(false);
   const [isMobile,setIsMobile] = useState(false);
+  const [isXS,setIsXS]         = useState(false);
   const [savedPortfolios,setSavedPortfolios] = useState([]);
   const [saveModalOpen,setSaveModalOpen] = useState(false);
   const [saveName,setSaveName] = useState("");
@@ -653,7 +654,7 @@ export default function App(){
   },[]);
 
   useEffect(()=>{
-    const check=()=>setIsMobile(window.innerWidth<768);
+    const check=()=>{ setIsMobile(window.innerWidth<768); setIsXS(window.innerWidth<420); };
     check(); window.addEventListener("resize",check);
     return ()=>window.removeEventListener("resize",check);
   },[]);
@@ -977,6 +978,14 @@ export default function App(){
     .metric-section{margin-bottom:0;}
     .metric-group-title{font-size:8px;color:${T.t6};letter-spacing:3px;text-transform:uppercase;padding:8px 0 4px;border-bottom:1px solid ${T.b2};margin-bottom:4px;}
     input[type=number]::-webkit-inner-spin-button{opacity:.4;}
+    @media(max-width:480px){
+      .card{padding:9px 11px;}
+      .pill{padding:3px 8px;font-size:10px;}
+      .tab-btn{padding:8px 10px;font-size:10px;}
+    }
+    @media(max-width:420px){
+      .tab-btn{padding:8px 7px;font-size:9px;}
+    }
   `;
 
   const MetricsPanel = ({m,color})=>{
@@ -1256,15 +1265,15 @@ export default function App(){
         </div>
       </div>}
 
-      <div style={{display:"flex",gap:8}}>
-        {isMobile&&<button className="run" style={{flex:1}} onClick={()=>setPanelOpen(false)} disabled={!weightOk||!assets.length}>
+      {isMobile&&<div style={{display:"flex",gap:8}}>
+        <button className="run" style={{flex:1}} onClick={()=>setPanelOpen(false)} disabled={!weightOk||!assets.length}>
           {mode==="backtest"?t('btn_run_bt'):t('btn_run_mc')}
-        </button>}
+        </button>
         <button className="save-btn" disabled={!weightOk||!assets.length} onClick={()=>{
           const auto=`Portfolio #${savedPortfolios.length+1} · ${new Date().toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit"})}`;
           setSaveName(editingPortfolioId?saveName:auto); setSaveModalOpen(true);
         }}>💾</button>
-      </div>
+      </div>}
       {!weightOk&&assets.length>0&&<div style={{fontSize:9,color:"#f87171",textAlign:"center"}}>{t('cfg_weight_err')}</div>}
     </div>
   );};
@@ -1311,33 +1320,33 @@ export default function App(){
       </>}
 
       {/* HEADER */}
-      <div style={{borderBottom:`1px solid ${T.b1}`,padding:isMobile?"12px 14px":"14px 24px",display:"flex",alignItems:"center",gap:12}}>
-        <span style={{fontFamily:"'Unbounded'",fontSize:isMobile?16:20,fontWeight:900,letterSpacing:-0.5,color:T.t1}}>INDEX LAB</span>
+      <div style={{borderBottom:`1px solid ${T.b1}`,padding:isMobile?"10px 12px":"14px 24px",display:"flex",alignItems:"center",gap:isMobile?5:12}}>
+        <span style={{fontFamily:"'Unbounded'",fontSize:isMobile?15:20,fontWeight:900,letterSpacing:-0.5,color:T.t1,flexShrink:0}}>INDEX LAB</span>
         {!isMobile&&<span style={{marginLeft:"auto",fontSize:9,color:priceData?"#4ade80":T.b3}}>
           {priceData ? t('data_real')(priceData.updated, Object.keys(priceData.raw||{}).length) : t('data_sim')}
         </span>}
-        <div style={{display:"flex",gap:4,marginLeft:isMobile?"auto":0}}>
+        <div style={{display:"flex",gap:3,marginLeft:isMobile?"auto":0,flexShrink:0}}>
           {[{code:"en",flag:"🇬🇧"},{code:"es",flag:"🇪🇸"},{code:"fr",flag:"🇫🇷"}].map(({code,flag})=>(
-            <button key={code} onClick={()=>setLang(code)} style={{background:lang===code?T.b2:"transparent",border:`1px solid ${lang===code?T.b3:T.b1}`,borderRadius:5,padding:"3px 6px",cursor:"pointer",fontSize:14,color:T.t1,opacity:lang===code?1:0.45,lineHeight:1}}>{flag}</button>
+            <button key={code} onClick={()=>setLang(code)} style={{background:lang===code?T.b2:"transparent",border:`1px solid ${lang===code?T.b3:T.b1}`,borderRadius:5,padding:"2px 5px",cursor:"pointer",fontSize:isXS?12:14,color:T.t1,opacity:lang===code?1:0.45,lineHeight:1}}>{flag}</button>
           ))}
         </div>
         <button
           onClick={()=>setDarkMode(d=>!d)}
-          style={{background:"transparent",border:`1px solid ${T.b2}`,color:T.t3,borderRadius:6,padding:"4px 10px",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:10,transition:"all .12s",whiteSpace:"nowrap"}}
+          style={{background:"transparent",border:`1px solid ${T.b2}`,color:T.t3,borderRadius:6,padding:isMobile?"5px 7px":"4px 10px",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:isMobile?13:10,transition:"all .12s",whiteSpace:"nowrap",flexShrink:0}}
           onMouseEnter={e=>{e.currentTarget.style.borderColor="#4ade80";e.currentTarget.style.color="#4ade80";}}
           onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t3;}}
-        >{darkMode?t('light_mode'):t('dark_mode')}</button>
-        <button
+        >{isMobile?(darkMode?"☀":"◑"):(darkMode?t('light_mode'):t('dark_mode'))}</button>
+        {!isXS&&<button
           onClick={()=>setTutorialOpen(true)}
           title="Tutorial"
           style={{background:"transparent",border:`1px solid ${T.b2}`,color:T.t4,borderRadius:"50%",width:28,height:28,cursor:"pointer",fontFamily:"serif",fontSize:13,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .12s"}}
           onMouseEnter={e=>{e.currentTarget.style.borderColor="#4ade80";e.currentTarget.style.color="#4ade80";}}
-          onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t4;}}>?</button>
-        {isMobile&&<button onClick={()=>setPanelOpen(true)} style={{background:T.b2,border:"none",color:"#4ade80",borderRadius:6,padding:"5px 10px",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:10}}>⚙ Config</button>}
+          onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t4;}}>?</button>}
+        {isMobile&&<button onClick={()=>setPanelOpen(true)} style={{background:T.b2,border:"none",color:"#4ade80",borderRadius:6,padding:"5px 8px",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:isXS?9:10,flexShrink:0}}>⚙</button>}
       </div>
 
       {/* TABS */}
-      <div style={{borderBottom:`1px solid ${T.b1}`,padding:"0 24px",display:"flex",gap:0}}>
+      <div style={{borderBottom:`1px solid ${T.b1}`,padding:isMobile?"0 10px":"0 24px",display:"flex",gap:0}}>
         {TABS.map(tb=><button key={tb.id} className={`tab-btn ${tab===tb.id?"active":""}`} onClick={()=>setTab(tb.id)}>{tb.id==="builder"?t('tab_builder'):tb.id==="compare"?t('tab_compare'):t('tab_track')}</button>)}
         {savedPortfolios.length>0&&<span style={{marginLeft:"auto",alignSelf:"center",fontSize:9,color:"#4ade80",fontFamily:"'Space Mono'"}}>{t('saved_count')(savedPortfolios.length)}</span>}
       </div>
@@ -1346,7 +1355,7 @@ export default function App(){
 
         {/* LEFT PANEL (desktop only) */}
         {!isMobile&&tab==="builder"&&(
-          <div style={{width:280,flexShrink:0,paddingTop:16,paddingRight:14,borderRight:`1px solid ${T.b1}`}}>
+          <div style={{width:260,flexShrink:0,paddingTop:16,paddingRight:14,borderRight:`1px solid ${T.b1}`}}>
             {ConfigPanel()}
           </div>
         )}
@@ -1372,6 +1381,17 @@ export default function App(){
                     ))
                 }
               </div>
+              {!isMobile&&(
+                <button className="save-btn" style={{marginLeft:"auto",display:"flex",alignItems:"center",gap:6,padding:"5px 14px"}}
+                  disabled={!weightOk||!assets.length}
+                  onClick={()=>{
+                    const auto=`Portfolio #${savedPortfolios.length+1} · ${new Date().toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit"})}`;
+                    setSaveName(editingPortfolioId?saveName:auto); setSaveModalOpen(true);
+                  }}>
+                  <span>💾</span>
+                  <span style={{fontSize:10}}>{editingPortfolioId?t('save_update').replace(" ✓",""):t('save_confirm').replace(" ✓","")}</span>
+                </button>
+              )}
             </div>
 
             {/* ── BENCHMARK SELECTOR ── */}
@@ -1446,16 +1466,16 @@ export default function App(){
                                  contribution === Math.min(...assetPerfs.map(a=>a.contribution)) ? t('role_drag') : null;
                     return(
                       <div key={ticker} style={{marginBottom:10}}>
-                        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
-                          <div style={{display:"flex",alignItems:"center",gap:8}}>
+                        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4,flexWrap:"wrap",gap:4}}>
+                          <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
                             <span style={{fontFamily:"'Space Mono'",fontSize:11,fontWeight:700,color:T.t1}}>{ticker}</span>
                             <span className="tag" style={{background:tc+"18",color:tc}}>{type}</span>
-                            <span style={{fontSize:9,color:T.t5}}>{weight}% du portefeuille</span>
+                            {!isMobile&&<span style={{fontSize:9,color:T.t5}}>{weight}% du portefeuille</span>}
                             {role&&<span style={{fontSize:9,color:isPos?"#4ade80":"#f87171",background:isPos?"#4ade8010":"#f8717110",padding:"1px 6px",borderRadius:3}}>{role}</span>}
                           </div>
-                          <div style={{display:"flex",gap:10,alignItems:"center"}}>
-                            <span style={{fontSize:9,color:T.t4}}>{parseFloat(perf)>=0?"+":""}{perf}% {t('attr_alone')}</span>
-                            <span style={{fontFamily:"'Space Mono'",fontSize:12,fontWeight:700,color:isPos?"#4ade80":"#f87171",minWidth:60,textAlign:"right"}}>
+                          <div style={{display:"flex",gap:8,alignItems:"center"}}>
+                            {!isMobile&&<span style={{fontSize:9,color:T.t4}}>{parseFloat(perf)>=0?"+":""}{perf}% {t('attr_alone')}</span>}
+                            <span style={{fontFamily:"'Space Mono'",fontSize:12,fontWeight:700,color:isPos?"#4ade80":"#f87171",minWidth:55,textAlign:"right"}}>
                               {contribution>=0?"+":""}{contribution.toFixed(2)}%
                             </span>
                           </div>
@@ -1609,7 +1629,7 @@ export default function App(){
                         <div style={{fontSize:11,fontWeight:700,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",color:selectedCompare.includes(p.id)?"#4ade80":T.t1}}>{p.name}</div>
                         <div style={{fontSize:9,color:T.t4}}>{p.assets.map(a=>`${a.ticker} ${a.weight}%`).join(" · ")}</div>
                       </div>
-                      <div style={{fontSize:8,color:T.t6,whiteSpace:"nowrap"}}>{new Date(p.savedAt).toLocaleDateString("fr-FR")}</div>
+                      {!isMobile&&<div style={{fontSize:8,color:T.t6,whiteSpace:"nowrap"}}>{new Date(p.savedAt).toLocaleDateString("fr-FR")}</div>}
                       <button onClick={e=>{e.stopPropagation();loadPortfolio(p);}} style={{background:"none",border:`1px solid ${T.b3}`,color:T.t3,cursor:"pointer",fontSize:10,padding:"2px 7px",borderRadius:4,fontFamily:"'Space Mono'",whiteSpace:"nowrap",transition:"all .12s"}} onMouseEnter={e=>{e.currentTarget.style.borderColor="#fb923c";e.currentTarget.style.color="#fb923c";}} onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b3;e.currentTarget.style.color=T.t3;}}>✎</button>
                       <button className="del-btn" onClick={e=>{e.stopPropagation();deletePortfolio(p.id);}}>×</button>
                     </div>
@@ -1805,16 +1825,19 @@ export default function App(){
             if(!item) return null;
             const hDays={y1:252,y3:756,y5:1260}[projHorizon];
             return (
-              <div className="modal-bg" onClick={()=>setTrackModalId(null)}>
+              <div onClick={()=>setTrackModalId(null)} style={{position:"fixed",inset:0,background:"#000c",zIndex:60,display:"flex",alignItems:isMobile?"flex-end":"center",justifyContent:"center",padding:isMobile?0:16}}>
                 <div onClick={e=>e.stopPropagation()} style={{
-                  background:T.bg2,border:`1px solid ${T.b2}`,borderRadius:14,
-                  width:"100%",maxWidth:700,maxHeight:"90vh",overflowY:"auto",
+                  background:T.bg2,border:`1px solid ${T.b2}`,
+                  borderRadius:isMobile?"14px 14px 0 0":14,
+                  width:"100%",maxWidth:isMobile?"100%":700,
+                  maxHeight:isMobile?"92dvh":"90vh",overflowY:"auto",
                   padding:0,boxShadow:"0 24px 60px #0008",animation:"fadeIn .18s ease",
                 }}>
 
+                  {isMobile&&<div style={{display:"flex",justifyContent:"center",padding:"10px 0 2px"}}><div style={{width:36,height:4,borderRadius:2,background:T.b3}}/></div>}
                   {/* ── Header strip ── */}
                   <div style={{
-                    padding:"20px 24px 16px",borderRadius:"14px 14px 0 0",
+                    padding:isMobile?"14px 16px 12px":"20px 24px 16px",borderRadius:"14px 14px 0 0",
                     background:`linear-gradient(120deg,${item.color}18 0%,transparent 55%)`,
                     borderBottom:`1px solid ${T.b1}`,position:"relative",overflow:"hidden",
                   }}>
@@ -1841,7 +1864,7 @@ export default function App(){
                   </div>
 
                   {/* ── Content ── */}
-                  <div style={{padding:"20px 24px"}}>
+                  <div style={{padding:isMobile?"14px 16px":"20px 24px"}}>
 
                     {/* Composition */}
                     <div style={{marginBottom:18}}>
@@ -1872,7 +1895,7 @@ export default function App(){
                       ].map(({l,v,c,bc})=>(
                         <div key={l} style={{background:T.bg,border:`1px solid ${bc}`,borderRadius:9,padding:"13px 14px"}}>
                           <div style={{fontSize:7,color:T.t5,letterSpacing:2,textTransform:"uppercase",marginBottom:7}}>{l}</div>
-                          <div style={{fontFamily:"'Unbounded'",fontSize:22,color:c,fontWeight:700,lineHeight:1}}>
+                          <div style={{fontFamily:"'Unbounded'",fontSize:isMobile?17:22,color:c,fontWeight:700,lineHeight:1}}>
                             {v==null?"—":`${v>=0?"+":""}${v.toFixed(2)}%`}
                           </div>
                         </div>
