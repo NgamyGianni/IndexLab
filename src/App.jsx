@@ -1257,9 +1257,9 @@ export default function App(){
       </div>}
 
       <div style={{display:"flex",gap:8}}>
-        <button className="run" style={{flex:1}} onClick={()=>{ if(isMobile) setPanelOpen(false); }} disabled={!weightOk||!assets.length}>
+        {isMobile&&<button className="run" style={{flex:1}} onClick={()=>setPanelOpen(false)} disabled={!weightOk||!assets.length}>
           {mode==="backtest"?t('btn_run_bt'):t('btn_run_mc')}
-        </button>
+        </button>}
         <button className="save-btn" disabled={!weightOk||!assets.length} onClick={()=>{
           const auto=`Portfolio #${savedPortfolios.length+1} · ${new Date().toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit"})}`;
           setSaveName(editingPortfolioId?saveName:auto); setSaveModalOpen(true);
