@@ -1,0 +1,37 @@
+name: Daily Price Update
+
+on:
+  schedule:
+    - cron: '0 6 * * 1-5'   # 06:00 UTC, Mon–Fri
+  workflow_dispatch:           # allow manual trigger from the Actions tab
+
+jobs:
+  update-prices:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write          # needed to push the updated prices.json
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: Fetch prices from Yahoo Finance
+        run: python scripts/fetch_prices.py
+
+      - name: Commit and push prices.json
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/prices.json
+          git diff --staged --quiet && echo "No changes – prices already up to date." && exit 0
+          git commit -m "chore: update prices $(date -u +%Y-%m-%d)"
+          git push
