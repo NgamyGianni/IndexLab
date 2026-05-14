@@ -104,7 +104,7 @@ export const I18N = {
     tuto_steps:[
       { icon:"🧪", title:"Bienvenue sur IndexLab", body:"IndexLab est un simulateur de portefeuille alimenté par des données financières réelles. Construis, backteste et compare tes stratégies d'investissement en quelques secondes." },
       { icon:"🔍", title:"Ajouter des actifs", body:"Dans l'onglet Constructeur, cherche des actions, ETF ou cryptos par ticker, secteur ou thème. Ajuste le poids de chaque actif — la somme doit atteindre exactement 100%." },
-      { icon:"📊", title:"Lancer une analyse", body:"Backtest : rejoue ton portefeuille sur des données historiques réelles.\nMonte Carlo : simule 600 scénarios futurs aléatoires pour visualiser la distribution des risques et du potentiel." },
+      { icon:"📊", title:"Lancer une analyse", body:"Backtest : rejoue ton portefeuille sur des données historiques réelles.\nMonte Carlo : simule 600 scénarios futurs aléatoires pour visualiser la distribution des risques et du potentiel.\nSuivi : après avoir sauvegardé un portfolio, l'onglet Suivi compare ta performance réelle jour après jour avec la projection Monte Carlo médiane." },
       { icon:"💾", title:"Sauvegarder & Comparer", body:"Clique sur 💾 pour sauvegarder ton portefeuille. Dans l'onglet Comparaison, sélectionne plusieurs portfolios pour les analyser côte à côte avec toutes les métriques." },
       { icon:"📈", title:"Lire les métriques", body:"Clique sur le bouton ℹ à côté de chaque métrique pour une explication détaillée. Choisis ton benchmark de référence (S&P 500, CAC 40…) pour mesurer ta surperformance." },
     ],
@@ -229,7 +229,7 @@ export const I18N = {
     tuto_steps:[
       { icon:"🧪", title:"Welcome to IndexLab", body:"IndexLab is a portfolio simulator powered by real financial data. Build, backtest and compare your investment strategies in seconds." },
       { icon:"🔍", title:"Add assets", body:"In the Builder tab, search for stocks, ETFs or cryptos by ticker, sector or theme. Adjust each asset's weight — the total must reach exactly 100%." },
-      { icon:"📊", title:"Run an analysis", body:"Backtest: replay your portfolio on real historical data.\nMonte Carlo: simulate 600 random future scenarios to visualise the distribution of risk and potential." },
+      { icon:"📊", title:"Run an analysis", body:"Backtest: replay your portfolio on real historical data.\nMonte Carlo: simulate 600 random future scenarios to visualise the distribution of risk and potential.\nTracking: once a portfolio is saved, the Tracking tab compares your real day-by-day performance against the Monte Carlo median projection." },
       { icon:"💾", title:"Save & Compare", body:"Click 💾 to save your portfolio. In the Compare tab, select multiple portfolios to analyse them side by side with all metrics." },
       { icon:"📈", title:"Read the metrics", body:"Click the ℹ button next to any metric for a detailed explanation. Choose your reference benchmark (S&P 500, CAC 40…) to measure your outperformance." },
     ],
@@ -354,7 +354,7 @@ export const I18N = {
     tuto_steps:[
       { icon:"🧪", title:"Bienvenido a IndexLab", body:"IndexLab es un simulador de carteras con datos financieros reales. Construye, haz backtests y compara tus estrategias de inversión en segundos." },
       { icon:"🔍", title:"Añadir activos", body:"En la pestaña Constructor, busca acciones, ETFs o criptos por ticker, sector o tema. Ajusta el peso de cada activo — la suma debe ser exactamente 100%." },
-      { icon:"📊", title:"Lanzar un análisis", body:"Backtest: reproduce tu cartera con datos históricos reales.\nMonte Carlo: simula 600 escenarios futuros aleatorios para visualizar la distribución de riesgos y potencial." },
+      { icon:"📊", title:"Lanzar un análisis", body:"Backtest: reproduce tu cartera con datos históricos reales.\nMonte Carlo: simula 600 escenarios futuros aleatorios para visualizar la distribución de riesgos y potencial.\nSeguimiento: una vez guardada una cartera, la pestaña Seguimiento compara tu rendimiento real día a día con la proyección mediana de Monte Carlo." },
       { icon:"💾", title:"Guardar & Comparar", body:"Haz clic en 💾 para guardar tu cartera. En la pestaña Comparar, selecciona varias carteras para analizarlas en paralelo con todas las métricas." },
       { icon:"📈", title:"Leer las métricas", body:"Haz clic en el botón ℹ junto a cada métrica para una explicación detallada. Elige tu benchmark de referencia (S&P 500, CAC 40…) para medir tu superación." },
     ],
