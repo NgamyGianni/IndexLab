@@ -2003,7 +2003,7 @@ export default function App(){
                             {l:t('trk_ann'),   mk:"ann",    ka:"annReturn",inv:false},
                             {l:t('trk_sharpe'),mk:"sharpe", ka:"sharpe",   inv:false},
                             {l:t('trk_vol'),   mk:"vol",    ka:"annVol",   inv:true},
-                            {l:t('trk_maxdd'), mk:"maxdd",  ka:"maxDD",    inv:true},
+                            {l:t('trk_maxdd'), mk:"maxdd",  ka:"maxDD",    inv:false},
                           ].map(({l,ka,inv,mk},ri)=>{
                             const va=parseFloat(item.actualM[ka]);
                             const vm=parseFloat(item.mcM[ka]);
