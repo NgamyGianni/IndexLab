@@ -1771,21 +1771,7 @@ export default function App(){
               </div>
             ):(
               <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                {/* Horizon selector */}
-                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
-                  <span style={{fontSize:9,color:T.t4,letterSpacing:2,textTransform:"uppercase"}}>{t('trk_proj_lbl')}</span>
-                  <div style={{display:"flex",gap:4}}>
-                    {[{k:"y1",l:t('trk_proj_1y')},{k:"y3",l:t('trk_proj_3y')},{k:"y5",l:t('trk_proj_5y')}].map(({k,l})=>(
-                      <button key={k} onClick={()=>setProjHorizon(k)}
-                        style={{padding:"3px 10px",borderRadius:5,border:`1px solid ${projHorizon===k?"#4ade80":T.b2}`,background:projHorizon===k?"#4ade8022":"transparent",color:projHorizon===k?"#4ade80":T.t4,fontFamily:"'Space Mono'",fontSize:10,cursor:"pointer",transition:"all .12s"}}>
-                        {l}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
                 {trackingData.map(item=>{
-                  const pv = item.projection?.[projHorizon];
                   return (
                   <div key={item.id} onClick={()=>setTrackModalId(item.id)}
                     style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",borderRadius:9,border:`1px solid ${T.b1}`,background:T.bg2,cursor:"pointer",transition:"all .12s"}}
@@ -1799,22 +1785,6 @@ export default function App(){
                         {item.trackDays!=null?` · ${t('trk_days')(item.trackDays)}`:""}
                       </div>
                       <div style={{fontSize:9,color:T.t5,marginTop:2,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{item.assets?.map(a=>`${a.ticker} ${a.weight}%`).join(' · ')}</div>
-                    </div>
-                    {/* Right side: actual perf + projection */}
-                    <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:3,flexShrink:0}}>
-                      {!item.error?(
-                        <span style={{fontSize:11,fontWeight:700,color:item.actualFinal>=0?"#4ade80":"#f87171",whiteSpace:"nowrap"}}>{item.actualFinal>=0?"+":""}{item.actualFinal.toFixed(2)}%</span>
-                      ):(
-                        <span style={{fontSize:9,color:item.error==='no_data'||item.error==='missing_assets'?"#fb923c":T.t4}}>
-                          {item.error==='no_data'?"📡":item.error==='too_short'?"⏳":"⚠"}{" "}
-                          {item.error==='too_short'?t('trk_too_short')(item.trackDays||0):"—"}
-                        </span>
-                      )}
-                      {pv!=null&&(
-                        <span style={{fontSize:9,color:pv>=0?"#4ade8099":"#f8717199",whiteSpace:"nowrap"}}>
-                          ↗ {pv>=0?"+":""}{pv.toFixed(1)}%
-                        </span>
-                      )}
                     </div>
                     <span style={{fontSize:10,color:T.t4,flexShrink:0}}>›</span>
                     <button className="del-btn" onClick={e=>{e.stopPropagation();deletePortfolio(item.id);}} style={{fontSize:16,flexShrink:0}}>×</button>
