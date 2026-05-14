@@ -1884,15 +1884,25 @@ export default function App(){
                       <div style={{fontSize:7,color:T.t4,letterSpacing:3,textTransform:"uppercase",marginBottom:7}}>Composition</div>
                       <div style={{display:"flex",flexWrap:"wrap",gap:5}}>
                         {item.assets?.map(a=>{
-                          const p=ASSET_PARAMS[a.ticker]||{mu:0.15,sigma:0.25};
-                          const ret=Math.round(p.mu*100);
+                          let ret=null;
+                          if(priceData?.raw?.[a.ticker]&&item.startDate){
+                            const bd=priceData.bdays;
+                            const arr=priceData.raw[a.ticker];
+                            const si=bd.findIndex(d=>d>=item.startDate);
+                            if(si>=0&&si<arr.length&&arr[si]&&arr[arr.length-1]){
+                              ret=(arr[arr.length-1]/arr[si]-1)*100;
+                            }
+                          }
                           return (
                           <div key={a.ticker} style={{background:T.bg,border:`1px solid ${T.b1}`,borderRadius:6,padding:"5px 10px",fontSize:9,fontFamily:"'Space Mono'",display:"flex",gap:7,alignItems:"center",transition:"border-color .12s"}}
                             onMouseEnter={e=>e.currentTarget.style.borderColor=T.b2}
                             onMouseLeave={e=>e.currentTarget.style.borderColor=T.b1}>
                             <span style={{color:T.t1,fontWeight:700}}>{a.ticker}</span>
                             <span style={{color:T.t5,borderRight:`1px solid ${T.b1}`,paddingRight:7}}>{a.weight}%</span>
-                            <span style={{color:ret>=0?"#4ade80":"#f87171",fontSize:8}}>↑{ret>=0?"+":""}{ret}%</span>
+                            {ret!=null
+                              ?<span style={{color:ret>=0?"#4ade80":"#f87171",fontSize:8}}>{ret>=0?"↑":"↓"}{ret>=0?"+":""}{ret.toFixed(1)}%</span>
+                              :<span style={{color:T.t4,fontSize:8}}>—</span>
+                            }
                           </div>
                           );
                         })}
