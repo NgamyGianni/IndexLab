@@ -987,7 +987,7 @@ export default function App(){
       { title:t('ms_rend'), rows:[
         {k:"perf",  l:t('mr_total_return'),v:`${parseFloat(m.totalReturn)>=0?"+":""}${m.totalReturn}%`,c:gr(m.totalReturn)},
         {k:"ann",   l:t('mr_ann_return'),  v:`${parseFloat(m.annReturn)>=0?"+":""}${m.annReturn}%`,  c:gr(m.annReturn)},
-        {k:"alpha", l:t('mr_alpha'),       v:`${parseFloat(m.alpha)>=0?"+":""}${m.alpha}%`,          c:gr(m.alpha)},
+        {k:"alpha", l:t('mr_alpha')(benchmarkLabel), v:`${parseFloat(m.alpha)>=0?"+":""}${m.alpha}%`, c:gr(m.alpha)},
         {k:"win",   l:t('mr_win_rate'),    v:`${m.winRate}%`,c:parseFloat(m.winRate)>50?"#4ade80":"#f87171"},
       ]},
       { title:t('ms_risque'), rows:[
@@ -1002,7 +1002,7 @@ export default function App(){
         {k:"calmar", l:t('mr_calmar'), v:m.calmar, c:parseFloat(m.calmar)>1?"#4ade80":"#fb923c"},
         {k:"omega",  l:t('mr_omega'),  v:m.omega,  c:parseFloat(m.omega)>1?"#4ade80":parseFloat(m.omega)>0?"#fb923c":"#f87171"},
       ]},
-      { title:t('ms_bench'), rows:[
+      { title:t('ms_bench')(benchmarkLabel), rows:[
         {k:"beta",l:t('mr_beta'),v:m.beta,c:parseFloat(m.beta)>1?"#fb923c":"#38bdf8"},
         {k:"corr",l:t('mr_corr'),v:m.correlation,c:T.t2},
       ]},
@@ -1313,7 +1313,6 @@ export default function App(){
       {/* HEADER */}
       <div style={{borderBottom:`1px solid ${T.b1}`,padding:isMobile?"12px 14px":"14px 24px",display:"flex",alignItems:"center",gap:12}}>
         <span style={{fontFamily:"'Unbounded'",fontSize:isMobile?16:20,fontWeight:900,letterSpacing:-0.5,color:T.t1}}>INDEX LAB</span>
-        <span style={{fontSize:8,color:"#4ade80",letterSpacing:3,textTransform:"uppercase"}}>pro</span>
         {!isMobile&&<span style={{marginLeft:"auto",fontSize:9,color:priceData?"#4ade80":T.b3}}>
           {priceData ? t('data_real')(priceData.updated, Object.keys(priceData.raw||{}).length) : t('data_sim')}
         </span>}
@@ -1393,7 +1392,7 @@ export default function App(){
                   {l:t('kpi_perf'),v:`${parseFloat(metrics?.totalReturn||0)>=0?"+":""}${metrics?.totalReturn||"—"}%`,c:parseFloat(metrics?.totalReturn||0)>=0?"#4ade80":"#f87171",s:invest>0?`→ ${(invest*(1+parseFloat(metrics?.totalReturn||0)/100)).toFixed(0)} €`:period},
                   {l:t('kpi_sharpe'),v:metrics?.sharpe||"—",c:parseFloat(metrics?.sharpe||0)>1?"#4ade80":parseFloat(metrics?.sharpe||0)>0?"#fb923c":"#f87171",s:t('kpi_sharpe_sub')},
                   {l:t('kpi_maxdd'),v:`${metrics?.maxDD||"—"}%`,c:"#f87171",s:t('kpi_maxdd_sub')},
-                  {l:t('kpi_alpha'),v:`${parseFloat(metrics?.alpha||0)>=0?"+":""}${metrics?.alpha||"—"}%`,c:parseFloat(metrics?.alpha||0)>=0?"#4ade80":"#f87171",s:t('kpi_alpha_sub')},
+                  {l:t('kpi_alpha'),v:`${parseFloat(metrics?.alpha||0)>=0?"+":""}${metrics?.alpha||"—"}%`,c:parseFloat(metrics?.alpha||0)>=0?"#4ade80":"#f87171",s:t('kpi_alpha_sub')(benchmarkLabel)},
                 ].map(({l,v,c,s})=>(
                   <div key={l} className="card">
                     <div style={{fontSize:8,color:T.t4,letterSpacing:2,textTransform:"uppercase",marginBottom:3}}>{l}</div>
@@ -1405,7 +1404,7 @@ export default function App(){
 
               {/* Chart */}
               <div className="card" style={{marginBottom:12}}>
-                <div style={{fontSize:8,color:T.t4,letterSpacing:3,textTransform:"uppercase",marginBottom:10}}>{t('ch_perf_vs_sp')}</div>
+                <div style={{fontSize:8,color:T.t4,letterSpacing:3,textTransform:"uppercase",marginBottom:10}}>{t('ch_perf_vs_sp')(benchmarkLabel)}</div>
                 <ResponsiveContainer width="100%" height={CH}>
                   <LineChart data={chartData}>
                     <defs>
