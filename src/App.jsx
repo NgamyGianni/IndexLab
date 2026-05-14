@@ -659,6 +659,7 @@ export default function App(){
   const [projHorizon,setProjHorizon]     = useState('y1');
   const [selectedTicker,setSelectedTicker]   = useState(null);
   const [selectedOptim,setSelectedOptim]     = useState(null);
+  const [builderTab,setBuilderTab]           = useState("chart"); // "chart"|"metrics"|"attribution"
   const [btStartDate,setBtStartDate] = useState(()=>new Date().toISOString().split('T')[0]);
   const [lang,setLang] = useState(()=>{ try{return localStorage.getItem("indexlab_lang")||"en";}catch{return"en";} });
   const [darkMode,setDarkMode] = useState(()=>{
@@ -1103,13 +1104,13 @@ export default function App(){
         </div>;
       })()}
 
-      {mode==="backtest"&&<div>
+      {isMobile&&mode==="backtest"&&<div>
         <SL T={T}>{t('cfg_start_date')}</SL>
         <LocaleDateInput value={btStartDate} max={new Date().toISOString().split('T')[0]}
           onChange={e=>setBtStartDate(e.target.value)} T={T} darkMode={darkMode} lang={lang} />
       </div>}
 
-      <div>
+      {isMobile&&<div>
         <SL T={T}>{t('cfg_mode')}</SL>
         <div style={{display:"flex",gap:5}}>
           {[{id:"backtest",icon:"◀",lk:"mode_backtest"},{id:"monte_carlo",icon:"⟁",lk:"mode_mc"}].map(m=>(
@@ -1119,7 +1120,7 @@ export default function App(){
             </button>
           ))}
         </div>
-      </div>
+      </div>}
 
       <div>
         <SL T={T}>{t('cfg_invest')}</SL>
@@ -1396,23 +1397,40 @@ export default function App(){
           {/* ═══════════════ BUILDER TAB ═══════════════ */}
           {tab==="builder"&&<>
 
-            {/* ── INLINE PERIOD / HORIZON SELECTOR ── */}
-            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:8,flexWrap:"wrap"}}>
-              <span style={{fontSize:9,color:T.t4,letterSpacing:2,textTransform:"uppercase",whiteSpace:"nowrap"}}>
-                {mode==="backtest"?t('period_lbl'):t('horizon_lbl')}
-              </span>
-              <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
-                {mode==="backtest"
-                  ?Object.keys(PERIOD_DAYS).map(p=>(
-                      <button key={p} className={`pill ${period===p?"active":""}`} onClick={()=>setPeriod(p)}>{p}</button>
-                    ))
-                  :["6M","1A","3A","5A"].map(h=>(
-                      <button key={h} className={`pill ${horizon===h?"active":""}`} onClick={()=>setHorizon(h)}>{h}</button>
-                    ))
-                }
-              </div>
-              {!isMobile&&(
-                <button className="save-btn" style={{marginLeft:"auto",display:"flex",alignItems:"center",gap:6,padding:"5px 14px"}}
+            {/* ── DESKTOP TOP BAR ── */}
+            {!isMobile&&(<>
+              {/* Row 1 : Mode · Date · Période · Save */}
+              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8,paddingBottom:8,borderBottom:`1px solid ${T.b1}`}}>
+                <div style={{display:"flex",gap:4,flexShrink:0}}>
+                  {[{id:"backtest",icon:"◀",lk:"mode_backtest"},{id:"monte_carlo",icon:"⟁",lk:"mode_mc"}].map(m=>(
+                    <button key={m.id} className={`mode-btn ${mode===m.id?"active":""}`}
+                      onClick={()=>{ setMode(m.id); setBuilderTab("chart"); }}
+                      style={{padding:"5px 10px",fontSize:9}}>
+                      <div style={{fontSize:11}}>{m.icon}</div><div>{t(m.lk)}</div>
+                    </button>
+                  ))}
+                </div>
+                <div style={{width:1,height:28,background:T.b2,flexShrink:0}}/>
+                {mode==="backtest"&&<>
+                  <span style={{fontSize:9,color:T.t4,letterSpacing:1,textTransform:"uppercase",whiteSpace:"nowrap",flexShrink:0}}>{t('cfg_start_date')}</span>
+                  <LocaleDateInput value={btStartDate} max={new Date().toISOString().split('T')[0]}
+                    onChange={e=>setBtStartDate(e.target.value)} T={T} darkMode={darkMode} lang={lang}/>
+                  <div style={{width:1,height:28,background:T.b2,flexShrink:0}}/>
+                </>}
+                <span style={{fontSize:9,color:T.t4,letterSpacing:1,textTransform:"uppercase",whiteSpace:"nowrap",flexShrink:0}}>
+                  {mode==="backtest"?t('period_lbl'):t('horizon_lbl')}
+                </span>
+                <div style={{display:"flex",gap:4}}>
+                  {mode==="backtest"
+                    ?Object.keys(PERIOD_DAYS).map(p=>(
+                        <button key={p} className={`pill ${period===p?"active":""}`} onClick={()=>setPeriod(p)}>{p}</button>
+                      ))
+                    :["6M","1A","3A","5A"].map(h=>(
+                        <button key={h} className={`pill ${horizon===h?"active":""}`} onClick={()=>setHorizon(h)}>{h}</button>
+                      ))
+                  }
+                </div>
+                <button className="save-btn" style={{marginLeft:"auto",display:"flex",alignItems:"center",gap:6,padding:"5px 14px",flexShrink:0}}
                   disabled={!weightOk||!assets.length}
                   onClick={()=>{
                     const auto=`Portfolio #${savedPortfolios.length+1} · ${new Date().toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit"})}`;
@@ -1421,21 +1439,69 @@ export default function App(){
                   <span>💾</span>
                   <span style={{fontSize:10}}>{editingPortfolioId?t('save_update').replace(" ✓",""):t('save_confirm').replace(" ✓","")}</span>
                 </button>
+              </div>
+              {/* Row 2 : Benchmark (backtest only) */}
+              {mode==="backtest"&&(
+                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14,paddingBottom:14,borderBottom:`1px solid ${T.b1}`}}>
+                  <span style={{fontSize:9,color:T.t4,letterSpacing:1,textTransform:"uppercase",whiteSpace:"nowrap",flexShrink:0}}>Benchmark</span>
+                  <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
+                    {BENCHMARKS.map(b=>(
+                      <button key={b.ticker} className={`pill ${benchmark===b.ticker?"active":""}`} onClick={()=>setBenchmark(b.ticker)}>{b.label}</button>
+                    ))}
+                  </div>
+                </div>
               )}
-            </div>
+            </>)}
 
-            {/* ── BENCHMARK SELECTOR ── */}
-            {mode==="backtest"&&<div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14,flexWrap:"wrap"}}>
-              <span style={{fontSize:9,color:T.t4,letterSpacing:2,textTransform:"uppercase",whiteSpace:"nowrap"}}>Benchmark :</span>
-              <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
-                {BENCHMARKS.map(b=>(
-                  <button key={b.ticker} className={`pill ${benchmark===b.ticker?"active":""}`} onClick={()=>setBenchmark(b.ticker)}>{b.label}</button>
+            {/* ── MOBILE: période + save compacts ── */}
+            {isMobile&&(
+              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10,flexWrap:"wrap"}}>
+                <span style={{fontSize:9,color:T.t4,letterSpacing:2,textTransform:"uppercase",whiteSpace:"nowrap"}}>
+                  {mode==="backtest"?t('period_lbl'):t('horizon_lbl')}
+                </span>
+                <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
+                  {mode==="backtest"
+                    ?Object.keys(PERIOD_DAYS).map(p=>(
+                        <button key={p} className={`pill ${period===p?"active":""}`} onClick={()=>setPeriod(p)}>{p}</button>
+                      ))
+                    :["6M","1A","3A","5A"].map(h=>(
+                        <button key={h} className={`pill ${horizon===h?"active":""}`} onClick={()=>setHorizon(h)}>{h}</button>
+                      ))
+                  }
+                </div>
+              </div>
+            )}
+            {isMobile&&mode==="backtest"&&(
+              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12,flexWrap:"wrap"}}>
+                <span style={{fontSize:9,color:T.t4,letterSpacing:2,textTransform:"uppercase",whiteSpace:"nowrap"}}>Benchmark</span>
+                <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
+                  {BENCHMARKS.map(b=>(
+                    <button key={b.ticker} className={`pill ${benchmark===b.ticker?"active":""}`} onClick={()=>setBenchmark(b.ticker)}>{b.label}</button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ── RESULT TABS (desktop, backtest only) ── */}
+            {!isMobile&&mode==="backtest"&&chartData.length>0&&(
+              <div style={{display:"flex",gap:0,marginBottom:16,borderBottom:`1px solid ${T.b1}`}}>
+                {[
+                  {id:"chart",      label:"📈  "+t('kpi_perf')},
+                  {id:"metrics",    label:"📊  "+t('ch_metrics')},
+                  {id:"attribution",label:"⬡  "+t('ch_attribution')},
+                ].map(tb=>(
+                  <button key={tb.id} onClick={()=>setBuilderTab(tb.id)}
+                    style={{padding:"9px 18px",border:"none",borderBottom:`2px solid ${builderTab===tb.id?"#4ade80":"transparent"}`,background:"transparent",color:builderTab===tb.id?"#4ade80":T.t4,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:10,transition:"all .15s",whiteSpace:"nowrap"}}>
+                    {tb.label}
+                  </button>
                 ))}
               </div>
-            </div>}
+            )}
 
             {/* BACKTEST */}
             {mode==="backtest"&&(!chartData.length?<Empty T={T} label={t('empty_launch')}/>:<>
+              {/* KPIs + Chart */}
+              {(isMobile||builderTab==="chart")&&<>
               {/* KPIs top row */}
               <div style={{display:"grid",gridTemplateColumns:isMobile?"repeat(2,1fr)":"repeat(4,1fr)",gap:8,marginBottom:14}}>
                 {[
@@ -1481,8 +1547,10 @@ export default function App(){
                 </div>
               </div>
 
+              </>}
+
               {/* Attribution panel */}
-              <div className="card" style={{marginBottom:12}}>
+              {(isMobile||builderTab==="attribution")&&<div className="card" style={{marginBottom:12}}>
                 <div style={{fontSize:8,color:T.t4,letterSpacing:3,textTransform:"uppercase",marginBottom:14}}>{t('ch_attribution')}</div>
 
                 <div style={{marginBottom:18}}>
@@ -1557,10 +1625,10 @@ export default function App(){
                   </div>
                   <div style={{fontSize:8,color:T.b3,lineHeight:1.6}}>{t('attr_rc_legend')}</div>
                 </div>
-              </div>
+              </div>}
 
               {/* Metrics + asset mini-cards */}
-              <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr",gap:10,marginBottom:12}}>
+              {(isMobile||builderTab==="metrics")&&<div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr",gap:10,marginBottom:12}}>
                 <div className="card">
                   <div style={{fontSize:8,color:T.t4,letterSpacing:3,textTransform:"uppercase",marginBottom:8}}>{t('ch_metrics')}</div>
                   <MetricsPanel m={metrics}/>
@@ -1591,7 +1659,7 @@ export default function App(){
                     })}
                   </div>
                 </div>
-              </div>
+              </div>}
             </>)}
 
             {/* MONTE CARLO */}
@@ -1646,40 +1714,39 @@ export default function App(){
               </div>
             ):<>
               {/* Portfolio selector */}
-              <div className="card" style={{marginBottom:14}}>
-                <div style={{fontSize:8,color:T.t4,letterSpacing:3,textTransform:"uppercase",marginBottom:10}}>{t('cmp_saved')}</div>
-                <div style={{display:"flex",flexDirection:"column",gap:6}}>
-                  {savedPortfolios.map(p=>(
-                    <div key={p.id} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 10px",borderRadius:7,border:`1px solid ${selectedCompare.includes(p.id)?"#4ade80":T.b1}`,background:selectedCompare.includes(p.id)?"#4ade8014":"transparent",cursor:"pointer",transition:"all .12s"}}
-                      onMouseEnter={e=>{if(!selectedCompare.includes(p.id)){e.currentTarget.style.borderColor="#4ade8055";e.currentTarget.style.background="#4ade8008";}}}
-                      onMouseLeave={e=>{if(!selectedCompare.includes(p.id)){e.currentTarget.style.borderColor=T.b1;e.currentTarget.style.background="transparent";}}}
+              <div style={{marginBottom:10}}>
+                <div style={{fontSize:8,color:T.t4,letterSpacing:3,textTransform:"uppercase",marginBottom:8}}>{t('cmp_saved')}</div>
+                <div style={{display:"flex",flexDirection:"column",gap:4}}>
+                  {savedPortfolios.map(p=>{
+                    const sel=selectedCompare.includes(p.id);
+                    return(
+                    <div key={p.id} style={{display:"flex",alignItems:"center",gap:10,padding:"7px 10px",borderRadius:7,border:`1px solid ${sel?"#4ade80":T.b1}`,background:sel?"#4ade8010":"transparent",cursor:"pointer",transition:"all .12s"}}
+                      onMouseEnter={e=>{if(!sel){e.currentTarget.style.borderColor="#4ade8044";e.currentTarget.style.background=T.bg2;}}}
+                      onMouseLeave={e=>{if(!sel){e.currentTarget.style.borderColor=T.b1;e.currentTarget.style.background="transparent";}}}
                       onClick={()=>toggleCompare(p.id)}>
-                      <div style={{width:10,height:10,borderRadius:"50%",background:p.color,flexShrink:0}}/>
+                      <div style={{width:8,height:8,borderRadius:"50%",background:p.color,flexShrink:0}}/>
                       <div style={{flex:1,minWidth:0}}>
-                        <div style={{fontSize:11,fontWeight:700,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",color:selectedCompare.includes(p.id)?"#4ade80":T.t1}}>{p.name}</div>
-                        <div style={{fontSize:9,color:T.t4}}>{p.assets.map(a=>`${a.ticker} ${a.weight}%`).join(" · ")}</div>
+                        <span style={{fontSize:11,fontWeight:700,color:sel?"#4ade80":T.t1,marginRight:8}}>{p.name}</span>
+                        <span style={{fontSize:9,color:T.t5}}>{p.assets.map(a=>`${a.ticker} ${a.weight}%`).join(" · ")}</span>
                       </div>
-                      {!isMobile&&<div style={{fontSize:8,color:T.t6,whiteSpace:"nowrap"}}>{new Date(p.savedAt).toLocaleDateString("fr-FR")}</div>}
-                      <button onClick={e=>{e.stopPropagation();loadPortfolio(p);}} style={{background:"none",border:`1px solid ${T.b3}`,color:T.t3,cursor:"pointer",fontSize:10,padding:"2px 7px",borderRadius:4,fontFamily:"'Space Mono'",whiteSpace:"nowrap",transition:"all .12s"}} onMouseEnter={e=>{e.currentTarget.style.borderColor="#fb923c";e.currentTarget.style.color="#fb923c";}} onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b3;e.currentTarget.style.color=T.t3;}}>✎</button>
+                      <button onClick={e=>{e.stopPropagation();loadPortfolio(p);}} style={{background:"none",border:`1px solid ${T.b3}`,color:T.t4,cursor:"pointer",fontSize:9,padding:"2px 6px",borderRadius:4,fontFamily:"'Space Mono'",flexShrink:0,transition:"all .12s"}} onMouseEnter={e=>{e.currentTarget.style.color="#fb923c";e.currentTarget.style.borderColor="#fb923c";}} onMouseLeave={e=>{e.currentTarget.style.color=T.t4;e.currentTarget.style.borderColor=T.b3;}}>✎</button>
                       <button className="del-btn" onClick={e=>{e.stopPropagation();deletePortfolio(p.id);}}>×</button>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
-                {savedPortfolios.length>0&&<div style={{fontSize:9,color:T.t4,marginTop:8}}>{t('cmp_hint')(selectedCompare.length)}</div>}
+                <div style={{fontSize:9,color:T.t4,marginTop:6}}>{t('cmp_hint')(selectedCompare.length)}</div>
               </div>
 
-              {/* Period selector for compare */}
-              <div style={{marginBottom:8}}>
-                <SL T={T}>{t('cmp_period')}</SL>
-                <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
+              {/* Period + Benchmark — compact bar */}
+              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:16,paddingTop:10,paddingBottom:10,borderTop:`1px solid ${T.b1}`,borderBottom:`1px solid ${T.b1}`,flexWrap:"wrap"}}>
+                <span style={{fontSize:9,color:T.t4,letterSpacing:1,textTransform:"uppercase",whiteSpace:"nowrap"}}>{t('cmp_period')}</span>
+                <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
                   {Object.keys(PERIOD_DAYS).map(p=><button key={p} className={`pill ${period===p?"active":""}`} onClick={()=>setPeriod(p)}>{p}</button>)}
                 </div>
-              </div>
-
-              {/* Benchmark selector for compare */}
-              <div style={{marginBottom:14}}>
-                <SL T={T}>Benchmark</SL>
-                <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
+                <div style={{width:1,height:20,background:T.b2,flexShrink:0,alignSelf:"center"}}/>
+                <span style={{fontSize:9,color:T.t4,letterSpacing:1,textTransform:"uppercase",whiteSpace:"nowrap"}}>Benchmark</span>
+                <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
                   {BENCHMARKS.map(b=>(
                     <button key={b.ticker} className={`pill ${benchmark===b.ticker?"active":""}`} onClick={()=>setBenchmark(b.ticker)}>{b.label}</button>
                   ))}
