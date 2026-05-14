@@ -1901,7 +1901,7 @@ export default function App(){
                       {[
                         {l:t('trk_actual'), mk:"trk_actual", v:item.error?null:item.actualFinal, c:!item.error?(item.actualFinal>=0?"#4ade80":"#f87171"):T.t5, bc:!item.error?(item.actualFinal>=0?"#4ade8035":"#f8717135"):T.b1},
                         {l:t('trk_mc'),     mk:"trk_mc_kpi", v:item.error?null:item.mcFinal,     c:!item.error?"#fb923c":T.t5,                                  bc:!item.error?"#fb923c35":T.b1},
-                        {l:t('trk_delta'),  mk:"trk_delta",  v:item.error?null:(item.actualFinal-item.mcFinal), c:!item.error?((item.actualFinal-item.mcFinal)>=0?"#4ade80":"#f87171"):T.t5, bc:!item.error?((item.actualFinal-item.mcFinal)>=0?"#4ade8035":"#f8717135"):T.b1},
+                        {l:t('trk_delta'),  mk:"trk_delta",  v:item.error?null:(item.actualFinal-item.mcFinal), c:!item.error?((item.actualFinal-item.mcFinal)<0?"#4ade80":"#f87171"):T.t5, bc:!item.error?((item.actualFinal-item.mcFinal)<0?"#4ade8035":"#f8717135"):T.b1},
                       ].map(({l,v,c,bc,mk})=>(
                         <div key={l} style={{background:T.bg,border:`1px solid ${bc}`,borderRadius:9,padding:"13px 14px"}}>
                           <div style={{fontSize:7,color:T.t5,letterSpacing:2,textTransform:"uppercase",marginBottom:7,display:"flex",alignItems:"center",gap:5}}>{l}<InfoBubble info={mi(mk)} T={T}/></div>
