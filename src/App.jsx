@@ -423,6 +423,29 @@ const MetricRow = ({label,val,color,highlight,info,T})=>{
   );
 };
 
+// ── Inline info bubble (? icon + popover) ─────────────────────────────────────
+const InfoBubble = ({info,T})=>{
+  const [open,setOpen] = useState(false);
+  if(!info) return null;
+  return (
+    <div style={{position:"relative",display:"inline-flex",verticalAlign:"middle",flexShrink:0}}>
+      <button
+        onMouseEnter={()=>setOpen(true)}
+        onMouseLeave={()=>setOpen(false)}
+        onClick={e=>{e.stopPropagation();setOpen(o=>!o);}}
+        style={{width:13,height:13,borderRadius:"50%",border:`1px solid ${T.b2}`,background:T.bg2,color:T.t4,fontSize:7,cursor:"pointer",display:"inline-flex",alignItems:"center",justifyContent:"center",fontFamily:"serif",fontWeight:700,flexShrink:0,lineHeight:1,padding:0}}
+      >?</button>
+      {open&&(
+        <div style={{position:"absolute",left:0,top:"calc(100% + 4px)",zIndex:9999,background:T.bg1,border:`1px solid ${T.b2}`,borderRadius:8,padding:"10px 13px",width:240,boxShadow:"0 8px 32px #000c",pointerEvents:"none"}}>
+          <div style={{fontSize:10,color:T.t1,lineHeight:1.6,marginBottom:5}}>{info.what}</div>
+          <div style={{fontSize:9,color:"#fb923c",lineHeight:1.5,marginBottom:4,background:"#fb923c10",padding:"3px 6px",borderRadius:3}}>📊 {info.how}</div>
+          <div style={{fontSize:9,color:"#4ade80",lineHeight:1.5,background:"#4ade8010",padding:"3px 6px",borderRadius:3}}>✓ {info.good}</div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 // ── Chart Tooltips ─────────────────────────────────────────────────────────────
 const ChartTooltip = ({active,payload,label,invest,T,mois})=>{
   if(!active||!payload?.length) return null;
@@ -1416,13 +1439,13 @@ export default function App(){
               {/* KPIs top row */}
               <div style={{display:"grid",gridTemplateColumns:isMobile?"repeat(2,1fr)":"repeat(4,1fr)",gap:8,marginBottom:14}}>
                 {[
-                  {l:t('kpi_perf'),v:`${parseFloat(metrics?.totalReturn||0)>=0?"+":""}${metrics?.totalReturn||"—"}%`,c:parseFloat(metrics?.totalReturn||0)>=0?"#4ade80":"#f87171",s:invest>0?`→ ${(invest*(1+parseFloat(metrics?.totalReturn||0)/100)).toFixed(0)} €`:period},
-                  {l:t('kpi_sharpe'),v:metrics?.sharpe||"—",c:parseFloat(metrics?.sharpe||0)>1?"#4ade80":parseFloat(metrics?.sharpe||0)>0?"#fb923c":"#f87171",s:t('kpi_sharpe_sub')},
-                  {l:t('kpi_maxdd'),v:`${metrics?.maxDD||"—"}%`,c:"#f87171",s:t('kpi_maxdd_sub')},
-                  {l:t('kpi_alpha'),v:`${parseFloat(metrics?.alpha||0)>=0?"+":""}${metrics?.alpha||"—"}%`,c:parseFloat(metrics?.alpha||0)>=0?"#4ade80":"#f87171",s:t('kpi_alpha_sub')(benchmarkLabel)},
-                ].map(({l,v,c,s})=>(
+                  {l:t('kpi_perf'),  mk:"perf",   v:`${parseFloat(metrics?.totalReturn||0)>=0?"+":""}${metrics?.totalReturn||"—"}%`,c:parseFloat(metrics?.totalReturn||0)>=0?"#4ade80":"#f87171",s:invest>0?`→ ${(invest*(1+parseFloat(metrics?.totalReturn||0)/100)).toFixed(0)} €`:period},
+                  {l:t('kpi_sharpe'),mk:"sharpe",  v:metrics?.sharpe||"—",c:parseFloat(metrics?.sharpe||0)>1?"#4ade80":parseFloat(metrics?.sharpe||0)>0?"#fb923c":"#f87171",s:t('kpi_sharpe_sub')},
+                  {l:t('kpi_maxdd'), mk:"maxdd",   v:`${metrics?.maxDD||"—"}%`,c:"#f87171",s:t('kpi_maxdd_sub')},
+                  {l:t('kpi_alpha'), mk:"alpha",   v:`${parseFloat(metrics?.alpha||0)>=0?"+":""}${metrics?.alpha||"—"}%`,c:parseFloat(metrics?.alpha||0)>=0?"#4ade80":"#f87171",s:t('kpi_alpha_sub')(benchmarkLabel)},
+                ].map(({l,v,c,s,mk})=>(
                   <div key={l} className="card">
-                    <div style={{fontSize:8,color:T.t4,letterSpacing:2,textTransform:"uppercase",marginBottom:3}}>{l}</div>
+                    <div style={{fontSize:8,color:T.t4,letterSpacing:2,textTransform:"uppercase",marginBottom:3,display:"flex",alignItems:"center",gap:5}}>{l}<InfoBubble info={mi(mk)} T={T}/></div>
                     <div style={{fontFamily:"'Unbounded'",fontSize:isMobile?17:20,color:c,fontWeight:700}}>{v}</div>
                     <div style={{fontSize:8,color:T.t5,marginTop:2}}>{s}</div>
                   </div>
@@ -1575,12 +1598,12 @@ export default function App(){
             {mode==="monte_carlo"&&(!mcData.length?<Empty T={T} label={t('empty_launch')}/>:<>
               <div style={{display:"grid",gridTemplateColumns:isMobile?"repeat(3,1fr)":"repeat(3,1fr)",gap:8,marginBottom:14}}>
                 {[
-                  {l:t('mc_opt'),v:lastMC?.p90,c:"#4ade80"},
-                  {l:t('mc_med'),v:lastMC?.median,c:"#22d3ee"},
-                  {l:t('mc_pess'),v:lastMC?.p10,c:"#f87171"},
-                ].map(({l,v,c})=>(
+                  {l:t('mc_opt'), mk:"mc_opt",  v:lastMC?.p90,   c:"#4ade80"},
+                  {l:t('mc_med'), mk:"mc_med",  v:lastMC?.median,c:"#22d3ee"},
+                  {l:t('mc_pess'),mk:"mc_pess", v:lastMC?.p10,   c:"#f87171"},
+                ].map(({l,v,c,mk})=>(
                   <div key={l} className="card">
-                    <div style={{fontSize:8,color:T.t4,letterSpacing:1,textTransform:"uppercase",marginBottom:3}}>{l}</div>
+                    <div style={{fontSize:8,color:T.t4,letterSpacing:1,textTransform:"uppercase",marginBottom:3,display:"flex",alignItems:"center",gap:5}}>{l}<InfoBubble info={mi(mk)} T={T}/></div>
                     <div style={{fontFamily:"'Unbounded'",fontSize:isMobile?16:19,color:c,fontWeight:700}}>
                       {v!=null?`${v>=0?"+":""}${v.toFixed(1)}%`:"—"}
                     </div>
@@ -1876,12 +1899,12 @@ export default function App(){
                     {/* KPIs */}
                     <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:20}}>
                       {[
-                        {l:t('trk_actual'), v:item.error?null:item.actualFinal, c:!item.error?(item.actualFinal>=0?"#4ade80":"#f87171"):T.t5, bc:!item.error?(item.actualFinal>=0?"#4ade8035":"#f8717135"):T.b1},
-                        {l:t('trk_mc'),     v:item.error?null:item.mcFinal,     c:!item.error?"#fb923c":T.t5,                                  bc:!item.error?"#fb923c35":T.b1},
-                        {l:t('trk_delta'),  v:item.error?null:(item.actualFinal-item.mcFinal), c:!item.error?((item.actualFinal-item.mcFinal)>=0?"#4ade80":"#f87171"):T.t5, bc:!item.error?((item.actualFinal-item.mcFinal)>=0?"#4ade8035":"#f8717135"):T.b1},
-                      ].map(({l,v,c,bc})=>(
+                        {l:t('trk_actual'), mk:"trk_actual", v:item.error?null:item.actualFinal, c:!item.error?(item.actualFinal>=0?"#4ade80":"#f87171"):T.t5, bc:!item.error?(item.actualFinal>=0?"#4ade8035":"#f8717135"):T.b1},
+                        {l:t('trk_mc'),     mk:"trk_mc_kpi", v:item.error?null:item.mcFinal,     c:!item.error?"#fb923c":T.t5,                                  bc:!item.error?"#fb923c35":T.b1},
+                        {l:t('trk_delta'),  mk:"trk_delta",  v:item.error?null:(item.actualFinal-item.mcFinal), c:!item.error?((item.actualFinal-item.mcFinal)>=0?"#4ade80":"#f87171"):T.t5, bc:!item.error?((item.actualFinal-item.mcFinal)>=0?"#4ade8035":"#f8717135"):T.b1},
+                      ].map(({l,v,c,bc,mk})=>(
                         <div key={l} style={{background:T.bg,border:`1px solid ${bc}`,borderRadius:9,padding:"13px 14px"}}>
-                          <div style={{fontSize:7,color:T.t5,letterSpacing:2,textTransform:"uppercase",marginBottom:7}}>{l}</div>
+                          <div style={{fontSize:7,color:T.t5,letterSpacing:2,textTransform:"uppercase",marginBottom:7,display:"flex",alignItems:"center",gap:5}}>{l}<InfoBubble info={mi(mk)} T={T}/></div>
                           <div style={{fontFamily:"'Unbounded'",fontSize:isMobile?17:22,color:c,fontWeight:700,lineHeight:1}}>
                             {v==null?"—":`${v>=0?"+":""}${v.toFixed(2)}%`}
                           </div>
@@ -1977,11 +2000,11 @@ export default function App(){
                         </thead>
                         <tbody>
                           {[
-                            {l:t('trk_ann'),   ka:"annReturn",inv:false},
-                            {l:t('trk_sharpe'),ka:"sharpe",   inv:false},
-                            {l:t('trk_vol'),   ka:"annVol",   inv:true},
-                            {l:t('trk_maxdd'), ka:"maxDD",    inv:true},
-                          ].map(({l,ka,inv},ri)=>{
+                            {l:t('trk_ann'),   mk:"ann",    ka:"annReturn",inv:false},
+                            {l:t('trk_sharpe'),mk:"sharpe", ka:"sharpe",   inv:false},
+                            {l:t('trk_vol'),   mk:"vol",    ka:"annVol",   inv:true},
+                            {l:t('trk_maxdd'), mk:"maxdd",  ka:"maxDD",    inv:true},
+                          ].map(({l,ka,inv,mk},ri)=>{
                             const va=parseFloat(item.actualM[ka]);
                             const vm=parseFloat(item.mcM[ka]);
                             const d=parseFloat((va-vm).toFixed(2));
@@ -1991,7 +2014,7 @@ export default function App(){
                               <tr key={l} style={{borderBottom:`1px solid ${T.b1}`,background:ri%2===0?T.bg:"transparent",transition:"background .1s",cursor:"default"}}
                                 onMouseEnter={e=>e.currentTarget.style.background=T.bg2}
                                 onMouseLeave={e=>e.currentTarget.style.background=ri%2===0?T.bg:"transparent"}>
-                                <td style={{padding:"8px 8px",color:T.t4,fontSize:9}}>{l}</td>
+                                <td style={{padding:"8px 8px",color:T.t4,fontSize:9}}><div style={{display:"flex",alignItems:"center",gap:4}}>{l}<InfoBubble info={mi(mk)} T={T}/></div></td>
                                 <td style={{padding:"8px 8px",color:item.color,fontWeight:700,textAlign:"right"}}>{fmt(va)}</td>
                                 <td style={{padding:"8px 8px",color:"#fb923c",textAlign:"right"}}>{fmt(vm)}</td>
                                 <td style={{padding:"8px 8px",color:better?"#4ade80":"#f87171",fontWeight:700,textAlign:"right"}}>{d>=0?"+":""}{ka==="annReturn"||ka==="annVol"||ka==="maxDD"?`${d.toFixed(2)}%`:d.toFixed(3)}</td>
