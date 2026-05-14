@@ -442,6 +442,123 @@ const ChartTooltip = ({active,payload,label,invest,T})=>{
   </div>;
 };
 
+// ── Tutorial Modal ────────────────────────────────────────────────────────────
+function TutorialModal({ lang, setLang, T, onClose }) {
+  const L = I18N[lang];
+  const steps = L.tuto_steps;
+  const total = steps.length;
+  const [step, setStep] = useState(0);
+  const [noShow, setNoShow] = useState(false);
+
+  const close = useCallback(() => {
+    if (noShow) { try { localStorage.setItem("indexlab_tuto_seen","1"); } catch {} }
+    onClose();
+  }, [noShow, onClose]);
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === "Escape") close();
+      if (e.key === "ArrowRight" && step < total - 1) setStep(s => s + 1);
+      if (e.key === "ArrowLeft" && step > 0) setStep(s => s - 1);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [step, close, total]);
+
+  const cur = steps[step];
+  const isLast = step === total - 1;
+
+  const pickLang = (code) => {
+    setLang(code);
+    try { localStorage.setItem("indexlab_lang", code); } catch {}
+  };
+
+  return (
+    <div className="modal-bg" onClick={close}>
+      <div onClick={e => e.stopPropagation()} style={{
+        background:T.bg2, border:`1px solid ${T.b2}`, borderRadius:14, padding:"28px 28px 22px",
+        width:"100%", maxWidth:420, position:"relative", fontFamily:"'Space Mono',monospace",
+        boxShadow:"0 24px 60px #0008",
+      }}>
+        {/* Top bar: lang flags + close */}
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:18}}>
+          <div style={{display:"flex",gap:4}}>
+            {[{code:"en",flag:"🇬🇧"},{code:"es",flag:"🇪🇸"},{code:"fr",flag:"🇫🇷"}].map(({code,flag})=>(
+              <button key={code} onClick={()=>pickLang(code)} style={{
+                background:lang===code?"#4ade8020":"transparent",
+                border:`1px solid ${lang===code?"#4ade80":T.b1}`,
+                borderRadius:5, padding:"3px 7px", cursor:"pointer", fontSize:14,
+                color:T.t1, opacity:lang===code?1:0.45, lineHeight:1, transition:"all .12s",
+              }}>{flag}</button>
+            ))}
+          </div>
+          <div style={{display:"flex",alignItems:"center",gap:10}}>
+            <span style={{fontSize:8,color:T.t4,letterSpacing:3,textTransform:"uppercase"}}>{L.tuto_step(step+1, total)}</span>
+            <button onClick={close} style={{background:"none",border:"none",color:T.t4,fontSize:18,cursor:"pointer",lineHeight:1,padding:"2px 6px"}}
+              onMouseEnter={e=>{e.currentTarget.style.color="#f87171";}} onMouseLeave={e=>{e.currentTarget.style.color=T.t4;}}>×</button>
+          </div>
+        </div>
+
+        {/* Icon + Title */}
+        <div style={{fontSize:36,marginBottom:10,lineHeight:1}}>{cur.icon}</div>
+        <div style={{fontSize:15,fontWeight:700,color:T.t1,marginBottom:14,letterSpacing:-0.3}}>{cur.title}</div>
+
+        {/* Body */}
+        <div style={{fontSize:11,color:T.t2,lineHeight:1.8,marginBottom:22,whiteSpace:"pre-line",minHeight:72}}>
+          {cur.body}
+        </div>
+
+        {/* Progress dots */}
+        <div style={{display:"flex",gap:6,justifyContent:"center",marginBottom:20}}>
+          {steps.map((_,i)=>(
+            <div key={i} onClick={()=>setStep(i)} style={{
+              width:i===step?20:7, height:7, borderRadius:4, cursor:"pointer",
+              background:i===step?"#4ade80":T.b2, transition:"all .2s",
+            }}/>
+          ))}
+        </div>
+
+        {/* Don't show again */}
+        <label style={{display:"flex",alignItems:"center",gap:7,fontSize:9,color:T.t4,cursor:"pointer",marginBottom:16,userSelect:"none"}}>
+          <input type="checkbox" checked={noShow} onChange={e=>setNoShow(e.target.checked)}
+            style={{accentColor:"#4ade80",cursor:"pointer"}}/>
+          {L.tuto_no_show}
+        </label>
+
+        {/* Navigation */}
+        <div style={{display:"flex",flexDirection:"column",gap:8}}>
+          {!isLast&&<div style={{display:"flex",gap:8}}>
+            <button onClick={()=>setStep(s=>s-1)} disabled={step===0}
+              style={{flex:1,padding:"8px 0",borderRadius:7,border:`1px solid ${T.b2}`,background:"transparent",color:step===0?T.t6:T.t3,cursor:step===0?"not-allowed":"pointer",fontFamily:"'Space Mono',monospace",fontSize:10,transition:"all .12s"}}
+              onMouseEnter={e=>{if(step>0){e.currentTarget.style.borderColor="#4ade80";e.currentTarget.style.color="#4ade80";}}}
+              onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=step===0?T.t6:T.t3;}}>
+              {L.tuto_prev}
+            </button>
+            <button onClick={()=>setStep(s=>s+1)}
+              style={{flex:2,padding:"8px 0",borderRadius:7,border:"none",background:"#4ade8020",color:"#4ade80",cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:10,fontWeight:700,transition:"all .12s"}}
+              onMouseEnter={e=>{e.currentTarget.style.background="#4ade8030";}} onMouseLeave={e=>{e.currentTarget.style.background="#4ade8020";}}>
+              {L.tuto_next}
+            </button>
+          </div>}
+          {isLast&&<div style={{display:"flex",gap:8}}>
+            <button onClick={()=>setStep(s=>s-1)}
+              style={{flex:1,padding:"8px 0",borderRadius:7,border:`1px solid ${T.b2}`,background:"transparent",color:T.t3,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:10,transition:"all .12s"}}
+              onMouseEnter={e=>{e.currentTarget.style.borderColor="#4ade80";e.currentTarget.style.color="#4ade80";}}
+              onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t3;}}>
+              {L.tuto_prev}
+            </button>
+          </div>}
+          <button onClick={close}
+            style={{width:"100%",padding:"10px 0",borderRadius:7,border:"none",background:"linear-gradient(135deg,#4ade80,#22d3ee)",color:"#071209",cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:10,fontWeight:700,transition:"all .12s"}}
+            onMouseEnter={e=>{e.currentTarget.style.opacity="0.85";}} onMouseLeave={e=>{e.currentTarget.style.opacity="1";}}>
+            {L.tuto_close}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Main App ──────────────────────────────────────────────────────────────────
 export default function App(){
   const [tab,setTab]           = useState("builder");
@@ -470,6 +587,9 @@ export default function App(){
   const [lang,setLang] = useState(()=>{ try{return localStorage.getItem("indexlab_lang")||"en";}catch{return"en";} });
   const [darkMode,setDarkMode] = useState(()=>{
     try { return localStorage.getItem("indexlab_dark")!=="false"; } catch { return true; }
+  });
+  const [tutorialOpen,setTutorialOpen] = useState(()=>{
+    try { return !localStorage.getItem("indexlab_tuto_seen"); } catch { return true; }
   });
 
   useEffect(()=>{ try{localStorage.setItem("indexlab_dark",darkMode);}catch{} },[darkMode]);
@@ -1001,6 +1121,9 @@ export default function App(){
       {/* NOTIFICATION */}
       {notification&&<div className="notif" style={{background:notification.type==="error"?"#f8717122":"#4ade8022",border:`1px solid ${notification.type==="error"?"#f87171":"#4ade80"}`,color:notification.type==="error"?"#f87171":"#4ade80"}}>{notification.msg}</div>}
 
+      {/* TUTORIAL MODAL */}
+      {tutorialOpen&&<TutorialModal lang={lang} setLang={setLang} T={T} onClose={()=>setTutorialOpen(false)}/>}
+
       {/* SAVE MODAL */}
       {saveModalOpen&&<div className="modal-bg" onClick={()=>setSaveModalOpen(false)}>
         <div className="modal" onClick={e=>e.stopPropagation()}>
@@ -1046,6 +1169,12 @@ export default function App(){
           onMouseEnter={e=>{e.currentTarget.style.borderColor="#4ade80";e.currentTarget.style.color="#4ade80";}}
           onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t3;}}
         >{darkMode?t('light_mode'):t('dark_mode')}</button>
+        <button
+          onClick={()=>setTutorialOpen(true)}
+          title="Tutorial"
+          style={{background:"transparent",border:`1px solid ${T.b2}`,color:T.t4,borderRadius:"50%",width:28,height:28,cursor:"pointer",fontFamily:"serif",fontSize:13,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .12s"}}
+          onMouseEnter={e=>{e.currentTarget.style.borderColor="#4ade80";e.currentTarget.style.color="#4ade80";}}
+          onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t4;}}>?</button>
         {isMobile&&<button onClick={()=>setPanelOpen(true)} style={{background:T.b2,border:"none",color:"#4ade80",borderRadius:6,padding:"5px 10px",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:10}}>⚙ Config</button>}
       </div>
 
