@@ -157,6 +157,17 @@ const THEMES = [
 ];
 const BENCHMARK = { mu:0.13, sigma:0.14, name:"S&P 500" };
 
+const BENCHMARKS = [
+  { ticker:"^GSPC",   label:"S&P 500"  },
+  { ticker:"^FCHI",   label:"CAC 40"   },
+  { ticker:"^GDAXI",  label:"DAX"      },
+  { ticker:"^FTSE",   label:"FTSE 100" },
+  { ticker:"^N225",   label:"Nikkei"   },
+  { ticker:"QQQ",     label:"Nasdaq"   },
+  { ticker:"GLD",     label:"Gold"     },
+  { ticker:"BTC-USD", label:"Bitcoin"  },
+];
+
 const TYPE_COLOR = { action:"#4ade80", crypto:"#fb923c", etf:"#38bdf8", indice:"#c084fc" };
 const PORTFOLIO_COLORS = ["#4ade80","#fb923c","#38bdf8","#f472b6","#facc15","#a78bfa","#34d399","#f87171"];
 const PERIOD_DAYS  = { "5J":5, "1M":21, "3M":63, "6M":126, "1A":252, "3A":756, "5A":1260 };
@@ -186,9 +197,9 @@ function generatePrices(ticker, days, seedOverride){
   return prices;
 }
 
-function generateBenchmark(days){
-  if(_priceData?.raw?.["^GSPC"]){
-    const arr = _priceData.raw["^GSPC"];
+function generateBenchmark(days, ticker="^GSPC"){
+  if(_priceData?.raw?.[ticker]){
+    const arr = _priceData.raw[ticker];
     const n = days + 1;
     if(arr.length >= n && !arr.slice(arr.length-n).some(v=>v==null)){
       const slice = arr.slice(arr.length - n);
@@ -196,8 +207,9 @@ function generateBenchmark(days){
       return slice.map(p => (p / base) * 100);
     }
   }
-  const rng=seededRng(99991); const dt=1/252; let price=100; const prices=[price];
-  for(let i=0;i<days;i++){ price*=Math.exp((BENCHMARK.mu-0.5*BENCHMARK.sigma**2)*dt+BENCHMARK.sigma*Math.sqrt(dt)*randNormal(rng)); prices.push(price); }
+  const p = ASSET_PARAMS[ticker] || BENCHMARK;
+  const rng=seededRng(tickerSeed(ticker)); const dt=1/252; let price=100; const prices=[price];
+  for(let i=0;i<days;i++){ price*=Math.exp((p.mu-0.5*p.sigma**2)*dt+p.sigma*Math.sqrt(dt)*randNormal(rng)); prices.push(price); }
   return prices;
 }
 
@@ -250,11 +262,12 @@ function portfolioParams(assets){
 // ── Institutional metrics ─────────────────────────────────────────────────────
 function computeMetrics(returns, benchReturns){
   const n = returns.length;
-  const daily = returns.slice(1).map((v,i)=>(v-returns[i])/100);
-  const bDaily = benchReturns ? benchReturns.slice(1).map((v,i)=>(v-benchReturns[i])/100) : null;
+  // Fix: divide by previous value, not constant 100 (critical for crypto/high-return assets)
+  const daily = returns.slice(1).map((v,i)=>(v-returns[i])/returns[i]);
+  const bDaily = benchReturns ? benchReturns.slice(1).map((v,i)=>(v-benchReturns[i])/benchReturns[i]) : null;
 
   const totalReturn = returns[n-1]-returns[0];
-  const annFactor = 252/Math.max(n-1,1); // n-1 = number of trading periods (not data points)
+  const annFactor = 252/Math.max(n-1,1);
   const annReturn = (Math.pow(1+totalReturn/100, annFactor)-1)*100;
 
   const mean = daily.reduce((a,b)=>a+b,0)/daily.length;
@@ -262,18 +275,19 @@ function computeMetrics(returns, benchReturns){
   const annVol = Math.sqrt(variance*252)*100;
 
   const rf = 0.02;
+  const rfDaily = rf/252;
   const sharpe = annVol>0 ? (annReturn/100-rf)/(annVol/100) : 0;
 
-  const downside = daily.filter(r=>r<0);
-  const downsideVar = downside.length>0 ? downside.reduce((a,b)=>a+b**2,0)/downside.length : 0;
-  const downsideDev = Math.sqrt(downsideVar*252)*100;
+  // Sortino (Sortino & Price 1994): MAR=rf/252, all days in denominator
+  const downsideSq = daily.reduce((a,r)=>a+Math.pow(Math.min(r-rfDaily,0),2),0)/daily.length;
+  const downsideDev = Math.sqrt(downsideSq*252)*100;
   const sortino = downsideDev>0 ? (annReturn/100-rf)/(downsideDev/100) : 0;
 
-  let peak=returns[0], maxDD=0, ddStart=0, ddEnd=0, peakIdx=0;
+  let peak=returns[0], maxDD=0;
   for(let i=0;i<n;i++){
-    if(returns[i]>peak){ peak=returns[i]; peakIdx=i; }
-    const dd=(returns[i]-peak)/Math.abs(peak||1)*100;
-    if(dd<maxDD){ maxDD=dd; ddStart=peakIdx; ddEnd=i; }
+    if(returns[i]>peak) peak=returns[i];
+    const dd=(returns[i]-peak)/peak*100;
+    if(dd<maxDD) maxDD=dd;
   }
   const calmar = maxDD<0 ? -(annReturn/100)/(maxDD/100) : 0;
 
@@ -281,13 +295,21 @@ function computeMetrics(returns, benchReturns){
   const var95 = sorted[Math.floor(0.05*sorted.length)]||0;
   const cvar95 = sorted.slice(0,Math.floor(0.05*sorted.length)).reduce((a,b)=>a+b,0)/(Math.floor(0.05*sorted.length)||1);
 
+  // Omega ratio: Σmax(r-L,0) / Σmax(L-r,0), L=rf/252
+  const oGains = daily.reduce((a,r)=>a+Math.max(r-rfDaily,0),0);
+  const oLoss  = daily.reduce((a,r)=>a+Math.max(rfDaily-r,0),0);
+  const omega  = oLoss>0 ? oGains/oLoss : (oGains>0 ? 999 : 1);
+
   let beta=1, alpha=0, correlation=0;
   if(bDaily && bDaily.length===daily.length){
     const bMean=bDaily.reduce((a,b)=>a+b,0)/bDaily.length;
     const cov=daily.reduce((a,r,i)=>a+(r-mean)*(bDaily[i]-bMean),0)/daily.length;
     const bVar=bDaily.reduce((a,r)=>a+(r-bMean)**2,0)/bDaily.length;
     beta = bVar>0 ? cov/bVar : 1;
-    alpha = (annReturn/100 - rf - beta*(BENCHMARK.mu-rf))*100;
+    // Fix: use actual realized benchmark return, not hardcoded BENCHMARK.mu
+    const benchTotalReturn = benchReturns[benchReturns.length-1]-benchReturns[0];
+    const benchAnnReturn = (Math.pow(1+benchTotalReturn/100, annFactor)-1);
+    alpha = (annReturn/100 - rf - beta*(benchAnnReturn-rf))*100;
     const stdP=Math.sqrt(variance), stdB=Math.sqrt(bVar);
     correlation = (stdP>0&&stdB>0) ? cov/(stdP*stdB) : 0;
   }
@@ -302,6 +324,7 @@ function computeMetrics(returns, benchReturns){
     sharpe: sharpe.toFixed(3),
     sortino: sortino.toFixed(3),
     calmar: calmar.toFixed(3),
+    omega: omega>=999?"∞":omega.toFixed(3),
     maxDD: maxDD.toFixed(2),
     var95: (var95*100).toFixed(2),
     cvar95: (cvar95*100).toFixed(2),
@@ -443,6 +466,7 @@ export default function App(){
   const [customFocused,setCustomFocused] = useState(false);
   const [priceData,setPriceData] = useState(null);
   const [editingPortfolioId,setEditingPortfolioId] = useState(null);
+  const [benchmark,setBenchmark] = useState("^GSPC");
   const [lang,setLang] = useState(()=>{ try{return localStorage.getItem("indexlab_lang")||"en";}catch{return"en";} });
   const [darkMode,setDarkMode] = useState(()=>{
     try { return localStorage.getItem("indexlab_dark")!=="false"; } catch { return true; }
@@ -489,6 +513,7 @@ export default function App(){
   const t = (key) => L[key] ?? I18N.fr[key] ?? key;
   const mi = (k) => L.mi?.[k] ?? I18N.fr.mi?.[k];
   const moisArr = lang==="en" ? _MOIS_EN : lang==="es" ? _MOIS_ES : _MOIS;
+  const benchmarkLabel = BENCHMARKS.find(b=>b.ticker===benchmark)?.label ?? benchmark;
 
   const notify = (msg, type="success")=>{
     setNotification({msg,type});
@@ -508,7 +533,7 @@ export default function App(){
   const {chartData,assetPerfs,riskContribs,metrics,benchData} = useMemo(()=>{
     if(!assets.length||!weightOk||mode!=="backtest") return {chartData:[],assetPerfs:[],riskContribs:[],metrics:null,benchData:[]};
     const returns = portfolioReturns(assets,days);
-    const benchPrices = generateBenchmark(days);
+    const benchPrices = generateBenchmark(days, benchmark);
     const bench = benchPrices.map((p,i,arr)=>(p/arr[0]-1)*100);
     const realDates = getRealDates(days, moisArr);
     const pts = returns.map((v,i)=>({date:realDates?realDates[i]:dateLabel(i,days,false,moisArr),value:parseFloat(v.toFixed(3)),bench:parseFloat(bench[i].toFixed(3))}));
@@ -557,7 +582,7 @@ export default function App(){
 
     const m = computeMetrics(returns.map(v=>100+v), bench.map(v=>100+v));
     return {chartData:pts, assetPerfs:perfs, riskContribs, metrics:m, benchData:bench};
-  },[assets,period,days,mode,weightOk,priceData,lang]);
+  },[assets,period,days,mode,weightOk,priceData,lang,benchmark]);
 
   // ── Monte Carlo ──
   const mcData = useMemo(()=>{
@@ -583,7 +608,7 @@ export default function App(){
     const activePorts = selectedCompare.map(id=>savedPortfolios.find(p=>p.id===id)).filter(Boolean);
     if(!activePorts.length) return {chart:[],metricsTable:[]};
     const allReturns = activePorts.map(p=>portfolioReturns(p.assets,days));
-    const benchPrices2 = generateBenchmark(days);
+    const benchPrices2 = generateBenchmark(days, benchmark);
     const bench = benchPrices2.map((p,i,arr)=>(p/arr[0]-1)*100);
     const realDates2 = getRealDates(days, moisArr);
     const chart = Array.from({length:days+1},(_,i)=>{
@@ -597,7 +622,7 @@ export default function App(){
     }));
     const benchMetrics = computeMetrics(bench.map(v=>100+v), bench.map(v=>100+v));
     return {chart,metricsTable,benchMetrics,names:activePorts.map(p=>({id:p.id,name:p.name,color:p.color}))};
-  },[selectedCompare,savedPortfolios,period,days,priceData,lang]);
+  },[selectedCompare,savedPortfolios,period,days,priceData,lang,benchmark]);
 
   // ── Save / edit portfolio ──
   function savePortfolio(){
@@ -706,6 +731,7 @@ export default function App(){
         {k:"sharpe", l:t('mr_sharpe'), v:m.sharpe, c:parseFloat(m.sharpe)>1?"#4ade80":parseFloat(m.sharpe)>0?"#fb923c":"#f87171"},
         {k:"sortino",l:t('mr_sortino'),v:m.sortino,c:parseFloat(m.sortino)>1?"#4ade80":parseFloat(m.sortino)>0?"#fb923c":"#f87171"},
         {k:"calmar", l:t('mr_calmar'), v:m.calmar, c:parseFloat(m.calmar)>1?"#4ade80":"#fb923c"},
+        {k:"omega",  l:t('mr_omega'),  v:m.omega,  c:parseFloat(m.omega)>1?"#4ade80":parseFloat(m.omega)>0?"#fb923c":"#f87171"},
       ]},
       { title:t('ms_bench'), rows:[
         {k:"beta",l:t('mr_beta'),v:m.beta,c:parseFloat(m.beta)>1?"#fb923c":"#38bdf8"},
@@ -1010,7 +1036,7 @@ export default function App(){
           {priceData ? t('data_real')(priceData.updated, Object.keys(priceData.raw||{}).length) : t('data_sim')}
         </span>}
         <div style={{display:"flex",gap:4,marginLeft:isMobile?"auto":0}}>
-          {[{code:"en",flag:"EN"},{code:"es",flag:"🇪🇸"},{code:"fr",flag:"🇫🇷"}].map(({code,flag})=>(
+          {[{code:"en",flag:"🇬🇧"},{code:"es",flag:"🇪🇸"},{code:"fr",flag:"🇫🇷"}].map(({code,flag})=>(
             <button key={code} onClick={()=>setLang(code)} style={{background:lang===code?T.b2:"transparent",border:`1px solid ${lang===code?T.b3:T.b1}`,borderRadius:5,padding:"3px 6px",cursor:"pointer",fontSize:14,color:T.t1,opacity:lang===code?1:0.45,lineHeight:1}}>{flag}</button>
           ))}
         </div>
@@ -1045,7 +1071,7 @@ export default function App(){
           {tab==="builder"&&<>
 
             {/* ── INLINE PERIOD / HORIZON SELECTOR ── */}
-            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14,flexWrap:"wrap"}}>
+            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:8,flexWrap:"wrap"}}>
               <span style={{fontSize:9,color:T.t4,letterSpacing:2,textTransform:"uppercase",whiteSpace:"nowrap"}}>
                 {mode==="backtest"?t('period_lbl'):t('horizon_lbl')}
               </span>
@@ -1060,6 +1086,16 @@ export default function App(){
                 }
               </div>
             </div>
+
+            {/* ── BENCHMARK SELECTOR ── */}
+            {mode==="backtest"&&<div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14,flexWrap:"wrap"}}>
+              <span style={{fontSize:9,color:T.t4,letterSpacing:2,textTransform:"uppercase",whiteSpace:"nowrap"}}>Benchmark :</span>
+              <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
+                {BENCHMARKS.map(b=>(
+                  <button key={b.ticker} className={`pill ${benchmark===b.ticker?"active":""}`} onClick={()=>setBenchmark(b.ticker)}>{b.label}</button>
+                ))}
+              </div>
+            </div>}
 
             {/* BACKTEST */}
             {mode==="backtest"&&(!chartData.length?<Empty T={T} label={t('empty_launch')}/>:<>
@@ -1094,12 +1130,12 @@ export default function App(){
                     <YAxis tick={{fill:T.t4,fontSize:9}} axisLine={false} tickLine={false} tickFormatter={v=>`${v>0?"+":""}${v.toFixed(0)}%`} width={42}/>
                     <Tooltip content={<ChartTooltip invest={invest} T={T}/>}/>
                     <ReferenceLine y={0} stroke={T.b2} strokeDasharray="4 3"/>
-                    <Line type="monotone" dataKey="bench" stroke={T.b2} strokeWidth={1.5} dot={false} name={t('bench_name')} strokeDasharray="4 2"/>
+                    <Line type="monotone" dataKey="bench" stroke={T.b2} strokeWidth={1.5} dot={false} name={benchmarkLabel} strokeDasharray="4 2"/>
                     <Line type="monotone" dataKey="value" stroke={isPos?"#4ade80":"#f87171"} strokeWidth={2.5} dot={false} name={t('my_index')} activeDot={{r:4}}/>
                   </LineChart>
                 </ResponsiveContainer>
                 <div style={{display:"flex",gap:14,marginTop:8}}>
-                  {[{c:isPos?"#4ade80":"#f87171",l:t('my_index')},{c:T.b2,l:t('bench_name'),dash:true}].map(({c,l,dash})=>(
+                  {[{c:isPos?"#4ade80":"#f87171",l:t('my_index')},{c:T.b2,l:benchmarkLabel,dash:true}].map(({c,l,dash})=>(
                     <div key={l} style={{display:"flex",alignItems:"center",gap:5}}>
                       <div style={{width:16,height:2,background:c,borderRadius:1,borderTop:dash?"1px dashed":"none"}}/>
                       <span style={{fontSize:9,color:T.t4}}>{l}</span>
@@ -1294,10 +1330,20 @@ export default function App(){
               </div>
 
               {/* Period selector for compare */}
-              <div style={{marginBottom:14}}>
+              <div style={{marginBottom:8}}>
                 <SL T={T}>{t('cmp_period')}</SL>
                 <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
                   {Object.keys(PERIOD_DAYS).map(p=><button key={p} className={`pill ${period===p?"active":""}`} onClick={()=>setPeriod(p)}>{p}</button>)}
+                </div>
+              </div>
+
+              {/* Benchmark selector for compare */}
+              <div style={{marginBottom:14}}>
+                <SL T={T}>Benchmark</SL>
+                <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
+                  {BENCHMARKS.map(b=>(
+                    <button key={b.ticker} className={`pill ${benchmark===b.ticker?"active":""}`} onClick={()=>setBenchmark(b.ticker)}>{b.label}</button>
+                  ))}
                 </div>
               </div>
 
@@ -1311,7 +1357,7 @@ export default function App(){
                       <YAxis tick={{fill:T.t4,fontSize:9}} axisLine={false} tickLine={false} tickFormatter={v=>`${v>0?"+":""}${v.toFixed(0)}%`} width={44}/>
                       <Tooltip content={<ChartTooltip invest={invest} T={T}/>}/>
                       <ReferenceLine y={0} stroke={T.b2} strokeDasharray="4 3"/>
-                      <Line type="monotone" dataKey="bench" stroke={T.b2} strokeWidth={1.5} dot={false} name={t('bench_name')} strokeDasharray="4 2"/>
+                      <Line type="monotone" dataKey="bench" stroke={T.b2} strokeWidth={1.5} dot={false} name={benchmarkLabel} strokeDasharray="4 2"/>
                       {compareData.names?.map(({id,name,color})=>(
                         <Line key={id} type="monotone" dataKey={id} stroke={color} strokeWidth={2} dot={false} name={name} activeDot={{r:3}}/>
                       ))}
@@ -1321,7 +1367,7 @@ export default function App(){
                   <div style={{display:"flex",flexWrap:"wrap",gap:12,marginTop:8}}>
                     <div style={{display:"flex",alignItems:"center",gap:5}}>
                       <div style={{width:16,height:1,background:T.b2,borderTop:`1px dashed ${T.b2}`}}/>
-                      <span style={{fontSize:9,color:T.t4}}>S&P 500</span>
+                      <span style={{fontSize:9,color:T.t4}}>{benchmarkLabel}</span>
                     </div>
                     {compareData.names?.map(({id,name,color})=>(
                       <div key={id} style={{display:"flex",alignItems:"center",gap:5}}>
@@ -1340,7 +1386,7 @@ export default function App(){
                       <thead>
                         <tr style={{borderBottom:`1px solid ${T.b2}`}}>
                           <td style={{padding:"6px 8px",color:T.t4,fontSize:8,textTransform:"uppercase",letterSpacing:1}}>{t('cmp_table_hdr')}</td>
-                          <td style={{padding:"6px 8px",color:T.t2,fontSize:9,textAlign:"right"}}>S&P 500</td>
+                          <td style={{padding:"6px 8px",color:T.t2,fontSize:9,textAlign:"right"}}>{benchmarkLabel}</td>
                           {compareData.metricsTable?.map(p=>(
                             <td key={p.id} style={{padding:"6px 8px",color:p.color,fontSize:9,textAlign:"right",whiteSpace:"nowrap"}}>
                               {p.name.length>12?p.name.slice(0,12)+"…":p.name}
@@ -1355,6 +1401,7 @@ export default function App(){
                           {k:"sharpe",l:t('ct_sharpe'),fmt:v=>v,best:"max",ik:"sharpe"},
                           {k:"sortino",l:t('ct_sortino'),fmt:v=>v,best:"max",ik:"sortino"},
                           {k:"calmar",l:t('ct_calmar'),fmt:v=>v,best:"max",ik:"calmar"},
+                          {k:"omega", l:t('ct_omega'), fmt:v=>v,best:"max",ik:"omega"},
                           {k:"maxDD",l:t('ct_maxdd'),fmt:v=>`${v}%`,best:"min",ik:"maxdd"},
                           {k:"annVol",l:t('ct_vol'),fmt:v=>`${v}%`,best:"min",ik:"vol"},
                           {k:"var95",l:t('ct_var'),fmt:v=>`${v}${perDay}`,best:"min",ik:"var95"},
