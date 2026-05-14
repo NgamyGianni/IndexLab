@@ -649,7 +649,7 @@ export default function App(){
   const [notification,setNotification] = useState(null);
   const [pickerMode,setPickerMode] = useState("sector");
   const [activeSector,setActiveSector] = useState("all");
-  const [activeTheme,setActiveTheme]   = useState(null);
+  const [activeTheme,setActiveTheme]   = useState("all");
   const [suggestionIdx,setSuggestionIdx] = useState(-1);
   const [customFocused,setCustomFocused] = useState(false);
   const [priceData,setPriceData] = useState(null);
@@ -660,6 +660,7 @@ export default function App(){
   const [selectedTicker,setSelectedTicker]   = useState(null);
   const [selectedOptim,setSelectedOptim]     = useState(null);
   const [builderTab,setBuilderTab]           = useState("chart"); // "chart"|"metrics"|"attribution"
+  const [pickerOpen,setPickerOpen]           = useState(true);
   const [btStartDate,setBtStartDate] = useState(()=>new Date().toISOString().split('T')[0]);
   const [lang,setLang] = useState(()=>{ try{return localStorage.getItem("indexlab_lang")||"en";}catch{return"en";} });
   const [darkMode,setDarkMode] = useState(()=>{
@@ -1129,90 +1130,57 @@ export default function App(){
       </div>
 
       <div>
+        <button onClick={()=>setPickerOpen(o=>!o)}
+          style={{display:"flex",alignItems:"center",justifyContent:"space-between",width:"100%",background:"transparent",border:"none",cursor:"pointer",padding:"4px 0",marginBottom:pickerOpen?8:0}}>
+          <span style={{fontFamily:"'Space Mono'",fontSize:9,letterSpacing:2,textTransform:"uppercase",color:T.t4}}>{t('cfg_add_assets')||"Ajouter des actifs"}</span>
+          <span style={{fontSize:9,color:T.t5,transition:"transform .15s",display:"inline-block",transform:pickerOpen?"rotate(90deg)":"rotate(0deg)"}}>▶</span>
+        </button>
+        {pickerOpen&&<>
         <div style={{display:"flex",gap:5,marginBottom:8}}>
           {[{id:"sector",lk:"cfg_by_sector"},{id:"theme",lk:"cfg_by_theme"}].map(m=>(
-            <button key={m.id} onClick={()=>{setPickerMode(m.id);setActiveSector("all");setActiveTheme(null);}}
+            <button key={m.id} onClick={()=>{setPickerMode(m.id);setActiveSector("all");setActiveTheme("all");}}
               style={{flex:1,padding:"5px 8px",border:`1px solid ${pickerMode===m.id?"#4ade80":T.b2}`,borderRadius:6,background:pickerMode===m.id?"#4ade8012":"transparent",color:pickerMode===m.id?"#4ade80":T.t4,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,transition:"all .12s"}}>
               {t(m.lk)}
             </button>
           ))}
         </div>
-        {pickerMode==="sector"&&<>
-          <div style={{display:"flex",gap:4,flexWrap:"wrap",marginBottom:8}}>
-            {SECTORS.map(s=>(
-              <button key={s.id} onClick={()=>setActiveSector(s.id)}
-                style={{flexShrink:0,padding:"4px 9px",border:`1px solid ${activeSector===s.id?"#4ade80":T.b2}`,borderRadius:20,background:activeSector===s.id?"#4ade8012":"transparent",color:activeSector===s.id?"#4ade80":T.t4,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,transition:"all .12s",whiteSpace:"nowrap"}}>
-                {s.icon} {L.sectors?.[s.id]||s.label}
+        <select
+          value={pickerMode==="sector"?activeSector:activeTheme}
+          onChange={e=>pickerMode==="sector"?setActiveSector(e.target.value):setActiveTheme(e.target.value)}
+          style={{width:"100%",background:T.bg,border:`1px solid ${T.b2}`,color:T.t1,borderRadius:6,padding:"6px 10px",fontFamily:"'Space Mono'",fontSize:10,outline:"none",marginBottom:8,cursor:"pointer"}}>
+          {pickerMode==="sector"
+            ? SECTORS.map(s=><option key={s.id} value={s.id}>{s.icon} {L.sectors?.[s.id]||s.label}</option>)
+            : [<option key="all" value="all">◈ {L.sectors?.all||"Tous"}</option>,...THEMES.map(th=><option key={th.id} value={th.id}>{th.icon} {L.themes?.[th.id]||th.label}</option>)]
+          }
+        </select>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:4,maxHeight:200,overflowY:"auto",paddingRight:2}}>
+          {PRESETS.filter(p=>pickerMode==="sector"
+            ?(activeSector==="all"||p.sector===activeSector)
+            :(activeTheme==="all"?p.themes?.length>0:p.themes?.includes(activeTheme))
+          ).map(p=>{
+            const used=!!assets.find(a=>a.ticker===p.ticker); const tc=TYPE_COLOR[p.type]||"#888";
+            const capStr=p.cap>=1000?`${(p.cap/1000).toFixed(1)}T$`:`${p.cap}B$`;
+            return(
+              <button key={p.ticker}
+                onClick={()=>{ used ? removeAsset(p.ticker) : addAsset(p.ticker); }}
+                onMouseEnter={e=>{ if(used){e.currentTarget.style.borderColor="#f87171";e.currentTarget.style.background="#f8717112";e.currentTarget.querySelector(".added-lbl").textContent="× retirer";}}}
+                onMouseLeave={e=>{ if(used){e.currentTarget.style.borderColor="#4ade8055";e.currentTarget.style.background="#4ade8012";e.currentTarget.querySelector(".added-lbl").textContent="✓ "+t('cfg_added').replace("✓ ","");}}}
+                style={{display:"flex",flexDirection:"column",alignItems:"flex-start",padding:"7px 9px",border:`1px solid ${used?"#4ade8055":tc+"33"}`,borderRadius:7,background:used?"#4ade8012":tc+"08",cursor:"pointer",transition:"border-color .12s, background .12s",opacity:1,textAlign:"left"}}>
+                <div style={{display:"flex",justifyContent:"space-between",width:"100%",marginBottom:2}}>
+                  <span style={{fontFamily:"'Space Mono'",fontSize:10,fontWeight:700,color:used?"#4ade80":T.t1}}>{p.ticker}</span>
+                  <span style={{fontSize:7,padding:"1px 4px",borderRadius:2,background:tc+"22",color:tc,fontWeight:700,textTransform:"uppercase"}}>{p.type}</span>
+                </div>
+                <span style={{fontSize:9,color:T.t4,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",width:"100%"}}>{p.name}</span>
+                <span style={{fontSize:8,color:T.b3,marginTop:2}}>{capStr}</span>
+                {used&&<span className="added-lbl" style={{fontSize:8,color:"#4ade8088",marginTop:1}}>{t('cfg_added')}</span>}
               </button>
-            ))}
-          </div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:4,maxHeight:200,overflowY:"auto",paddingRight:2}}>
-            {PRESETS.filter(p=>activeSector==="all"||p.sector===activeSector).map(p=>{
-              const used=!!assets.find(a=>a.ticker===p.ticker); const tc=TYPE_COLOR[p.type]||"#888";
-              const capStr=p.cap>=1000?`${(p.cap/1000).toFixed(1)}T$`:`${p.cap}B$`;
-              return(
-                <button key={p.ticker}
-                  onClick={()=>{ used ? removeAsset(p.ticker) : addAsset(p.ticker); }}
-                  onMouseEnter={e=>{ if(used){e.currentTarget.style.borderColor="#f87171";e.currentTarget.style.background="#f8717112";e.currentTarget.querySelector(".added-lbl").textContent="× retirer";}}}
-                  onMouseLeave={e=>{ if(used){e.currentTarget.style.borderColor="#4ade8055";e.currentTarget.style.background="#4ade8012";e.currentTarget.querySelector(".added-lbl").textContent="✓ "+t('cfg_added').replace("✓ ","");}}}
-                  style={{display:"flex",flexDirection:"column",alignItems:"flex-start",padding:"7px 9px",border:`1px solid ${used?"#4ade8055":tc+"33"}`,borderRadius:7,background:used?"#4ade8012":tc+"08",cursor:"pointer",transition:"border-color .12s, background .12s",opacity:1,textAlign:"left"}}>
-                  <div style={{display:"flex",justifyContent:"space-between",width:"100%",marginBottom:2}}>
-                    <span style={{fontFamily:"'Space Mono'",fontSize:10,fontWeight:700,color:used?"#4ade80":T.t1}}>{p.ticker}</span>
-                    <span style={{fontSize:7,padding:"1px 4px",borderRadius:2,background:tc+"22",color:tc,fontWeight:700,textTransform:"uppercase"}}>{p.type}</span>
-                  </div>
-                  <span style={{fontSize:9,color:T.t4,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",width:"100%"}}>{p.name}</span>
-                  <span style={{fontSize:8,color:T.b3,marginTop:2}}>{capStr}</span>
-                  {used&&<span className="added-lbl" style={{fontSize:8,color:"#4ade8088",marginTop:1}}>{t('cfg_added')}</span>}
-                </button>
-              );
-            })}
-          </div>
-        </>}
-        {pickerMode==="theme"&&<>
-          <div style={{display:"flex",flexWrap:"wrap",gap:4,marginBottom:8}}>
-            {THEMES.map(th=>(
-              <button key={th.id} onClick={()=>setActiveTheme(activeTheme===th.id?null:th.id)}
-                style={{padding:"4px 9px",border:`1px solid ${activeTheme===th.id?th.color:th.color+"44"}`,borderRadius:20,background:activeTheme===th.id?th.color+"18":"transparent",color:activeTheme===th.id?th.color:th.color+"99",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,transition:"all .12s",whiteSpace:"nowrap"}}>
-                {th.icon} {L.themes?.[th.id]||th.label}
-              </button>
-            ))}
-          </div>
-          {activeTheme&&(()=>{
-            const theme=THEMES.find(th=>th.id===activeTheme);
-            const themed=PRESETS.filter(p=>p.themes?.includes(activeTheme));
-            const thLabel=L.themes?.[activeTheme]||theme?.label||"";
-            return(<div>
-              <div style={{fontSize:9,color:theme.color,background:theme.color+"10",padding:"5px 9px",borderRadius:6,marginBottom:7,lineHeight:1.5}}>
-                {theme.icon} <strong>{thLabel}</strong> — {themed.length}
-              </div>
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:4,maxHeight:180,overflowY:"auto"}}>
-                {themed.map(p=>{
-                  const used=!!assets.find(a=>a.ticker===p.ticker); const tc=TYPE_COLOR[p.type]||"#888";
-                  const capStr=p.cap>=1000?`${(p.cap/1000).toFixed(1)}T$`:`${p.cap}B$`;
-                  return(
-                    <button key={p.ticker}
-                      onClick={()=>{ used ? removeAsset(p.ticker) : addAsset(p.ticker); }}
-                      onMouseEnter={e=>{ if(used){e.currentTarget.style.borderColor="#f87171";e.currentTarget.style.background="#f8717112";e.currentTarget.querySelector(".added-lbl").textContent="× retirer";}}}
-                      onMouseLeave={e=>{ if(used){e.currentTarget.style.borderColor="#4ade8055";e.currentTarget.style.background="#4ade8012";e.currentTarget.querySelector(".added-lbl").textContent="✓ "+t('cfg_added').replace("✓ ","");}}}
-                      style={{display:"flex",flexDirection:"column",alignItems:"flex-start",padding:"7px 9px",border:`1px solid ${used?"#4ade8055":tc+"33"}`,borderRadius:7,background:used?"#4ade8012":tc+"08",cursor:"pointer",transition:"border-color .12s, background .12s",opacity:1,textAlign:"left"}}>
-                      <div style={{display:"flex",justifyContent:"space-between",width:"100%",marginBottom:2}}>
-                        <span style={{fontFamily:"'Space Mono'",fontSize:10,fontWeight:700,color:used?"#4ade80":T.t1}}>{p.ticker}</span>
-                        <span style={{fontSize:7,padding:"1px 4px",borderRadius:2,background:tc+"22",color:tc,fontWeight:700,textTransform:"uppercase"}}>{p.type}</span>
-                      </div>
-                      <span style={{fontSize:9,color:T.t4,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",width:"100%"}}>{p.name}</span>
-                      <span style={{fontSize:8,color:T.b3,marginTop:2}}>{capStr}</span>
-                      {used&&<span className="added-lbl" style={{fontSize:8,color:"#4ade8088",marginTop:1}}>{t('cfg_added')}</span>}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>);
-          })()}
-          {!activeTheme&&<div style={{height:60,display:"flex",alignItems:"center",justifyContent:"center",color:T.b3,fontSize:10}}>{t('cfg_theme_hint')}</div>}
+            );
+          })}
+        </div>
         </>}
       </div>
 
-      {(()=>{
+      {pickerOpen&&(()=>{
         const suggestions = custom.length>0
           ? PRESETS.filter(p=>p.ticker.startsWith(custom)||p.ticker.includes(custom)||p.name.toUpperCase().includes(custom)).slice(0,8)
           : [];
