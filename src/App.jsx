@@ -424,7 +424,7 @@ const MetricRow = ({label,val,color,highlight,info,T})=>{
 };
 
 // ── Inline info bubble (? icon + popover) ─────────────────────────────────────
-const InfoBubble = ({info,T})=>{
+const InfoBubble = ({info,T,up})=>{
   const [open,setOpen] = useState(false);
   if(!info) return null;
   return (
@@ -436,7 +436,7 @@ const InfoBubble = ({info,T})=>{
         style={{width:13,height:13,borderRadius:"50%",border:`1px solid ${T.b2}`,background:T.bg2,color:T.t4,fontSize:7,cursor:"pointer",display:"inline-flex",alignItems:"center",justifyContent:"center",fontFamily:"serif",fontWeight:700,flexShrink:0,lineHeight:1,padding:0}}
       >?</button>
       {open&&(
-        <div style={{position:"absolute",left:0,top:"calc(100% + 4px)",zIndex:9999,background:T.bg1,border:`1px solid ${T.b2}`,borderRadius:8,padding:"10px 13px",width:240,boxShadow:"0 8px 32px #000c",pointerEvents:"none"}}>
+        <div style={{position:"absolute",left:0,zIndex:9999,background:T.bg1,border:`1px solid ${T.b2}`,borderRadius:8,padding:"10px 13px",width:240,boxShadow:"0 8px 32px #000c",pointerEvents:"none",...(up?{bottom:"calc(100% + 4px)"}:{top:"calc(100% + 4px)"})}}>
           <div style={{fontSize:10,color:T.t1,lineHeight:1.6,marginBottom:5}}>{info.what}</div>
           <div style={{fontSize:9,color:"#fb923c",lineHeight:1.5,marginBottom:4,background:"#fb923c10",padding:"3px 6px",borderRadius:3}}>📊 {info.how}</div>
           <div style={{fontSize:9,color:"#4ade80",lineHeight:1.5,background:"#4ade8010",padding:"3px 6px",borderRadius:3}}>✓ {info.good}</div>
@@ -2014,7 +2014,7 @@ export default function App(){
                               <tr key={l} style={{borderBottom:`1px solid ${T.b1}`,background:ri%2===0?T.bg:"transparent",transition:"background .1s",cursor:"default"}}
                                 onMouseEnter={e=>e.currentTarget.style.background=T.bg2}
                                 onMouseLeave={e=>e.currentTarget.style.background=ri%2===0?T.bg:"transparent"}>
-                                <td style={{padding:"8px 8px",color:T.t4,fontSize:9}}><div style={{display:"flex",alignItems:"center",gap:4}}>{l}<InfoBubble info={mi(mk)} T={T}/></div></td>
+                                <td style={{padding:"8px 8px",color:T.t4,fontSize:9}}><div style={{display:"flex",alignItems:"center",gap:4}}>{l}<InfoBubble info={mi(mk)} T={T} up/></div></td>
                                 <td style={{padding:"8px 8px",color:item.color,fontWeight:700,textAlign:"right"}}>{fmt(va)}</td>
                                 <td style={{padding:"8px 8px",color:"#fb923c",textAlign:"right"}}>{fmt(vm)}</td>
                                 <td style={{padding:"8px 8px",color:better?"#4ade80":"#f87171",fontWeight:700,textAlign:"right"}}>{d>=0?"+":""}{ka==="annReturn"||ka==="annVol"||ka==="maxDD"?`${d.toFixed(2)}%`:d.toFixed(3)}</td>
