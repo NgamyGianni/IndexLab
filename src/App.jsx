@@ -1313,11 +1313,13 @@ export default function App(){
                 <div style={{fontSize:8,color:T.t4,letterSpacing:3,textTransform:"uppercase",marginBottom:10}}>{t('cmp_saved')}</div>
                 <div style={{display:"flex",flexDirection:"column",gap:6}}>
                   {savedPortfolios.map(p=>(
-                    <div key={p.id} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 10px",borderRadius:7,border:`1px solid ${selectedCompare.includes(p.id)?p.color+"55":T.b1}`,background:selectedCompare.includes(p.id)?p.color+"08":"transparent",cursor:"pointer",transition:"all .12s"}}
+                    <div key={p.id} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 10px",borderRadius:7,border:`1px solid ${selectedCompare.includes(p.id)?"#4ade80":T.b1}`,background:selectedCompare.includes(p.id)?"#4ade8014":"transparent",cursor:"pointer",transition:"all .12s"}}
+                      onMouseEnter={e=>{if(!selectedCompare.includes(p.id)){e.currentTarget.style.borderColor="#4ade8055";e.currentTarget.style.background="#4ade8008";}}}
+                      onMouseLeave={e=>{if(!selectedCompare.includes(p.id)){e.currentTarget.style.borderColor=T.b1;e.currentTarget.style.background="transparent";}}}
                       onClick={()=>toggleCompare(p.id)}>
                       <div style={{width:10,height:10,borderRadius:"50%",background:p.color,flexShrink:0}}/>
                       <div style={{flex:1,minWidth:0}}>
-                        <div style={{fontSize:11,fontWeight:700,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",color:T.t1}}>{p.name}</div>
+                        <div style={{fontSize:11,fontWeight:700,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",color:selectedCompare.includes(p.id)?"#4ade80":T.t1}}>{p.name}</div>
                         <div style={{fontSize:9,color:T.t4}}>{p.assets.map(a=>`${a.ticker} ${a.weight}%`).join(" · ")}</div>
                       </div>
                       <div style={{fontSize:8,color:T.t6,whiteSpace:"nowrap"}}>{new Date(p.savedAt).toLocaleDateString("fr-FR")}</div>
