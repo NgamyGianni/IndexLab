@@ -1126,15 +1126,18 @@ export default function App(){
               const used=!!assets.find(a=>a.ticker===p.ticker); const tc=TYPE_COLOR[p.type]||"#888";
               const capStr=p.cap>=1000?`${(p.cap/1000).toFixed(1)}T$`:`${p.cap}B$`;
               return(
-                <button key={p.ticker} onClick={()=>{ if(!used) addAsset(p.ticker); }} disabled={used}
-                  style={{display:"flex",flexDirection:"column",alignItems:"flex-start",padding:"7px 9px",border:`1px solid ${used?T.b2_44:tc+"33"}`,borderRadius:7,background:used?T.bg1:tc+"08",cursor:used?"not-allowed":"pointer",transition:"all .12s",opacity:used?0.4:1,textAlign:"left"}}>
+                <button key={p.ticker}
+                  onClick={()=>{ used ? removeAsset(p.ticker) : addAsset(p.ticker); }}
+                  onMouseEnter={e=>{ if(used){e.currentTarget.style.borderColor="#f87171";e.currentTarget.style.background="#f8717112";e.currentTarget.querySelector(".added-lbl").textContent="× retirer";}}}
+                  onMouseLeave={e=>{ if(used){e.currentTarget.style.borderColor="#4ade8055";e.currentTarget.style.background="#4ade8012";e.currentTarget.querySelector(".added-lbl").textContent="✓ "+t('cfg_added').replace("✓ ","");}}}
+                  style={{display:"flex",flexDirection:"column",alignItems:"flex-start",padding:"7px 9px",border:`1px solid ${used?"#4ade8055":tc+"33"}`,borderRadius:7,background:used?"#4ade8012":tc+"08",cursor:"pointer",transition:"border-color .12s, background .12s",opacity:1,textAlign:"left"}}>
                   <div style={{display:"flex",justifyContent:"space-between",width:"100%",marginBottom:2}}>
-                    <span style={{fontFamily:"'Space Mono'",fontSize:10,fontWeight:700,color:used?T.t5:T.t1}}>{p.ticker}</span>
+                    <span style={{fontFamily:"'Space Mono'",fontSize:10,fontWeight:700,color:used?"#4ade80":T.t1}}>{p.ticker}</span>
                     <span style={{fontSize:7,padding:"1px 4px",borderRadius:2,background:tc+"22",color:tc,fontWeight:700,textTransform:"uppercase"}}>{p.type}</span>
                   </div>
                   <span style={{fontSize:9,color:T.t4,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",width:"100%"}}>{p.name}</span>
                   <span style={{fontSize:8,color:T.b3,marginTop:2}}>{capStr}</span>
-                  {used&&<span style={{fontSize:8,color:"#4ade8066",marginTop:1}}>{t('cfg_added')}</span>}
+                  {used&&<span className="added-lbl" style={{fontSize:8,color:"#4ade8088",marginTop:1}}>{t('cfg_added')}</span>}
                 </button>
               );
             })}
@@ -1162,15 +1165,18 @@ export default function App(){
                   const used=!!assets.find(a=>a.ticker===p.ticker); const tc=TYPE_COLOR[p.type]||"#888";
                   const capStr=p.cap>=1000?`${(p.cap/1000).toFixed(1)}T$`:`${p.cap}B$`;
                   return(
-                    <button key={p.ticker} onClick={()=>{ if(!used) addAsset(p.ticker); }} disabled={used}
-                      style={{display:"flex",flexDirection:"column",alignItems:"flex-start",padding:"7px 9px",border:`1px solid ${used?T.b2_44:tc+"33"}`,borderRadius:7,background:used?T.bg1:tc+"08",cursor:used?"not-allowed":"pointer",opacity:used?0.4:1,textAlign:"left",transition:"all .12s"}}>
+                    <button key={p.ticker}
+                      onClick={()=>{ used ? removeAsset(p.ticker) : addAsset(p.ticker); }}
+                      onMouseEnter={e=>{ if(used){e.currentTarget.style.borderColor="#f87171";e.currentTarget.style.background="#f8717112";e.currentTarget.querySelector(".added-lbl").textContent="× retirer";}}}
+                      onMouseLeave={e=>{ if(used){e.currentTarget.style.borderColor="#4ade8055";e.currentTarget.style.background="#4ade8012";e.currentTarget.querySelector(".added-lbl").textContent="✓ "+t('cfg_added').replace("✓ ","");}}}
+                      style={{display:"flex",flexDirection:"column",alignItems:"flex-start",padding:"7px 9px",border:`1px solid ${used?"#4ade8055":tc+"33"}`,borderRadius:7,background:used?"#4ade8012":tc+"08",cursor:"pointer",transition:"border-color .12s, background .12s",opacity:1,textAlign:"left"}}>
                       <div style={{display:"flex",justifyContent:"space-between",width:"100%",marginBottom:2}}>
-                        <span style={{fontFamily:"'Space Mono'",fontSize:10,fontWeight:700,color:used?T.t5:T.t1}}>{p.ticker}</span>
+                        <span style={{fontFamily:"'Space Mono'",fontSize:10,fontWeight:700,color:used?"#4ade80":T.t1}}>{p.ticker}</span>
                         <span style={{fontSize:7,padding:"1px 4px",borderRadius:2,background:tc+"22",color:tc,fontWeight:700,textTransform:"uppercase"}}>{p.type}</span>
                       </div>
                       <span style={{fontSize:9,color:T.t4,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",width:"100%"}}>{p.name}</span>
                       <span style={{fontSize:8,color:T.b3,marginTop:2}}>{capStr}</span>
-                      {used&&<span style={{fontSize:8,color:"#4ade8066",marginTop:1}}>{t('cfg_added')}</span>}
+                      {used&&<span className="added-lbl" style={{fontSize:8,color:"#4ade8088",marginTop:1}}>{t('cfg_added')}</span>}
                     </button>
                   );
                 })}
