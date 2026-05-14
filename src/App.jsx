@@ -171,6 +171,7 @@ const BENCHMARKS = [
 const TYPE_COLOR = { action:"#4ade80", crypto:"#fb923c", etf:"#38bdf8", indice:"#c084fc" };
 const PORTFOLIO_COLORS = ["#4ade80","#fb923c","#38bdf8","#f472b6","#facc15","#a78bfa","#34d399","#f87171"];
 const PERIOD_DAYS  = { "5J":5, "1M":21, "3M":63, "6M":126, "1A":252, "3A":756, "5A":1260 };
+const PERIOD_CAL_DAYS = { "5J":7, "1M":31, "3M":91, "6M":182, "1A":365, "3A":1095, "5A":1825 };
 const HORIZON_DAYS = { "6M":126, "1A":252, "3A":756, "5A":1260 };
 const MODES = [
   { id:"backtest",    label:"Backtest",    icon:"◀" },
@@ -179,6 +180,7 @@ const MODES = [
 const TABS = [
   { id:"builder",  label:"Constructeur" },
   { id:"compare",  label:"Comparaison"  },
+  { id:"track",    label:"Suivi"        },
 ];
 
 // ── Math ──────────────────────────────────────────────────────────────────────
@@ -573,6 +575,7 @@ export default function App(){
   const [savedPortfolios,setSavedPortfolios] = useState([]);
   const [saveModalOpen,setSaveModalOpen] = useState(false);
   const [saveName,setSaveName] = useState("");
+  const [saveStartDate,setSaveStartDate] = useState(()=>new Date().toISOString().split('T')[0]);
   const [selectedCompare,setSelectedCompare] = useState([]);
   const [storageReady,setStorageReady] = useState(false);
   const [notification,setNotification] = useState(null);
@@ -584,6 +587,9 @@ export default function App(){
   const [priceData,setPriceData] = useState(null);
   const [editingPortfolioId,setEditingPortfolioId] = useState(null);
   const [benchmark,setBenchmark] = useState("^GSPC");
+  const [trackModalId,setTrackModalId] = useState(null);
+  const [projHorizon,setProjHorizon] = useState('y1');
+  const [btStartDate,setBtStartDate] = useState(()=>{ const d=new Date(); d.setMonth(d.getMonth()-3); return d.toISOString().split('T')[0]; });
   const [lang,setLang] = useState(()=>{ try{return localStorage.getItem("indexlab_lang")||"en";}catch{return"en";} });
   const [darkMode,setDarkMode] = useState(()=>{
     try { return localStorage.getItem("indexlab_dark")!=="false"; } catch { return true; }
@@ -640,7 +646,10 @@ export default function App(){
     setTimeout(()=>setNotification(null),2500);
   };
 
-  const days  = PERIOD_DAYS[period];
+  const days = (()=>{
+    if(priceData?.bdays){ const bd=priceData.bdays; const idx=bd.findIndex(d=>d>=btStartDate); if(idx>=0) return Math.max(1,bd.length-1-idx); }
+    return PERIOD_DAYS[period];
+  })();
   const hDays = HORIZON_DAYS[horizon];
   const totalW = assets.reduce((a,b)=>a+(parseFloat(b.weight)||0),0);
   const weightOk = Math.abs(totalW-100)<0.05;
@@ -744,20 +753,114 @@ export default function App(){
     return {chart,metricsTable,benchMetrics,names:activePorts.map(p=>({id:p.id,name:p.name,color:p.color}))};
   },[selectedCompare,savedPortfolios,period,days,priceData,lang,benchmark]);
 
+  // ── Tracking data (real perf from creation to today) ──
+  const trackingData = useMemo(()=>{
+    if(!savedPortfolios.length) return [];
+    const calcProj=(assets)=>{
+      const {mu,sigma}=portfolioParams(assets);
+      const dt=1/252,projN=100,projSeed=0x3a7f9b;
+      const allPaths=Array.from({length:projN},(_,n)=>{
+        const rng=seededRng((projSeed+n*777777)&0x7fffffff);
+        let lv=0; const path=[0];
+        for(let d=0;d<1260;d++){
+          lv+=(mu-0.5*sigma**2)*dt+sigma*Math.sqrt(dt)*randNormal(rng);
+          path.push(parseFloat(((Math.exp(lv)-1)*100).toFixed(2)));
+        }
+        return path;
+      });
+      const medAt=idx=>{const s=allPaths.map(p=>p[Math.min(idx,p.length-1)]).sort((a,b)=>a-b);return parseFloat(s[Math.floor(s.length/2)].toFixed(2));};
+      const step=Math.max(1,Math.floor(1260/80));
+      const pts=[];
+      for(let i=0;i<=1260;i+=step) pts.push({d:i,v:medAt(i)});
+      if(pts[pts.length-1].d!==1260) pts.push({d:1260,v:medAt(1260)});
+      return {y1:medAt(252),y3:medAt(756),y5:medAt(1260),pts};
+    };
+    if(!priceData) return savedPortfolios.map(p=>({id:p.id,name:p.name,color:p.color,savedAt:p.savedAt,assets:p.assets,error:'no_data',projection:calcProj(p.assets)}));
+    const bdays = priceData.bdays;
+    return savedPortfolios.map(p=>{
+      const base = {id:p.id,name:p.name,color:p.color,savedAt:p.savedAt||Date.now(),assets:p.assets};
+      const projection=calcProj(p.assets);
+      const savedDate = p.trackingStartDate || new Date(p.savedAt||Date.now()).toISOString().split('T')[0];
+      const endIdx = bdays.length-1;
+      let startIdx = bdays.findIndex(d=>d>=savedDate);
+      if(startIdx===-1) startIdx = endIdx; // portfolio créé après la dernière date dispo → 0 jour
+      const trackDays = endIdx-startIdx;
+      const lastBdayStr=bdays[endIdx];
+      const futureDateStr=n=>{const d=new Date(lastBdayStr);d.setDate(d.getDate()+Math.round(n*(365/252)));return d.toISOString().slice(0,10);};
+      const mkProjChart=(sv=0)=>projection.pts.map(pt=>({date:pt.d===0?lastBdayStr:futureDateStr(pt.d),proj:parseFloat((sv+pt.v).toFixed(2)),d:pt.d}));
+      if(trackDays<1) return {...base,trackDays:0,error:'too_short',projection,projChartData:mkProjChart(0)};
+      // Real asset prices from startIdx → today
+      const ap={};
+      let ok=true;
+      for(const {ticker} of p.assets){
+        const arr=priceData.raw[ticker];
+        if(!arr){ok=false;break;}
+        const slice=arr.slice(startIdx,endIdx+1);
+        if(slice.length<trackDays+1||slice.some(v=>v==null)){ok=false;break;}
+        const b=slice[0]||1;
+        ap[ticker]=slice.map(v=>(v/b)*100);
+      }
+      if(!ok) return {...base,trackDays,error:'missing_assets',projection,projChartData:mkProjChart(0)};
+      // Weighted portfolio actual returns
+      const actualRaw=Array.from({length:trackDays+1},(_,i)=>{
+        let v=0;
+        for(const {ticker,weight} of p.assets) v+=(ap[ticker][i]-100)*((parseFloat(weight)||0)/100);
+        return parseFloat(v.toFixed(3));
+      });
+      // MC median (200 paths, same duration)
+      const {mu,sigma}=portfolioParams(p.assets);
+      const N=200,dt=1/252,seed0=(p.savedAt||42)%0x7fffffff;
+      const sims=Array.from({length:N},(_,n)=>{
+        const rng=seededRng((seed0+n*999983)&0x7fffffff);
+        let val=0; const path=[0];
+        for(let d=0;d<trackDays;d++){
+          val+=(mu-0.5*sigma**2)*dt+sigma*Math.sqrt(dt)*randNormal(rng);
+          path.push(parseFloat(((Math.exp(val)-1)*100).toFixed(3)));
+        }
+        return path;
+      });
+      const mcRaw=Array.from({length:trackDays+1},(_,i)=>{
+        const vals=sims.map(s=>s[i]).sort((a,b)=>a-b);
+        return vals[Math.floor(0.5*vals.length)];
+      });
+      // Sampled chart data
+      const step=Math.max(1,Math.floor(trackDays/80));
+      const idxs=[];
+      for(let i=0;i<=trackDays;i+=step) idxs.push(i);
+      if(idxs[idxs.length-1]!==trackDays) idxs.push(trackDays);
+      const chartData=idxs.map(i=>({
+        date:bdays[startIdx+i]||'',
+        actual:actualRaw[i], mc:mcRaw[i],
+      }));
+      // Forward projection chart (from actualFinal into future)
+      const projChartData=mkProjChart(actualRaw[trackDays]);
+      // Metrics
+      const actualM=computeMetrics(actualRaw.map(v=>100+v),null);
+      const mcM=computeMetrics(mcRaw.map(v=>100+v),null);
+      return {
+        ...base,trackDays,
+        startDate:bdays[startIdx],
+        actualFinal:actualRaw[trackDays],
+        mcFinal:mcRaw[trackDays],
+        chartData,actualM,mcM,projection,projChartData,
+      };
+    });
+  },[savedPortfolios,priceData]);
+
   // ── Save / edit portfolio ──
   function savePortfolio(){
     if(!weightOk||!assets.length) return;
     const autoName = `Portfolio #${savedPortfolios.length+1} · ${new Date().toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit"})}`;
     const name = saveName.trim()||autoName;
     if(editingPortfolioId){
-      const updated = savedPortfolios.map(p=>p.id===editingPortfolioId?{...p,name,assets:[...assets],period,mode,updatedAt:Date.now()}:p);
+      const updated = savedPortfolios.map(p=>p.id===editingPortfolioId?{...p,name,assets:[...assets],period,mode,trackingStartDate:saveStartDate,updatedAt:Date.now()}:p);
       if(storage.set("indexlab_portfolios",updated)!==false){
         setSavedPortfolios(updated); setSaveModalOpen(false); setSaveName(""); setEditingPortfolioId(null);
         notify(t('notif_updated')(name));
       } else { notify(t('notif_err'),"error"); }
     } else {
       const color = PORTFOLIO_COLORS[savedPortfolios.length % PORTFOLIO_COLORS.length];
-      const np = { id:`p_${Date.now()}`, name, assets:[...assets], color, savedAt:Date.now(), period, mode };
+      const np = { id:`p_${Date.now()}`, name, assets:[...assets], color, savedAt:Date.now(), trackingStartDate:saveStartDate, period, mode };
       const updated = [...savedPortfolios, np];
       if(storage.set("indexlab_portfolios",updated)!==false){
         setSavedPortfolios(updated); setSaveModalOpen(false); setSaveName("");
@@ -769,6 +872,8 @@ export default function App(){
   function loadPortfolio(p){
     setAssets(p.assets); setPeriod(p.period||"3M"); setMode(p.mode||"backtest");
     setSaveName(p.name); setEditingPortfolioId(p.id);
+    setSaveStartDate(p.trackingStartDate||new Date(p.savedAt||Date.now()).toISOString().split('T')[0]);
+    const calD=PERIOD_CAL_DAYS[p.period||"3M"]; const sd=new Date(); sd.setDate(sd.getDate()-calD); setBtStartDate(sd.toISOString().split('T')[0]);
     setTab("builder"); if(isMobile) setPanelOpen(false);
     notify(t('notif_loaded')(p.name));
   }
@@ -920,6 +1025,13 @@ export default function App(){
           <button onClick={()=>{setEditingPortfolioId(null);setSaveName("");}} style={{background:"none",border:"none",color:"#fb923c",cursor:"pointer",fontSize:10}}>{t('edit_cancel')}</button>
         </div>;
       })()}
+
+      {mode==="backtest"&&<div>
+        <SL T={T}>{t('cfg_start_date')}</SL>
+        <input type="date" value={btStartDate} max={new Date().toISOString().split('T')[0]}
+          onChange={e=>setBtStartDate(e.target.value)}
+          style={{width:"100%",background:T.bg,border:`1px solid ${T.b2}`,color:T.t1,borderRadius:6,padding:"7px 11px",fontFamily:"'Space Mono'",fontSize:12,outline:"none",boxSizing:"border-box",colorScheme:darkMode?"dark":"light"}} />
+      </div>}
 
       <div>
         <SL T={T}>{t('cfg_mode')}</SL>
@@ -1130,8 +1242,12 @@ export default function App(){
           <div style={{fontFamily:"'Unbounded'",fontSize:14,fontWeight:700,marginBottom:16,color:T.t1}}>{t('save_title')}</div>
           <SL T={T}>{t('save_name_lbl')}</SL>
           <input value={saveName} onChange={e=>setSaveName(e.target.value)}
-            style={{width:"100%",background:T.bg,border:`1px solid ${T.b2}`,color:T.t1,borderRadius:6,padding:"8px 12px",fontFamily:"'Space Mono'",fontSize:12,outline:"none",marginBottom:16}}
+            style={{width:"100%",background:T.bg,border:`1px solid ${T.b2}`,color:T.t1,borderRadius:6,padding:"8px 12px",fontFamily:"'Space Mono'",fontSize:12,outline:"none",marginBottom:12}}
             placeholder={t('save_name_ph')} />
+          <SL T={T}>{t('save_start_date')}</SL>
+          <input type="date" value={saveStartDate} onChange={e=>setSaveStartDate(e.target.value)}
+            max={new Date().toISOString().split('T')[0]}
+            style={{width:"100%",background:T.bg,border:`1px solid ${T.b2}`,color:T.t1,borderRadius:6,padding:"8px 12px",fontFamily:"'Space Mono'",fontSize:12,outline:"none",marginBottom:16,boxSizing:"border-box"}}/>
           <div style={{display:"flex",gap:8}}>
             <button onClick={()=>setSaveModalOpen(false)} style={{flex:1,padding:"10px",border:`1px solid ${T.b2}`,background:"transparent",color:T.t3,borderRadius:6,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:11}}>{t('save_cancel')}</button>
             <button onClick={savePortfolio} className="run" style={{flex:2,padding:"10px"}}>{editingPortfolioId?t('save_update'):t('save_confirm')}</button>
@@ -1180,7 +1296,7 @@ export default function App(){
 
       {/* TABS */}
       <div style={{borderBottom:`1px solid ${T.b1}`,padding:"0 24px",display:"flex",gap:0}}>
-        {TABS.map(tb=><button key={tb.id} className={`tab-btn ${tab===tb.id?"active":""}`} onClick={()=>setTab(tb.id)}>{tb.id==="builder"?t('tab_builder'):t('tab_compare')}</button>)}
+        {TABS.map(tb=><button key={tb.id} className={`tab-btn ${tab===tb.id?"active":""}`} onClick={()=>setTab(tb.id)}>{tb.id==="builder"?t('tab_builder'):tb.id==="compare"?t('tab_compare'):t('tab_track')}</button>)}
         {savedPortfolios.length>0&&<span style={{marginLeft:"auto",alignSelf:"center",fontSize:9,color:"#4ade80",fontFamily:"'Space Mono'"}}>{t('saved_count')(savedPortfolios.length)}</span>}
       </div>
 
@@ -1207,7 +1323,7 @@ export default function App(){
               <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
                 {mode==="backtest"
                   ?Object.keys(PERIOD_DAYS).map(p=>(
-                      <button key={p} className={`pill ${period===p?"active":""}`} onClick={()=>setPeriod(p)}>{p}</button>
+                      <button key={p} className={`pill ${period===p?"active":""}`} onClick={()=>{setPeriod(p);const d=new Date();d.setDate(d.getDate()-PERIOD_CAL_DAYS[p]);setBtStartDate(d.toISOString().split('T')[0]);}}>{p}</button>
                     ))
                   :["6M","1A","3A","5A"].map(h=>(
                       <button key={h} className={`pill ${horizon===h?"active":""}`} onClick={()=>setHorizon(h)}>{h}</button>
@@ -1555,8 +1671,12 @@ export default function App(){
                             {compareData.metricsTable?.map((p)=>{
                               const v=parseFloat(p.m[k]);
                               const isBest = bestVal!==null&&v===bestVal&&!benchIsBest;
-                              const color = isBest?p.color:T.t2;
-                              return <td key={p.id} style={{padding:"5px 8px",color,textAlign:"right",fontWeight:isBest?700:400,background:isBest?p.color+"0c":"transparent"}}>
+                              let color;
+                              if(isBest) color=p.color;
+                              else if(best==="max") color=v>=0?"#4ade80":"#f87171";
+                              else if(best==="min") color=T.t3;
+                              else color=T.t2;
+                              return <td key={p.id} style={{padding:"5px 8px",color,textAlign:"right",fontWeight:isBest?700:400,background:isBest?p.color+"22":"transparent"}}>
                                 {fmt(p.m[k])}
                               </td>;
                             })}
@@ -1571,6 +1691,270 @@ export default function App(){
             </>}
             {isMobile&&<div style={{height:40}}/>}
           </>}
+
+          {/* ═══════════════ TRACKING TAB ═══════════════ */}
+          {tab==="track"&&<>
+            {savedPortfolios.length===0?(
+              <div style={{textAlign:"center",padding:"60px 20px"}}>
+                <div style={{fontSize:32,marginBottom:12}}>📂</div>
+                <div style={{fontSize:12,color:T.t2,fontWeight:700,marginBottom:6}}>{t('trk_no_ports')}</div>
+                <div style={{fontSize:10,color:T.t4}}>{t('trk_no_ports_sub')}</div>
+              </div>
+            ):(
+              <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                {/* Horizon selector */}
+                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
+                  <span style={{fontSize:9,color:T.t4,letterSpacing:2,textTransform:"uppercase"}}>{t('trk_proj_lbl')}</span>
+                  <div style={{display:"flex",gap:4}}>
+                    {[{k:"y1",l:t('trk_proj_1y')},{k:"y3",l:t('trk_proj_3y')},{k:"y5",l:t('trk_proj_5y')}].map(({k,l})=>(
+                      <button key={k} onClick={()=>setProjHorizon(k)}
+                        style={{padding:"3px 10px",borderRadius:5,border:`1px solid ${projHorizon===k?"#4ade80":T.b2}`,background:projHorizon===k?"#4ade8022":"transparent",color:projHorizon===k?"#4ade80":T.t4,fontFamily:"'Space Mono'",fontSize:10,cursor:"pointer",transition:"all .12s"}}>
+                        {l}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {trackingData.map(item=>{
+                  const pv = item.projection?.[projHorizon];
+                  return (
+                  <div key={item.id} onClick={()=>setTrackModalId(item.id)}
+                    style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",borderRadius:9,border:`1px solid ${T.b1}`,background:T.bg2,cursor:"pointer",transition:"all .12s"}}
+                    onMouseEnter={e=>{e.currentTarget.style.borderColor="#4ade8055";e.currentTarget.style.background=T.bg;}}
+                    onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b1;e.currentTarget.style.background=T.bg2;}}>
+                    <div style={{width:11,height:11,borderRadius:"50%",background:item.color,flexShrink:0}}/>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{fontSize:12,fontWeight:700,color:T.t1,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{item.name}</div>
+                      <div style={{fontSize:9,color:T.t4,marginTop:1}}>
+                        {t('trk_since')(item.startDate||new Date(item.savedAt||Date.now()).toISOString().split('T')[0])}
+                        {item.trackDays!=null?` · ${t('trk_days')(item.trackDays)}`:""}
+                      </div>
+                      <div style={{fontSize:9,color:T.t5,marginTop:2,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{item.assets?.map(a=>`${a.ticker} ${a.weight}%`).join(' · ')}</div>
+                    </div>
+                    {/* Right side: actual perf + projection */}
+                    <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:3,flexShrink:0}}>
+                      {!item.error?(
+                        <span style={{fontSize:11,fontWeight:700,color:item.actualFinal>=0?"#4ade80":"#f87171",whiteSpace:"nowrap"}}>{item.actualFinal>=0?"+":""}{item.actualFinal.toFixed(2)}%</span>
+                      ):(
+                        <span style={{fontSize:9,color:item.error==='no_data'||item.error==='missing_assets'?"#fb923c":T.t4}}>
+                          {item.error==='no_data'?"📡":item.error==='too_short'?"⏳":"⚠"}{" "}
+                          {item.error==='too_short'?t('trk_too_short')(item.trackDays||0):"—"}
+                        </span>
+                      )}
+                      {pv!=null&&(
+                        <span style={{fontSize:9,color:pv>=0?"#4ade8099":"#f8717199",whiteSpace:"nowrap"}}>
+                          ↗ {pv>=0?"+":""}{pv.toFixed(1)}%
+                        </span>
+                      )}
+                    </div>
+                    <span style={{fontSize:10,color:T.t4,flexShrink:0}}>›</span>
+                    <button className="del-btn" onClick={e=>{e.stopPropagation();deletePortfolio(item.id);}} style={{fontSize:16,flexShrink:0}}>×</button>
+                  </div>
+                  );
+                })}
+              </div>
+            )}
+            {isMobile&&<div style={{height:40}}/>}
+          </>}
+
+          {/* ═══════════════ TRACKING DETAIL MODAL ═══════════════ */}
+          {trackModalId&&(()=>{
+            const item = trackingData.find(d=>d.id===trackModalId);
+            if(!item) return null;
+            const hDays={y1:252,y3:756,y5:1260}[projHorizon];
+            return (
+              <div className="modal-bg" onClick={()=>setTrackModalId(null)}>
+                <div onClick={e=>e.stopPropagation()} style={{
+                  background:T.bg2,border:`1px solid ${T.b2}`,borderRadius:14,
+                  width:"100%",maxWidth:700,maxHeight:"90vh",overflowY:"auto",
+                  padding:0,boxShadow:"0 24px 60px #0008",animation:"fadeIn .18s ease",
+                }}>
+
+                  {/* ── Header strip ── */}
+                  <div style={{
+                    padding:"20px 24px 16px",borderRadius:"14px 14px 0 0",
+                    background:`linear-gradient(120deg,${item.color}18 0%,transparent 55%)`,
+                    borderBottom:`1px solid ${T.b1}`,position:"relative",overflow:"hidden",
+                  }}>
+                    <div style={{position:"absolute",top:0,left:0,bottom:0,width:3,background:item.color,borderRadius:"14px 0 0 14px"}}/>
+                    <div style={{display:"flex",alignItems:"flex-start",gap:14,paddingLeft:8}}>
+                      <div style={{flex:1}}>
+                        <div style={{fontFamily:"'Unbounded'",fontSize:16,fontWeight:700,color:T.t1,lineHeight:1.2,marginBottom:8}}>{item.name}</div>
+                        <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
+                          {item.error==='no_data'&&<span style={{fontSize:8,padding:"2px 9px",borderRadius:20,background:"#fb923c18",border:"1px solid #fb923c44",color:"#fb923c",letterSpacing:1,textTransform:"uppercase"}}>📡 offline</span>}
+                          {item.error==='too_short'&&<span style={{fontSize:8,padding:"2px 9px",borderRadius:20,background:T.bg,border:`1px solid ${T.b2}`,color:T.t4,letterSpacing:1,textTransform:"uppercase"}}>⏳ {t('trk_too_short')(item.trackDays||0)}</span>}
+                          {item.error==='missing_assets'&&<span style={{fontSize:8,padding:"2px 9px",borderRadius:20,background:"#fb923c18",border:"1px solid #fb923c44",color:"#fb923c",letterSpacing:1,textTransform:"uppercase"}}>⚠ données partielles</span>}
+                          {!item.error&&<span style={{fontSize:8,padding:"2px 9px",borderRadius:20,background:"#4ade8015",border:"1px solid #4ade8045",color:"#4ade80",letterSpacing:1,textTransform:"uppercase"}}>● live</span>}
+                          <span style={{fontSize:9,color:T.t4}}>
+                            {t('trk_since')(item.startDate||new Date(item.savedAt||Date.now()).toISOString().split('T')[0])}
+                            {item.trackDays>0?` · ${t('trk_days')(item.trackDays)}`:""}
+                          </span>
+                        </div>
+                      </div>
+                      <button onClick={()=>setTrackModalId(null)}
+                        style={{background:"none",border:"none",color:T.t4,fontSize:18,cursor:"pointer",lineHeight:1,padding:"2px 6px",flexShrink:0,transition:"color .12s"}}
+                        onMouseEnter={e=>e.currentTarget.style.color="#f87171"}
+                        onMouseLeave={e=>e.currentTarget.style.color=T.t4}>×</button>
+                    </div>
+                  </div>
+
+                  {/* ── Content ── */}
+                  <div style={{padding:"20px 24px"}}>
+
+                    {/* Composition */}
+                    <div style={{marginBottom:18}}>
+                      <div style={{fontSize:7,color:T.t4,letterSpacing:3,textTransform:"uppercase",marginBottom:7}}>Composition</div>
+                      <div style={{display:"flex",flexWrap:"wrap",gap:5}}>
+                        {item.assets?.map(a=>{
+                          const p=ASSET_PARAMS[a.ticker]||{mu:0.15,sigma:0.25};
+                          const ret=Math.round(p.mu*100);
+                          return (
+                          <div key={a.ticker} style={{background:T.bg,border:`1px solid ${T.b1}`,borderRadius:6,padding:"5px 10px",fontSize:9,fontFamily:"'Space Mono'",display:"flex",gap:7,alignItems:"center",transition:"border-color .12s"}}
+                            onMouseEnter={e=>e.currentTarget.style.borderColor=T.b2}
+                            onMouseLeave={e=>e.currentTarget.style.borderColor=T.b1}>
+                            <span style={{color:T.t1,fontWeight:700}}>{a.ticker}</span>
+                            <span style={{color:T.t5,borderRight:`1px solid ${T.b1}`,paddingRight:7}}>{a.weight}%</span>
+                            <span style={{color:ret>=0?"#4ade80":"#f87171",fontSize:8}}>↑{ret>=0?"+":""}{ret}%</span>
+                          </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* KPIs */}
+                    <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:20}}>
+                      {[
+                        {l:t('trk_actual'), v:item.error?null:item.actualFinal, c:!item.error?(item.actualFinal>=0?"#4ade80":"#f87171"):T.t5, bc:!item.error?(item.actualFinal>=0?"#4ade8035":"#f8717135"):T.b1},
+                        {l:t('trk_mc'),     v:item.error?null:item.mcFinal,     c:!item.error?"#fb923c":T.t5,                                  bc:!item.error?"#fb923c35":T.b1},
+                        {l:t('trk_delta'),  v:item.error?null:(item.actualFinal-item.mcFinal), c:!item.error?((item.actualFinal-item.mcFinal)>=0?"#4ade80":"#f87171"):T.t5, bc:!item.error?((item.actualFinal-item.mcFinal)>=0?"#4ade8035":"#f8717135"):T.b1},
+                      ].map(({l,v,c,bc})=>(
+                        <div key={l} style={{background:T.bg,border:`1px solid ${bc}`,borderRadius:9,padding:"13px 14px"}}>
+                          <div style={{fontSize:7,color:T.t5,letterSpacing:2,textTransform:"uppercase",marginBottom:7}}>{l}</div>
+                          <div style={{fontFamily:"'Unbounded'",fontSize:22,color:c,fontWeight:700,lineHeight:1}}>
+                            {v==null?"—":`${v>=0?"+":""}${v.toFixed(2)}%`}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Chart */}
+                    <div style={{marginBottom:20}}>
+                      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
+                        {/* Legend */}
+                        <div style={{display:"flex",gap:12,alignItems:"center",flexWrap:"wrap"}}>
+                          {!item.error&&(()=>{const ac=item.actualFinal>=0?"#4ade80":"#f87171";return(<>
+                            <span style={{fontSize:8,color:T.t4,display:"flex",alignItems:"center",gap:5}}>
+                              <span style={{display:"inline-block",width:14,height:2,background:ac,borderRadius:1}}/>
+                              {t('trk_actual')}
+                            </span>
+                            <span style={{fontSize:8,color:T.t4,display:"flex",alignItems:"center",gap:5}}>
+                              <span style={{display:"inline-block",width:14,height:0,borderTop:"2px dashed #fb923c"}}/>
+                              {t('trk_mc')}
+                            </span>
+                          </>);})()}
+                          <span style={{fontSize:8,color:T.t4,display:"flex",alignItems:"center",gap:5}}>
+                            <span style={{display:"inline-block",width:14,height:0,borderTop:"2px dashed #22d3ee"}}/>
+                            {t('trk_proj_lbl')}
+                          </span>
+                        </div>
+                        {/* Horizon pills */}
+                        <div style={{display:"flex",gap:4}}>
+                          {[{k:"y1",l:t('trk_proj_1y')},{k:"y3",l:t('trk_proj_3y')},{k:"y5",l:t('trk_proj_5y')}].map(({k,l})=>(
+                            <button key={k} onClick={()=>setProjHorizon(k)} className={`pill${projHorizon===k?" active":""}`}
+                              style={{fontSize:9,padding:"3px 10px"}}>
+                              {l}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {item.error==='no_data'?(
+                        <div style={{height:140,background:T.bg,borderRadius:9,border:`1px dashed ${T.b2}`,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:8}}>
+                          <div style={{fontSize:28,opacity:0.18}}>📡</div>
+                          <div style={{fontSize:9,color:T.t4,textAlign:"center",maxWidth:240}}>{t('trk_no_data')}</div>
+                        </div>
+                      ):(()=>{
+                        const actualColor=(!item.error&&item.actualFinal>=0)?"#4ade80":"#f87171";
+                        let combined;
+                        if(item.error){
+                          combined=(item.projChartData||[]).filter(pt=>pt.d<=hDays);
+                        } else {
+                          const ji=item.chartData.length-1;
+                          combined=[
+                            ...item.chartData.map((pt,i)=>i===ji?{...pt,proj:item.actualFinal}:pt),
+                            ...(item.projChartData||[]).filter(pt=>pt.d>0&&pt.d<=hDays),
+                          ];
+                        }
+                        const fmtLabel=d=>d&&d.length>=10?`${d.slice(8)}/${d.slice(5,7)}/${d.slice(0,4)}`:d||'';
+                        return (
+                          <ResponsiveContainer width="100%" height={200}>
+                            <ComposedChart data={combined} margin={{top:4,right:8,left:0,bottom:0}}>
+                              <defs>
+                                <linearGradient id={`trkMG_${item.id}`} x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="0%" stopColor={actualColor} stopOpacity={0.2}/>
+                                  <stop offset="100%" stopColor={actualColor} stopOpacity={0}/>
+                                </linearGradient>
+                                <linearGradient id={`projMG_${item.id}`} x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="0%" stopColor="#22d3ee" stopOpacity={0.15}/>
+                                  <stop offset="100%" stopColor="#22d3ee" stopOpacity={0}/>
+                                </linearGradient>
+                              </defs>
+                              <XAxis dataKey="date" tick={{fill:T.t4,fontSize:9}} axisLine={false} tickLine={false} interval="preserveStartEnd" minTickGap={48} tickFormatter={d=>d&&d.length>=10?d.slice(5).replace('-','/'):d}/>
+                              <YAxis tick={{fill:T.t4,fontSize:9}} axisLine={false} tickLine={false} tickFormatter={v=>`${v>0?"+":""}${v.toFixed(0)}%`} width={44}/>
+                              <Tooltip contentStyle={{background:T.bg2,border:`1px solid ${T.b2}`,borderRadius:7,fontSize:10,fontFamily:"'Space Mono'",boxShadow:"0 8px 24px #0006"}}
+                                labelFormatter={fmtLabel}
+                                formatter={(v,name)=>[`${v>=0?"+":""}${v.toFixed(2)}%`,name==="actual"?t('trk_actual'):name==="mc"?t('trk_mc'):t('trk_proj_lbl')]}/>
+                              <ReferenceLine y={0} stroke={T.b2} strokeDasharray="2 2"/>
+                              {!item.error&&<Area type="monotone" dataKey="actual" stroke={actualColor} strokeWidth={2} fill={`url(#trkMG_${item.id})`} dot={false} isAnimationActive={false}/>}
+                              {!item.error&&<Line type="monotone" dataKey="mc" stroke="#fb923c" strokeWidth={1.5} strokeDasharray="5 4" dot={false} isAnimationActive={false}/>}
+                              <Area type="monotone" dataKey="proj" stroke="#22d3ee" strokeWidth={1.5} strokeDasharray="5 3" fill={`url(#projMG_${item.id})`} dot={false} isAnimationActive={false} connectNulls={false}/>
+                            </ComposedChart>
+                          </ResponsiveContainer>
+                        );
+                      })()}
+                    </div>
+
+                    {/* Metrics table — only when real data */}
+                    {!item.error&&<>
+                      <div style={{fontSize:7,color:T.t4,letterSpacing:3,textTransform:"uppercase",marginBottom:10}}>{t('trk_metrics_title')}</div>
+                      <table style={{width:"100%",borderCollapse:"collapse",fontSize:10,fontFamily:"'Space Mono'"}}>
+                        <thead>
+                          <tr>{["",t('trk_actual'),t('trk_mc'),t('trk_delta')].map((h,i)=>(
+                            <th key={i} style={{padding:"6px 8px",color:T.t5,fontWeight:400,textAlign:i===0?"left":"right",fontSize:8,borderBottom:`1px solid ${T.b1}`,letterSpacing:1,textTransform:"uppercase"}}>{h}</th>
+                          ))}</tr>
+                        </thead>
+                        <tbody>
+                          {[
+                            {l:t('trk_ann'),   ka:"annReturn",inv:false},
+                            {l:t('trk_sharpe'),ka:"sharpe",   inv:false},
+                            {l:t('trk_vol'),   ka:"annVol",   inv:true},
+                            {l:t('trk_maxdd'), ka:"maxDD",    inv:true},
+                          ].map(({l,ka,inv},ri)=>{
+                            const va=parseFloat(item.actualM[ka]);
+                            const vm=parseFloat(item.mcM[ka]);
+                            const d=parseFloat((va-vm).toFixed(2));
+                            const better=inv?d<0:d>0;
+                            const fmt=v=>ka==="annReturn"||ka==="annVol"||ka==="maxDD"?`${v>=0&&ka!=="maxDD"?"+":""}${v.toFixed(2)}%`:v.toFixed(3);
+                            return (
+                              <tr key={l} style={{borderBottom:`1px solid ${T.b1}`,background:ri%2===0?T.bg:"transparent",transition:"background .1s",cursor:"default"}}
+                                onMouseEnter={e=>e.currentTarget.style.background=T.bg2}
+                                onMouseLeave={e=>e.currentTarget.style.background=ri%2===0?T.bg:"transparent"}>
+                                <td style={{padding:"8px 8px",color:T.t4,fontSize:9}}>{l}</td>
+                                <td style={{padding:"8px 8px",color:item.color,fontWeight:700,textAlign:"right"}}>{fmt(va)}</td>
+                                <td style={{padding:"8px 8px",color:"#fb923c",textAlign:"right"}}>{fmt(vm)}</td>
+                                <td style={{padding:"8px 8px",color:better?"#4ade80":"#f87171",fontWeight:700,textAlign:"right"}}>{d>=0?"+":""}{ka==="annReturn"||ka==="annVol"||ka==="maxDD"?`${d.toFixed(2)}%`:d.toFixed(3)}</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </>}
+
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
 
         </div>
       </div>
