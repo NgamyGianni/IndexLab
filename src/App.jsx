@@ -200,12 +200,13 @@ function generatePrices(ticker, days, seedOverride){
   return prices;
 }
 
-function generateBenchmark(days, ticker="^GSPC"){
+function generateBenchmark(days, ticker="^GSPC", endIdx=null){
   if(_priceData?.raw?.[ticker]){
     const arr = _priceData.raw[ticker];
+    const end = endIdx !== null ? Math.min(endIdx + 1, arr.length) : arr.length;
     const n = days + 1;
-    if(arr.length >= n && !arr.slice(arr.length-n).some(v=>v==null)){
-      const slice = arr.slice(arr.length - n);
+    if(end >= n && !arr.slice(end-n, end).some(v=>v==null)){
+      const slice = arr.slice(end - n, end);
       const base = slice[0] || 1;
       return slice.map(p => (p / base) * 100);
     }
@@ -216,12 +217,13 @@ function generateBenchmark(days, ticker="^GSPC"){
   return prices;
 }
 
-function getPrices(ticker, days){
+function getPrices(ticker, days, endIdx=null){
   if(_priceData?.raw?.[ticker]){
     const arr = _priceData.raw[ticker];
+    const end = endIdx !== null ? Math.min(endIdx + 1, arr.length) : arr.length;
     const n = days + 1;
-    if(arr.length >= n){
-      const slice = arr.slice(arr.length - n);
+    if(end >= n){
+      const slice = arr.slice(end - n, end);
       if(!slice.some(v => v == null)){
         const base = slice[0] || 1;
         return slice.map(p => (p / base) * 100);
@@ -231,16 +233,17 @@ function getPrices(ticker, days){
   return generatePrices(ticker, days);
 }
 
-function getRealDates(days){
+function getRealDates(days, endIdx=null){
   if(!_priceData?.bdays) return null;
   const bd = _priceData.bdays;
+  const end = endIdx !== null ? Math.min(endIdx + 1, bd.length) : bd.length;
   const n = days + 1;
-  return bd.length >= n ? bd.slice(bd.length - n) : bd;
+  return end >= n ? bd.slice(end - n, end) : bd.slice(0, end);
 }
 
-function portfolioReturns(assets, days){
+function portfolioReturns(assets, days, endIdx=null){
   const ap={};
-  assets.forEach(({ticker})=>{ ap[ticker]=getPrices(ticker,days); });
+  assets.forEach(({ticker})=>{ ap[ticker]=getPrices(ticker,days,endIdx); });
   return Array.from({length:days+1},(_,i)=>{
     let v=0;
     for(const {ticker,weight} of assets) v+=(ap[ticker][i]/ap[ticker][0]-1)*100*((parseFloat(weight)||0)/100);
@@ -337,6 +340,23 @@ function computeMetrics(returns, benchReturns){
 const _MOIS = ["jan","fév","mar","avr","mai","jun","jul","aoû","sep","oct","nov","déc"];
 const _MOIS_EN = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"];
 const _MOIS_ES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+
+// Soustrait la période sélectionnée à une date ISO (pour trouver la date de début du graphique)
+function subtractPeriod(dateStr, period){
+  const d = new Date(dateStr + "T00:00:00");
+  switch(period){
+    case "5J": d.setDate(d.getDate()-7); break;
+    case "1M": d.setMonth(d.getMonth()-1); break;
+    case "3M": d.setMonth(d.getMonth()-3); break;
+    case "6M": d.setMonth(d.getMonth()-6); break;
+    case "1A": d.setFullYear(d.getFullYear()-1); break;
+    case "3A": d.setFullYear(d.getFullYear()-3); break;
+    case "5A": d.setFullYear(d.getFullYear()-5); break;
+    default:   d.setFullYear(d.getFullYear()-1);
+  }
+  return d.toISOString().split("T")[0];
+}
+
 // Convert trading days to calendar days (252 trading days ≈ 365 calendar days)
 function tradingToCalendar(td){ return Math.round(td * 365/252); }
 function dateLabel(dayOffset, totalDays, fromNow=false, moisArr=_MOIS){
@@ -598,13 +618,14 @@ const _MONTH_NAMES = {
   en:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
   es:["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"],
 };
-function LocaleDateInput({ value, onChange, max, T, darkMode, lang }){
+function LocaleDateInput({ value, onChange, min, max, T, darkMode, lang }){
   const parts = value ? value.split('-') : ["","",""];
   const y=parseInt(parts[0])||new Date().getFullYear();
   const m=parseInt(parts[1])||new Date().getMonth()+1;
   const d=parseInt(parts[2])||new Date().getDate();
   const mNames=_MONTH_NAMES[lang]||_MONTH_NAMES.en;
   const curY=new Date().getFullYear();
+  const minY=min?parseInt(min.split('-')[0]):curY-10;
   const daysInM=new Date(y,m,0).getDate();
 
   const selStyle={flex:1,background:T.bg,border:`1px solid ${T.b2}`,color:T.t1,borderRadius:6,padding:"7px 5px",fontFamily:"'Space Mono'",fontSize:11,outline:"none",cursor:"pointer",colorScheme:darkMode?"dark":"light"};
@@ -612,8 +633,10 @@ function LocaleDateInput({ value, onChange, max, T, darkMode, lang }){
   const commit=(ny,nm,nd)=>{
     const maxD=new Date(ny,nm,0).getDate();
     const cd=Math.min(nd,maxD);
-    const str=`${ny}-${String(nm).padStart(2,'0')}-${String(cd).padStart(2,'0')}`;
-    onChange({target:{value:max&&str>max?max:str}});
+    let str=`${ny}-${String(nm).padStart(2,'0')}-${String(cd).padStart(2,'0')}`;
+    if(max&&str>max) str=max;
+    if(min&&str<min) str=min;
+    onChange({target:{value:str}});
   };
 
   const dayEl=(
@@ -628,7 +651,7 @@ function LocaleDateInput({ value, onChange, max, T, darkMode, lang }){
   );
   const yearEl=(
     <select value={y} onChange={e=>commit(parseInt(e.target.value),m,d)} style={{...selStyle,flex:1.3}}>
-      {Array.from({length:11},(_,i)=>curY-i).map(yr=><option key={yr} value={yr}>{yr}</option>)}
+      {Array.from({length:curY-minY+1},(_,i)=>curY-i).map(yr=><option key={yr} value={yr}>{yr}</option>)}
     </select>
   );
 
@@ -645,7 +668,8 @@ export default function App(){
   const [horizon,setHorizon]   = useState("1A");
   const [invest,setInvest]     = useState(10000);
   const [custom,setCustom]     = useState("");
-  const [panelOpen,setPanelOpen] = useState(false);
+  const [panelOpen,setPanelOpen] = useState(()=> typeof window!=="undefined" && window.innerWidth<768);
+  const [deleteConfirmId,setDeleteConfirmId] = useState(null);
   const [isMobile,setIsMobile] = useState(false);
   const [isXS,setIsXS]         = useState(false);
   const [savedPortfolios,setSavedPortfolios] = useState([]);
@@ -727,13 +751,51 @@ export default function App(){
     setTimeout(()=>setNotification(null),2500);
   };
 
+  // btEndIdx : dernier index bdays dont la date ≤ btStartDate (= date de départ du portefeuille = fin du graphique)
+  const btEndIdx = (()=>{
+    if(!priceData?.bdays) return null;
+    const bd = priceData.bdays;
+    let idx = bd.length - 1;
+    for(let i = bd.length - 1; i >= 0; i--){ if(bd[i] <= btStartDate){ idx = i; break; } }
+    return idx;
+  })();
+  // btStartIdx : premier index bdays dont la date ≥ (btStartDate - période choisie)
+  const btStartIdx = (()=>{
+    if(!priceData?.bdays || btEndIdx === null) return null;
+    const bd = priceData.bdays;
+    const target = subtractPeriod(btStartDate, period);
+    for(let i = 0; i < bd.length; i++){ if(bd[i] >= target) return Math.min(i, btEndIdx); }
+    return 0; // période avant toutes les données → utilise le min disponible
+  })();
+  // days = nombre réel de jours de trading entre btStartIdx et btEndIdx (données officielles uniquement)
   const days = (()=>{
-    if(priceData?.bdays){ const bd=priceData.bdays; const idx=bd.findIndex(d=>d>=btStartDate); if(idx>=0) return Math.max(1,bd.length-1-idx); }
+    if(btEndIdx !== null && btStartIdx !== null) return Math.max(1, btEndIdx - btStartIdx);
     return PERIOD_DAYS[period];
   })();
   const hDays = HORIZON_DAYS[horizon];
   const totalW = assets.reduce((a,b)=>a+(parseFloat(b.weight)||0),0);
   const weightOk = Math.abs(totalW-100)<0.05;
+
+  // Earliest date where ALL current portfolio assets have data → min selectable btStartDate
+  const minBtStartDate = useMemo(()=>{
+    if(!priceData?.bdays || !assets.length) return "";
+    const bd = priceData.bdays;
+    let maxFirst = "";
+    for(const {ticker} of assets){
+      const arr = priceData.raw[ticker];
+      if(!arr) return bd[bd.length-1];
+      const firstIdx = arr.findIndex(v=>v!=null);
+      if(firstIdx===-1) return bd[bd.length-1];
+      const d = bd[firstIdx]||"";
+      if(d>maxFirst) maxFirst = d;
+    }
+    return maxFirst;
+  },[assets,priceData]);
+
+  // Clamp btStartDate if it falls before any asset's first available date
+  useEffect(()=>{
+    if(minBtStartDate && btStartDate < minBtStartDate) setBtStartDate(minBtStartDate);
+  },[minBtStartDate]);
 
   function addAsset(t){ t=t.trim().toUpperCase(); if(!t||assets.find(a=>a.ticker===t)) return; setAssets(prev=>reequalize([...prev,{ticker:t,weight:0}])); }
   function removeAsset(t){ setAssets(prev=>reequalize(prev.filter(a=>a.ticker!==t))); }
@@ -742,14 +804,14 @@ export default function App(){
   // ── Backtest data ──
   const {chartData,assetPerfs,riskContribs,metrics,benchData} = useMemo(()=>{
     if(!assets.length||!weightOk||mode!=="backtest") return {chartData:[],assetPerfs:[],riskContribs:[],metrics:null,benchData:[]};
-    const returns = portfolioReturns(assets,days);
-    const benchPrices = generateBenchmark(days, benchmark);
+    const returns = portfolioReturns(assets,days,btEndIdx);
+    const benchPrices = generateBenchmark(days, benchmark, btEndIdx);
     const bench = benchPrices.map((p,i,arr)=>(p/arr[0]-1)*100);
-    const realDates = getRealDates(days);
+    const realDates = getRealDates(days, btEndIdx);
     const pts = returns.map((v,i)=>({date:realDates?realDates[i]:dateLabel(i,days,false,moisArr),value:parseFloat(v.toFixed(3)),bench:parseFloat(bench[i].toFixed(3))}));
 
     const allPrices = {};
-    assets.forEach(({ticker})=>{ allPrices[ticker]=getPrices(ticker,days); });
+    assets.forEach(({ticker})=>{ allPrices[ticker]=getPrices(ticker,days,btEndIdx); });
 
     const perfs = assets.map(({ticker,weight})=>{
       const pr = allPrices[ticker];
@@ -792,7 +854,7 @@ export default function App(){
 
     const m = computeMetrics(returns.map(v=>100+v), bench.map(v=>100+v));
     return {chartData:pts, assetPerfs:perfs, riskContribs, metrics:m, benchData:bench};
-  },[assets,period,days,mode,weightOk,priceData,lang,benchmark]);
+  },[assets,period,days,btStartDate,mode,weightOk,priceData,lang,benchmark]);
 
   // ── Monte Carlo ──
   const mcData = useMemo(()=>{
@@ -817,12 +879,26 @@ export default function App(){
     if(!selectedCompare.length) return {chart:[],metricsTable:[]};
     const activePorts = selectedCompare.map(id=>savedPortfolios.find(p=>p.id===id)).filter(Boolean);
     if(!activePorts.length) return {chart:[],metricsTable:[]};
-    const allReturns = activePorts.map(p=>portfolioReturns(p.assets,days));
-    const benchPrices2 = generateBenchmark(days, benchmark);
+    if(!priceData?.bdays) return {chart:[],metricsTable:[]};
+    const bd = priceData.bdays;
+    // end date = earliest trackingStartDate among selected portfolios (period where ALL have data)
+    const compareEndDate = activePorts.reduce((min,p)=>{
+      const d = p.trackingStartDate || new Date(p.savedAt||Date.now()).toISOString().split('T')[0];
+      return (min===""||d < min) ? d : min;
+    }, "");
+    let cmpEndIdx = bd.length - 1;
+    for(let i = bd.length - 1; i >= 0; i--){ if(bd[i] <= compareEndDate){ cmpEndIdx = i; break; } }
+    const target = subtractPeriod(compareEndDate, period);
+    let cmpStartIdx = 0;
+    for(let i = 0; i < bd.length; i++){ if(bd[i] >= target){ cmpStartIdx = Math.min(i, cmpEndIdx); break; } }
+    const cmpDays = Math.max(1, cmpEndIdx - cmpStartIdx);
+    const compareStartDate = bd[cmpStartIdx] || "";
+    const allReturns = activePorts.map(p=>portfolioReturns(p.assets,cmpDays,cmpEndIdx));
+    const benchPrices2 = generateBenchmark(cmpDays, benchmark, cmpEndIdx);
     const bench = benchPrices2.map((p,i,arr)=>(p/arr[0]-1)*100);
-    const realDates2 = getRealDates(days);
-    const chart = Array.from({length:days+1},(_,i)=>{
-      const pt={date:realDates2?realDates2[i]:dateLabel(i,days,false,moisArr),bench:parseFloat(bench[i].toFixed(3))};
+    const realDates2 = getRealDates(cmpDays, cmpEndIdx);
+    const chart = Array.from({length:cmpDays+1},(_,i)=>{
+      const pt={date:realDates2?realDates2[i]:dateLabel(i,cmpDays,false,moisArr),bench:parseFloat(bench[i].toFixed(3))};
       activePorts.forEach((p,pi)=>{ pt[p.id]=parseFloat(allReturns[pi][i].toFixed(3)); });
       return pt;
     });
@@ -831,8 +907,8 @@ export default function App(){
       m:computeMetrics(allReturns[pi].map(v=>100+v),bench.map(v=>100+v))
     }));
     const benchMetrics = computeMetrics(bench.map(v=>100+v), bench.map(v=>100+v));
-    return {chart,metricsTable,benchMetrics,names:activePorts.map(p=>({id:p.id,name:p.name,color:p.color}))};
-  },[selectedCompare,savedPortfolios,period,days,priceData,lang,benchmark]);
+    return {chart,metricsTable,benchMetrics,names:activePorts.map(p=>({id:p.id,name:p.name,color:p.color})),compareStartDate,compareEndDate};
+  },[selectedCompare,savedPortfolios,period,priceData,lang,benchmark]);
 
   // ── Tracking data (real perf from creation to today) ──
   const trackingData = useMemo(()=>{
@@ -899,7 +975,7 @@ export default function App(){
     setAssets(p.assets); setPeriod(p.period||"1A"); setMode(p.mode||"backtest");
     setSaveName(p.name); setEditingPortfolioId(p.id);
     setBtStartDate(p.trackingStartDate||new Date(p.savedAt||Date.now()).toISOString().split('T')[0]);
-    setTab("builder"); if(isMobile) setPanelOpen(false);
+    setTab("builder"); if(isMobile) setPanelOpen(true);
     notify(t('notif_loaded')(p.name));
   }
 
@@ -1061,7 +1137,7 @@ export default function App(){
 
       {isMobile&&mode==="backtest"&&<div>
         <SL T={T}>{t('cfg_start_date')}</SL>
-        <LocaleDateInput value={btStartDate} max={new Date().toISOString().split('T')[0]}
+        <LocaleDateInput value={btStartDate} min={minBtStartDate} max={new Date().toISOString().split('T')[0]}
           onChange={e=>setBtStartDate(e.target.value)} T={T} darkMode={darkMode} lang={lang} />
       </div>}
 
@@ -1070,7 +1146,7 @@ export default function App(){
         <div style={{display:"flex",gap:5}}>
           {[{id:"backtest",icon:"◀",lk:"mode_backtest"},{id:"monte_carlo",icon:"⟁",lk:"mode_mc"}].map(m=>(
             <button key={m.id} className={`mode-btn ${mode===m.id?"active":""}`}
-              onClick={()=>{ setMode(m.id); if(isMobile) setPanelOpen(false); }}>
+              onClick={()=>setMode(m.id)}>
               <div style={{fontSize:13}}>{m.icon}</div><div>{t(m.lk)}</div>
             </button>
           ))}
@@ -1222,15 +1298,9 @@ export default function App(){
         </div>
       </div>}
 
-      {isMobile&&<div style={{display:"flex",gap:8}}>
-        <button className="run" style={{flex:1}} onClick={()=>setPanelOpen(false)} disabled={!weightOk||!assets.length}>
-          {mode==="backtest"?t('btn_run_bt'):t('btn_run_mc')}
-        </button>
-        <button className="save-btn" disabled={!weightOk||!assets.length} onClick={()=>{
-          const auto=`Portfolio #${savedPortfolios.length+1} · ${new Date().toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit"})}`;
-          setSaveName(editingPortfolioId?saveName:auto); setSaveModalOpen(true);
-        }}>💾</button>
-      </div>}
+      {isMobile&&<button className="run" onClick={()=>setPanelOpen(false)} disabled={!weightOk||!assets.length}>
+        {mode==="backtest"?t('btn_run_bt'):t('btn_run_mc')}
+      </button>}
       {!weightOk&&assets.length>0&&<div style={{fontSize:9,color:"#f87171",textAlign:"center"}}>{t('cfg_weight_err')}</div>}
     </div>
   );};
@@ -1243,7 +1313,7 @@ export default function App(){
       {notification&&<div className="notif" style={{background:notification.type==="error"?"#f8717122":"#4ade8022",border:`1px solid ${notification.type==="error"?"#f87171":"#4ade80"}`,color:notification.type==="error"?"#f87171":"#4ade80"}}>{notification.msg}</div>}
 
       {/* TUTORIAL MODAL */}
-      {tutorialOpen&&<TutorialModal lang={lang} setLang={setLang} T={T} onClose={()=>setTutorialOpen(false)}/>}
+      {tutorialOpen&&<TutorialModal lang={lang} setLang={setLang} T={T} onClose={()=>{ setTutorialOpen(false); if(isMobile) setPanelOpen(true); }}/>}
 
       {/* SAVE MODAL */}
       {saveModalOpen&&<div className="modal-bg" onClick={()=>setSaveModalOpen(false)}>
@@ -1256,6 +1326,17 @@ export default function App(){
           <div style={{display:"flex",gap:8}}>
             <button onClick={()=>setSaveModalOpen(false)} style={{flex:1,padding:"10px",border:`1px solid ${T.b2}`,background:"transparent",color:T.t3,borderRadius:6,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:11}}>{t('save_cancel')}</button>
             <button onClick={savePortfolio} className="run" style={{flex:2,padding:"10px"}}>{editingPortfolioId?t('save_update'):t('save_confirm')}</button>
+          </div>
+        </div>
+      </div>}
+
+      {/* DELETE CONFIRMATION */}
+      {deleteConfirmId&&<div className="modal-bg" onClick={()=>setDeleteConfirmId(null)}>
+        <div className="modal" onClick={e=>e.stopPropagation()} style={{maxWidth:340}}>
+          <div style={{fontSize:13,fontWeight:700,color:T.t1,marginBottom:18,fontFamily:"'Unbounded'"}}>{t('del_confirm')}</div>
+          <div style={{display:"flex",gap:8}}>
+            <button onClick={()=>setDeleteConfirmId(null)} style={{flex:1,padding:"10px",border:`1px solid ${T.b2}`,background:"transparent",color:T.t3,borderRadius:6,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:11}}>{t('del_confirm_no')}</button>
+            <button onClick={()=>{ deletePortfolio(deleteConfirmId); setDeleteConfirmId(null); }} style={{flex:1,padding:"10px",border:"none",background:"#f8717122",color:"#f87171",borderRadius:6,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:11,fontWeight:700}}>{t('del_confirm_yes')}</button>
           </div>
         </div>
       </div>}
@@ -1295,7 +1376,6 @@ export default function App(){
           style={{background:"transparent",border:`1px solid ${T.b2}`,color:T.t4,borderRadius:"50%",width:28,height:28,cursor:"pointer",fontFamily:"serif",fontSize:13,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .12s"}}
           onMouseEnter={e=>{e.currentTarget.style.borderColor="#4ade80";e.currentTarget.style.color="#4ade80";}}
           onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t4;}}>?</button>}
-        {isMobile&&<button onClick={()=>setPanelOpen(true)} style={{background:T.b2,border:"none",color:"#4ade80",borderRadius:6,padding:"5px 8px",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:isXS?9:10,flexShrink:0}}>⚙</button>}
       </div>
 
       {/* TABS */}
@@ -1335,7 +1415,7 @@ export default function App(){
                 <div style={{width:1,height:28,background:T.b2,flexShrink:0}}/>
                 {mode==="backtest"&&<>
                   <span style={{fontSize:9,color:T.t4,letterSpacing:1,textTransform:"uppercase",whiteSpace:"nowrap",flexShrink:0}}>{t('cfg_start_date')}</span>
-                  <LocaleDateInput value={btStartDate} max={new Date().toISOString().split('T')[0]}
+                  <LocaleDateInput value={btStartDate} min={minBtStartDate} max={new Date().toISOString().split('T')[0]}
                     onChange={e=>setBtStartDate(e.target.value)} T={T} darkMode={darkMode} lang={lang}/>
                   <div style={{width:1,height:28,background:T.b2,flexShrink:0}}/>
                 </>}
@@ -1375,6 +1455,9 @@ export default function App(){
               )}
             </>)}
 
+            {/* ── MOBILE: bouton configuration (uniquement onglet builder) ── */}
+            {isMobile&&<button onClick={()=>setPanelOpen(true)} style={{width:"100%",marginBottom:10,background:"#4ade8018",border:"1px solid #4ade8066",color:"#4ade80",borderRadius:7,padding:"9px",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:11,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>⚙ {t('drawer_title')}</button>}
+
             {/* ── MOBILE: période + save compacts ── */}
             {isMobile&&(
               <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10,flexWrap:"wrap"}}>
@@ -1403,6 +1486,19 @@ export default function App(){
                 </div>
               </div>
             )}
+
+            {/* ── MOBILE: bouton sauvegarde portfolio ── */}
+            {isMobile&&<div style={{marginBottom:12}}>
+              <button className="save-btn" style={{width:"100%",padding:"9px",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}
+                disabled={!weightOk||!assets.length}
+                onClick={()=>{
+                  const auto=`Portfolio #${savedPortfolios.length+1} · ${new Date().toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit"})}`;
+                  setSaveName(editingPortfolioId?saveName:auto); setSaveModalOpen(true);
+                }}>
+                <span>💾</span>
+                <span style={{fontSize:10}}>{editingPortfolioId?t('save_update').replace(" ✓",""):t('save_confirm').replace(" ✓","")}</span>
+              </button>
+            </div>}
 
             {/* ── RESULT TABS (desktop, backtest only) ── */}
             {!isMobile&&mode==="backtest"&&chartData.length>0&&(
@@ -1652,7 +1748,7 @@ export default function App(){
                         <span style={{fontSize:9,color:T.t5}}>{p.assets.map(a=>`${a.ticker} ${a.weight}%`).join(" · ")}</span>
                       </div>
                       <button onClick={e=>{e.stopPropagation();loadPortfolio(p);}} style={{background:"none",border:`1px solid ${T.b3}`,color:T.t4,cursor:"pointer",fontSize:9,padding:"2px 6px",borderRadius:4,fontFamily:"'Space Mono'",flexShrink:0,transition:"all .12s"}} onMouseEnter={e=>{e.currentTarget.style.color="#fb923c";e.currentTarget.style.borderColor="#fb923c";}} onMouseLeave={e=>{e.currentTarget.style.color=T.t4;e.currentTarget.style.borderColor=T.b3;}}>✎</button>
-                      <button className="del-btn" onClick={e=>{e.stopPropagation();deletePortfolio(p.id);}}>×</button>
+                      <button className="del-btn" onClick={e=>{e.stopPropagation();setDeleteConfirmId(p.id);}}>×</button>
                     </div>
                     );
                   })}
@@ -1678,7 +1774,10 @@ export default function App(){
               {selectedCompare.length>=1&&compareData.chart.length>0&&<>
                 {/* Superposed chart */}
                 <div className="card" style={{marginBottom:12}}>
-                  <div style={{fontSize:8,color:T.t4,letterSpacing:3,textTransform:"uppercase",marginBottom:10}}>{t('cmp_chart')}</div>
+                  <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
+                    <div style={{fontSize:8,color:T.t4,letterSpacing:3,textTransform:"uppercase"}}>{t('cmp_chart')}</div>
+                    {compareData.compareStartDate&&compareData.compareEndDate&&<div style={{fontSize:9,color:T.t4,fontFamily:"'Space Mono'"}}>{compareData.compareStartDate} → {compareData.compareEndDate}</div>}
+                  </div>
                   <ResponsiveContainer width="100%" height={CH+20}>
                     <LineChart data={compareData.chart}>
                       <XAxis dataKey="date" tick={{fill:T.t4,fontSize:9}} axisLine={false} tickLine={false} interval="preserveStartEnd" minTickGap={48} tickFormatter={d=>d&&d.length>=10?`${d.slice(8)} ${moisArr[parseInt(d.slice(5,7))-1]}`:d}/>
@@ -1794,7 +1893,7 @@ export default function App(){
                       <div style={{fontSize:9,color:T.t5,marginTop:2,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{item.assets?.map(a=>`${a.ticker} ${a.weight}%`).join(' · ')}</div>
                     </div>
                     <span style={{fontSize:10,color:T.t4,flexShrink:0}}>›</span>
-                    <button className="del-btn" onClick={e=>{e.stopPropagation();deletePortfolio(item.id);}} style={{fontSize:16,flexShrink:0}}>×</button>
+                    <button className="del-btn" onClick={e=>{e.stopPropagation();setDeleteConfirmId(item.id);}} style={{fontSize:16,flexShrink:0}}>×</button>
                   </div>
                   );
                 })}
