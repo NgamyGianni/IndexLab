@@ -2040,8 +2040,9 @@ export default function App(){
                             const portIsBest=best==="max"?va>vr:va<vr;
                             const refIsBest=best==="max"?vr>va:vr<va;
                             const deltaGood=best==="max"?d>0:d<0;
+                            const isLast=ri===rows.length-1;
                             return(
-                              <tr key={k} style={{borderBottom:`1px solid ${T.b1}`,background:ri%2===0?T.bg:"transparent"}}>
+                              <tr key={k} style={{borderBottom:isLast?"none":`1px solid ${T.b1}`,background:ri%2===0?T.bg:"transparent"}}>
                                 <td style={{padding:"5px 8px",color:T.t3,fontSize:9}}>
                                   <TableMetricLabel label={l} info={mi(ik)} T={T}/>
                                 </td>
