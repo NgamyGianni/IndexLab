@@ -751,27 +751,17 @@ export default function App(){
     setTimeout(()=>setNotification(null),2500);
   };
 
-  // btEndIdx : dernier index bdays dont la date ≤ btStartDate (= date de départ du portefeuille = fin du graphique)
-  const btEndIdx = (()=>{
-    if(!priceData?.bdays) return null;
+  // btEndIdx / btStartIdx / days — memoïsés pour éviter les closures stales dans les useMemo fils
+  const {btEndIdx, btStartIdx, days} = useMemo(()=>{
+    if(!priceData?.bdays) return {btEndIdx:null, btStartIdx:null, days:PERIOD_DAYS[period]};
     const bd = priceData.bdays;
-    let idx = bd.length - 1;
-    for(let i = bd.length - 1; i >= 0; i--){ if(bd[i] <= btStartDate){ idx = i; break; } }
-    return idx;
-  })();
-  // btStartIdx : premier index bdays dont la date ≥ (btStartDate - période choisie)
-  const btStartIdx = (()=>{
-    if(!priceData?.bdays || btEndIdx === null) return null;
-    const bd = priceData.bdays;
+    let endIdx = bd.length - 1;
+    for(let i = bd.length - 1; i >= 0; i--){ if(bd[i] <= btStartDate){ endIdx = i; break; } }
     const target = subtractPeriod(btStartDate, period);
-    for(let i = 0; i < bd.length; i++){ if(bd[i] >= target) return Math.min(i, btEndIdx); }
-    return 0; // période avant toutes les données → utilise le min disponible
-  })();
-  // days = nombre réel de jours de trading entre btStartIdx et btEndIdx (données officielles uniquement)
-  const days = (()=>{
-    if(btEndIdx !== null && btStartIdx !== null) return Math.max(1, btEndIdx - btStartIdx);
-    return PERIOD_DAYS[period];
-  })();
+    let startIdx = 0;
+    for(let i = 0; i < bd.length; i++){ if(bd[i] >= target){ startIdx = Math.min(i, endIdx); break; } }
+    return {btEndIdx:endIdx, btStartIdx:startIdx, days:Math.max(1, endIdx - startIdx)};
+  },[priceData, btStartDate, period]);
   const hDays = HORIZON_DAYS[horizon];
   const totalW = assets.reduce((a,b)=>a+(parseFloat(b.weight)||0),0);
   const weightOk = Math.abs(totalW-100)<0.05;
@@ -854,7 +844,7 @@ export default function App(){
 
     const m = computeMetrics(returns.map(v=>100+v), bench.map(v=>100+v));
     return {chartData:pts, assetPerfs:perfs, riskContribs, metrics:m, benchData:bench};
-  },[assets,period,days,btStartDate,mode,weightOk,priceData,lang,benchmark]);
+  },[assets,period,days,btEndIdx,btStartIdx,mode,weightOk,priceData,lang,benchmark]);
 
   // ── Monte Carlo ──
   const mcData = useMemo(()=>{
@@ -1538,7 +1528,10 @@ export default function App(){
 
               {/* Chart */}
               <div className="card" style={{marginBottom:12}}>
-                <div style={{fontSize:8,color:T.t4,letterSpacing:3,textTransform:"uppercase",marginBottom:10}}>{t('ch_perf_vs_sp')(benchmarkLabel)}</div>
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
+                  <div style={{fontSize:8,color:T.t4,letterSpacing:3,textTransform:"uppercase"}}>{t('ch_perf_vs_sp')(benchmarkLabel)}</div>
+                  {priceData?.bdays&&btStartIdx!==null&&btEndIdx!==null&&<div style={{fontSize:9,color:T.t4,fontFamily:"'Space Mono'"}}>{priceData.bdays[btStartIdx]} → {priceData.bdays[btEndIdx]}</div>}
+                </div>
                 <ResponsiveContainer width="100%" height={CH}>
                   <LineChart data={chartData}>
                     <defs>
