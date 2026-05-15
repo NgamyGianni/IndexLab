@@ -634,7 +634,7 @@ export default function App(){
   const [tab,setTab]           = useState("builder");
   const [assets,setAssets]     = useState([{ticker:"AAPL",weight:33.3},{ticker:"BTC-USD",weight:33.3},{ticker:"SPY",weight:33.4}]);
   const [mode,setMode]         = useState("backtest");
-  const [period,setPeriod]     = useState("1Y");
+  const [period,setPeriod]     = useState("1A");
   const [horizon,setHorizon]   = useState("1A");
   const [invest,setInvest]     = useState(10000);
   const [custom,setCustom]     = useState("");
@@ -942,7 +942,7 @@ export default function App(){
   }
 
   function loadPortfolio(p){
-    setAssets(p.assets); setPeriod(p.period||"1Y"); setMode(p.mode||"backtest");
+    setAssets(p.assets); setPeriod(p.period||"1A"); setMode(p.mode||"backtest");
     setSaveName(p.name); setEditingPortfolioId(p.id);
     setBtStartDate(p.trackingStartDate||new Date(p.savedAt||Date.now()).toISOString().split('T')[0]);
     setTab("builder"); if(isMobile) setPanelOpen(false);
