@@ -2016,7 +2016,6 @@ export default function App(){
                         {k:"sharpe",     l:t('ct_sharpe'), ik:"sharpe", fmt:v=>v,                                  best:"max"},
                         {k:"maxDD",      l:t('ct_maxdd'),  ik:"maxdd",  fmt:v=>`${v}%`,                            best:"min"},
                         {k:"annVol",     l:t('ct_vol'),    ik:"vol",    fmt:v=>`${v}%`,                            best:"min"},
-                        {k:"alpha",      l:t('ct_alpha'),  ik:"alpha",  fmt:v=>`${parseFloat(v)>=0?"+":""}${v}%`, best:"max"},
                       ];
                       return <>
                       <div style={{fontSize:7,color:T.t4,letterSpacing:3,textTransform:"uppercase",marginBottom:10}}>
