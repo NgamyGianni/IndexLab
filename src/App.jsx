@@ -157,6 +157,7 @@ const THEMES = [
 ];
 const BENCHMARK = { mu:0.13, sigma:0.14, name:"S&P 500" };
 
+const BENCH_COLOR = "#64748b";
 const BENCHMARKS = [
   { ticker:"^GSPC",   label:"S&P 500"  },
   { ticker:"^FCHI",   label:"CAC 40"   },
@@ -370,20 +371,20 @@ function SL({children,mb=6,T}){ return <div style={{fontSize:9,color:T.t4,letter
 
 // ── Inline tooltip for comparison table ──────────────────────────────────────
 const TableMetricLabel = ({label, info, T})=>{
-  const [open,setOpen] = useState(false);
+  const [rect,setRect] = useState(null);
   return(
-    <div style={{display:"inline-flex",alignItems:"center",gap:5,position:"relative"}}>
+    <div style={{display:"inline-flex",alignItems:"center",gap:5}}>
       <span>{label}</span>
       {info&&(
         <button
-          onMouseEnter={()=>setOpen(true)}
-          onMouseLeave={()=>setOpen(false)}
-          onClick={()=>setOpen(o=>!o)}
-          style={{width:13,height:13,borderRadius:"50%",border:`1px solid ${T.b2}`,background:T.bg2,color:T.t4,fontSize:7,cursor:"pointer",display:"inline-flex",alignItems:"center",justifyContent:"center",fontFamily:"serif",fontWeight:700,flexShrink:0,lineHeight:1}}
+          onMouseEnter={e=>setRect(e.currentTarget.getBoundingClientRect())}
+          onMouseLeave={()=>setRect(null)}
+          onClick={e=>{e.stopPropagation();setRect(r=>r?null:e.currentTarget.getBoundingClientRect());}}
+          style={{width:13,height:13,borderRadius:"50%",border:`1px solid ${T.b2}`,background:T.bg2,color:T.t4,fontSize:7,cursor:"pointer",display:"inline-flex",alignItems:"center",justifyContent:"center",fontFamily:"serif",fontWeight:700,flexShrink:0,lineHeight:1,padding:0}}
         >?</button>
       )}
-      {open&&info&&(
-        <div style={{position:"absolute",left:0,top:"100%",zIndex:9999,background:T.bg,border:`1px solid ${T.b2}`,borderRadius:8,padding:"10px 13px",width:240,boxShadow:"0 8px 32px #000c",marginTop:2,pointerEvents:"none"}}>
+      {rect&&info&&(
+        <div style={{position:"fixed",...tipPos(rect),zIndex:9999,width:TIP_W,background:T.bg1||T.bg,border:`1px solid ${T.b2}`,borderRadius:8,padding:"10px 13px",boxShadow:"0 8px 32px #000c",pointerEvents:"none",textTransform:"none",letterSpacing:"normal"}}>
           <div style={{fontSize:10,color:T.t1,lineHeight:1.6,marginBottom:5}}>{info.what}</div>
           <div style={{fontSize:9,color:"#fb923c",lineHeight:1.5,marginBottom:4,background:"#fb923c10",padding:"3px 6px",borderRadius:3}}>📊 {info.how}</div>
           <div style={{fontSize:9,color:"#4ade80",lineHeight:1.5,background:"#4ade8010",padding:"3px 6px",borderRadius:3}}>✓ {info.good}</div>
@@ -395,25 +396,25 @@ const TableMetricLabel = ({label, info, T})=>{
 
 // ── Tooltip-enabled MetricRow ─────────────────────────────────────────────────
 const MetricRow = ({label,val,color,highlight,info,T})=>{
-  const [open,setOpen] = useState(false);
+  const [rect,setRect] = useState(null);
   return(
-    <div style={{position:"relative",padding:"6px 0",borderBottom:`1px solid ${T.b2_20}`}}>
+    <div style={{padding:"6px 0",borderBottom:`1px solid ${T.b2_20}`}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
         <div style={{display:"flex",alignItems:"center",gap:6}}>
           <span style={{fontSize:11,color:T.t2}}>{label}</span>
           {info&&(
             <button
-              onMouseEnter={()=>setOpen(true)}
-              onMouseLeave={()=>setOpen(false)}
-              onClick={()=>setOpen(o=>!o)}
+              onMouseEnter={e=>setRect(e.currentTarget.getBoundingClientRect())}
+              onMouseLeave={()=>setRect(null)}
+              onClick={e=>{e.stopPropagation();setRect(r=>r?null:e.currentTarget.getBoundingClientRect());}}
               style={{width:14,height:14,borderRadius:"50%",border:`1px solid ${T.b3}`,background:T.bg2,color:T.t4,fontSize:8,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"serif",fontWeight:700,flexShrink:0,lineHeight:1}}
             >?</button>
           )}
         </div>
         <div style={{fontFamily:"'Space Mono',monospace",fontSize:13,fontWeight:700,color:color||T.t1,background:highlight?color+"18":"transparent",padding:highlight?"2px 8px":"0",borderRadius:4}}>{val}</div>
       </div>
-      {open&&info&&(
-        <div style={{position:"absolute",left:0,top:"100%",zIndex:999,background:T.bg1,border:`1px solid ${T.b3}`,borderRadius:8,padding:"10px 13px",width:260,boxShadow:"0 8px 32px #000a",marginTop:2}}>
+      {rect&&info&&(
+        <div style={{position:"fixed",...tipPos(rect),zIndex:9999,width:TIP_W,background:T.bg1,border:`1px solid ${T.b3}`,borderRadius:8,padding:"10px 13px",boxShadow:"0 8px 32px #000a",pointerEvents:"none",textTransform:"none",letterSpacing:"normal"}}>
           <div style={{fontSize:10,color:T.t1,lineHeight:1.6,marginBottom:6}}>{info.what}</div>
           <div style={{fontSize:9,color:"#fb923c",lineHeight:1.5,marginBottom:5,background:"#fb923c10",padding:"4px 7px",borderRadius:4}}>📊 {info.how}</div>
           <div style={{fontSize:9,color:"#4ade80",lineHeight:1.5,background:"#4ade8010",padding:"4px 7px",borderRadius:4}}>✓ {info.good}</div>
@@ -424,19 +425,25 @@ const MetricRow = ({label,val,color,highlight,info,T})=>{
 };
 
 // ── Inline info bubble (? icon + popover) ─────────────────────────────────────
-const InfoBubble = ({info,T,up})=>{
-  const [open,setOpen] = useState(false);
+const TIP_W=240, TIP_H=130;
+function tipPos(rect){
+  const left=Math.max(8,Math.min(rect.left,window.innerWidth-TIP_W-8));
+  const below=rect.bottom+TIP_H+8<window.innerHeight;
+  return below?{top:rect.bottom+4,left}:{bottom:window.innerHeight-rect.top+4,left};
+}
+const InfoBubble = ({info,T})=>{
+  const [rect,setRect] = useState(null);
   if(!info) return null;
   return (
-    <div style={{position:"relative",display:"inline-flex",verticalAlign:"middle",flexShrink:0}}>
+    <div style={{display:"inline-flex",verticalAlign:"middle",flexShrink:0}}>
       <button
-        onMouseEnter={()=>setOpen(true)}
-        onMouseLeave={()=>setOpen(false)}
-        onClick={e=>{e.stopPropagation();setOpen(o=>!o);}}
+        onMouseEnter={e=>setRect(e.currentTarget.getBoundingClientRect())}
+        onMouseLeave={()=>setRect(null)}
+        onClick={e=>{e.stopPropagation();setRect(r=>r?null:e.currentTarget.getBoundingClientRect());}}
         style={{width:13,height:13,borderRadius:"50%",border:`1px solid ${T.b2}`,background:T.bg2,color:T.t4,fontSize:7,cursor:"pointer",display:"inline-flex",alignItems:"center",justifyContent:"center",fontFamily:"serif",fontWeight:700,flexShrink:0,lineHeight:1,padding:0}}
       >?</button>
-      {open&&(
-        <div style={{position:"absolute",left:0,zIndex:9999,background:T.bg1,border:`1px solid ${T.b2}`,borderRadius:8,padding:"10px 13px",width:240,boxShadow:"0 8px 32px #000c",pointerEvents:"none",...(up?{bottom:"calc(100% + 4px)"}:{top:"calc(100% + 4px)"})}}>
+      {rect&&(
+        <div style={{position:"fixed",...tipPos(rect),zIndex:9999,width:TIP_W,background:T.bg1||T.bg,border:`1px solid ${T.b2}`,borderRadius:8,padding:"10px 13px",boxShadow:"0 8px 32px #000c",pointerEvents:"none",textTransform:"none",letterSpacing:"normal"}}>
           <div style={{fontSize:10,color:T.t1,lineHeight:1.6,marginBottom:5}}>{info.what}</div>
           <div style={{fontSize:9,color:"#fb923c",lineHeight:1.5,marginBottom:4,background:"#fb923c10",padding:"3px 6px",borderRadius:3}}>📊 {info.how}</div>
           <div style={{fontSize:9,color:"#4ade80",lineHeight:1.5,background:"#4ade8010",padding:"3px 6px",borderRadius:3}}>✓ {info.good}</div>
@@ -655,8 +662,10 @@ export default function App(){
   const [priceData,setPriceData] = useState(null);
   const [editingPortfolioId,setEditingPortfolioId] = useState(null);
   const [benchmark,setBenchmark] = useState("^GSPC");
-  const [trackModalId,setTrackModalId] = useState(null);
-  const [projHorizon,setProjHorizon]     = useState('y1');
+  const [trackModalId,setTrackModalId]   = useState(null);
+  const [trackRefType,setTrackRefType]   = useState("bench");
+  const [trackBench,setTrackBench]       = useState("^GSPC");
+  const [trackRefPortId,setTrackRefPortId] = useState(null);
   const [selectedTicker,setSelectedTicker]   = useState(null);
   const [selectedOptim,setSelectedOptim]     = useState(null);
   const [builderTab,setBuilderTab]           = useState("chart"); // "chart"|"metrics"|"attribution"
@@ -828,40 +837,16 @@ export default function App(){
   // ── Tracking data (real perf from creation to today) ──
   const trackingData = useMemo(()=>{
     if(!savedPortfolios.length) return [];
-    const calcProj=(assets)=>{
-      const {mu,sigma}=portfolioParams(assets);
-      const dt=1/252,projN=100,projSeed=0x3a7f9b;
-      const allPaths=Array.from({length:projN},(_,n)=>{
-        const rng=seededRng((projSeed+n*777777)&0x7fffffff);
-        let lv=0; const path=[0];
-        for(let d=0;d<1260;d++){
-          lv+=(mu-0.5*sigma**2)*dt+sigma*Math.sqrt(dt)*randNormal(rng);
-          path.push(parseFloat(((Math.exp(lv)-1)*100).toFixed(2)));
-        }
-        return path;
-      });
-      const medAt=idx=>{const s=allPaths.map(p=>p[Math.min(idx,p.length-1)]).sort((a,b)=>a-b);return parseFloat(s[Math.floor(s.length/2)].toFixed(2));};
-      const step=Math.max(1,Math.floor(1260/80));
-      const pts=[];
-      for(let i=0;i<=1260;i+=step) pts.push({d:i,v:medAt(i)});
-      if(pts[pts.length-1].d!==1260) pts.push({d:1260,v:medAt(1260)});
-      return {y1:medAt(252),y3:medAt(756),y5:medAt(1260),pts};
-    };
-    if(!priceData) return savedPortfolios.map(p=>({id:p.id,name:p.name,color:p.color,savedAt:p.savedAt,assets:p.assets,error:'no_data',projection:calcProj(p.assets)}));
+    if(!priceData) return savedPortfolios.map(p=>({id:p.id,name:p.name,color:p.color,savedAt:p.savedAt,assets:p.assets,error:'no_data'}));
     const bdays = priceData.bdays;
     return savedPortfolios.map(p=>{
       const base = {id:p.id,name:p.name,color:p.color,savedAt:p.savedAt||Date.now(),assets:p.assets};
-      const projection=calcProj(p.assets);
       const savedDate = p.trackingStartDate || new Date(p.savedAt||Date.now()).toISOString().split('T')[0];
       const endIdx = bdays.length-1;
       let startIdx = bdays.findIndex(d=>d>=savedDate);
-      if(startIdx===-1) startIdx = endIdx; // portfolio créé après la dernière date dispo → 0 jour
+      if(startIdx===-1) startIdx = endIdx;
       const trackDays = endIdx-startIdx;
-      const lastBdayStr=bdays[endIdx];
-      const futureDateStr=n=>{const d=new Date(lastBdayStr);d.setDate(d.getDate()+Math.round(n*(365/252)));return d.toISOString().slice(0,10);};
-      const mkProjChart=(sv=0)=>projection.pts.map(pt=>({date:pt.d===0?lastBdayStr:futureDateStr(pt.d),proj:parseFloat((sv+pt.v).toFixed(2)),d:pt.d}));
-      if(trackDays<1) return {...base,trackDays:0,error:'too_short',projection,projChartData:mkProjChart(0)};
-      // Real asset prices from startIdx → today
+      if(trackDays<1) return {...base,trackDays:0,startIdx,error:'too_short'};
       const ap={};
       let ok=true;
       for(const {ticker} of p.assets){
@@ -872,50 +857,19 @@ export default function App(){
         const b=slice[0]||1;
         ap[ticker]=slice.map(v=>(v/b)*100);
       }
-      if(!ok) return {...base,trackDays,error:'missing_assets',projection,projChartData:mkProjChart(0)};
-      // Weighted portfolio actual returns
+      if(!ok) return {...base,trackDays,startIdx,error:'missing_assets'};
       const actualRaw=Array.from({length:trackDays+1},(_,i)=>{
         let v=0;
         for(const {ticker,weight} of p.assets) v+=(ap[ticker][i]-100)*((parseFloat(weight)||0)/100);
         return parseFloat(v.toFixed(3));
       });
-      // MC median (200 paths, same duration)
-      const {mu,sigma}=portfolioParams(p.assets);
-      const N=200,dt=1/252,seed0=(p.savedAt||42)%0x7fffffff;
-      const sims=Array.from({length:N},(_,n)=>{
-        const rng=seededRng((seed0+n*999983)&0x7fffffff);
-        let val=0; const path=[0];
-        for(let d=0;d<trackDays;d++){
-          val+=(mu-0.5*sigma**2)*dt+sigma*Math.sqrt(dt)*randNormal(rng);
-          path.push(parseFloat(((Math.exp(val)-1)*100).toFixed(3)));
-        }
-        return path;
-      });
-      const mcRaw=Array.from({length:trackDays+1},(_,i)=>{
-        const vals=sims.map(s=>s[i]).sort((a,b)=>a-b);
-        return vals[Math.floor(0.5*vals.length)];
-      });
-      // Sampled chart data
       const step=Math.max(1,Math.floor(trackDays/80));
       const idxs=[];
       for(let i=0;i<=trackDays;i+=step) idxs.push(i);
       if(idxs[idxs.length-1]!==trackDays) idxs.push(trackDays);
-      const chartData=idxs.map(i=>({
-        date:bdays[startIdx+i]||'',
-        actual:actualRaw[i], mc:mcRaw[i],
-      }));
-      // Forward projection chart (from actualFinal into future)
-      const projChartData=mkProjChart(actualRaw[trackDays]);
-      // Metrics
+      const chartData=idxs.map(i=>({date:bdays[startIdx+i]||'',actual:actualRaw[i]}));
       const actualM=computeMetrics(actualRaw.map(v=>100+v),null);
-      const mcM=computeMetrics(mcRaw.map(v=>100+v),null);
-      return {
-        ...base,trackDays,
-        startDate:bdays[startIdx],
-        actualFinal:actualRaw[trackDays],
-        mcFinal:mcRaw[trackDays],
-        chartData,actualM,mcM,projection,projChartData,
-      };
+      return {...base,trackDays,startIdx,idxs,startDate:bdays[startIdx],actualFinal:actualRaw[trackDays],chartData,actualM};
     });
   },[savedPortfolios,priceData]);
 
@@ -1501,7 +1455,7 @@ export default function App(){
                     <YAxis tick={{fill:T.t4,fontSize:9}} axisLine={false} tickLine={false} tickFormatter={v=>`${v>0?"+":""}${v.toFixed(0)}%`} width={42}/>
                     <Tooltip content={<ChartTooltip invest={invest} T={T} mois={moisArr}/>}/>
                     <ReferenceLine y={0} stroke={T.b2} strokeDasharray="4 3"/>
-                    <Line type="monotone" dataKey="bench" stroke={T.b2} strokeWidth={1.5} dot={false} name={benchmarkLabel} strokeDasharray="4 2"/>
+                    <Line type="monotone" dataKey="bench" stroke={BENCH_COLOR} strokeWidth={1.5} dot={false} name={benchmarkLabel} strokeDasharray="4 2"/>
                     <Line type="monotone" dataKey="value" stroke={isPos?"#4ade80":"#f87171"} strokeWidth={2.5} dot={false} name={t('my_index')} activeDot={{r:4}}/>
                   </LineChart>
                 </ResponsiveContainer>
@@ -1731,7 +1685,7 @@ export default function App(){
                       <YAxis tick={{fill:T.t4,fontSize:9}} axisLine={false} tickLine={false} tickFormatter={v=>`${v>0?"+":""}${v.toFixed(0)}%`} width={44}/>
                       <Tooltip content={<ChartTooltip invest={invest} T={T} mois={moisArr}/>}/>
                       <ReferenceLine y={0} stroke={T.b2} strokeDasharray="4 3"/>
-                      <Line type="monotone" dataKey="bench" stroke={T.b2} strokeWidth={1.5} dot={false} name={benchmarkLabel} strokeDasharray="4 2"/>
+                      <Line type="monotone" dataKey="bench" stroke={BENCH_COLOR} strokeWidth={1.5} dot={false} name={benchmarkLabel} strokeDasharray="4 2"/>
                       {compareData.names?.map(({id,name,color})=>(
                         <Line key={id} type="monotone" dataKey={id} stroke={color} strokeWidth={2} dot={false} name={name} activeDot={{r:3}}/>
                       ))}
@@ -1740,8 +1694,8 @@ export default function App(){
                   {/* Legend */}
                   <div style={{display:"flex",flexWrap:"wrap",gap:12,marginTop:8}}>
                     <div style={{display:"flex",alignItems:"center",gap:5}}>
-                      <div style={{width:16,height:1,background:T.b2,borderTop:`1px dashed ${T.b2}`}}/>
-                      <span style={{fontSize:9,color:T.t4}}>{benchmarkLabel}</span>
+                      <div style={{width:16,height:1,background:BENCH_COLOR,borderTop:`1px dashed ${BENCH_COLOR}`}}/>
+                      <span style={{fontSize:9,color:BENCH_COLOR}}>{benchmarkLabel}</span>
                     </div>
                     {compareData.names?.map(({id,name,color})=>(
                       <div key={id} style={{display:"flex",alignItems:"center",gap:5}}>
@@ -1760,7 +1714,7 @@ export default function App(){
                       <thead>
                         <tr style={{borderBottom:`1px solid ${T.b2}`}}>
                           <td style={{padding:"6px 8px",color:T.t4,fontSize:8,textTransform:"uppercase",letterSpacing:1}}>{t('cmp_table_hdr')}</td>
-                          <td style={{padding:"6px 8px",color:T.t2,fontSize:9,textAlign:"right"}}>{benchmarkLabel}</td>
+                          <td style={{padding:"6px 8px",color:BENCH_COLOR,fontSize:9,textAlign:"right"}}>{benchmarkLabel}</td>
                           {compareData.metricsTable?.map(p=>(
                             <td key={p.id} style={{padding:"6px 8px",color:p.color,fontSize:9,textAlign:"right",whiteSpace:"nowrap"}}>
                               {p.name.length>12?p.name.slice(0,12)+"…":p.name}
@@ -1792,18 +1746,13 @@ export default function App(){
                             <td style={{padding:"5px 8px",color:T.t3,fontSize:9}}>
                               <TableMetricLabel label={l} info={mi(ik)} T={T}/>
                             </td>
-                            <td style={{padding:"5px 8px",textAlign:"right",fontSize:9,color:benchIsBest?"#94a3b8":T.t5,fontWeight:benchIsBest?700:400,background:benchIsBest?"#94a3b808":"transparent"}}>
+                            <td style={{padding:"5px 8px",textAlign:"right",fontSize:9,color:BENCH_COLOR,fontWeight:benchIsBest?700:400,background:benchIsBest?BENCH_COLOR+"18":"transparent"}}>
                               {benchVal!=null ? fmt(compareData.benchMetrics[k]) : "—"}
                             </td>
                             {compareData.metricsTable?.map((p)=>{
                               const v=parseFloat(p.m[k]);
                               const isBest = bestVal!==null&&v===bestVal&&!benchIsBest;
-                              let color;
-                              if(isBest) color=p.color;
-                              else if(best==="max") color=v>=0?"#4ade80":"#f87171";
-                              else if(best==="min") color=T.t3;
-                              else color=T.t2;
-                              return <td key={p.id} style={{padding:"5px 8px",color,textAlign:"right",fontWeight:isBest?700:400,background:isBest?p.color+"22":"transparent"}}>
+                              return <td key={p.id} style={{padding:"5px 8px",color:p.color,textAlign:"right",fontWeight:isBest?700:400,background:isBest?p.color+"18":"transparent"}}>
                                 {fmt(p.m[k])}
                               </td>;
                             })}
@@ -1858,7 +1807,52 @@ export default function App(){
           {trackModalId&&(()=>{
             const item = trackingData.find(d=>d.id===trackModalId);
             if(!item) return null;
-            const hDays={y1:252,y3:756,y5:1260}[projHorizon];
+
+            // ── Compute reference ──
+            let refRaw=null, refName="", refColor=T.b2;
+            if(!item.error&&priceData&&item.idxs){
+              if(trackRefType==="bench"){
+                const arr=priceData.raw[trackBench];
+                if(arr){
+                  const slice=arr.slice(item.startIdx,item.startIdx+item.trackDays+1);
+                  if(slice.length===item.trackDays+1&&!slice.some(v=>v==null)){
+                    const b=slice[0]||1;
+                    refRaw=slice.map(v=>parseFloat(((v/b-1)*100).toFixed(3)));
+                  }
+                }
+                refName=BENCHMARKS.find(b=>b.ticker===trackBench)?.label??trackBench;
+                refColor=BENCH_COLOR;
+              } else {
+                const refId=trackRefPortId||savedPortfolios.find(p=>p.id!==item.id)?.id;
+                const refPort=savedPortfolios.find(p=>p.id===refId);
+                if(refPort){
+                  const ap={}; let ok=true;
+                  for(const {ticker,weight} of refPort.assets){
+                    const arr=priceData.raw[ticker];
+                    if(!arr){ok=false;break;}
+                    const slice=arr.slice(item.startIdx,item.startIdx+item.trackDays+1);
+                    if(slice.length<item.trackDays+1||slice.some(v=>v==null)){ok=false;break;}
+                    const b=slice[0]||1;
+                    ap[ticker]=slice.map(v=>(v/b)*100);
+                  }
+                  if(ok){
+                    refRaw=Array.from({length:item.trackDays+1},(_,i)=>{
+                      let v=0;
+                      for(const {ticker,weight} of refPort.assets) v+=(ap[ticker][i]-100)*((parseFloat(weight)||0)/100);
+                      return parseFloat(v.toFixed(3));
+                    });
+                  }
+                  refName=refPort.name; refColor=refPort.color;
+                }
+              }
+            }
+            const refFinal=refRaw?refRaw[refRaw.length-1]:null;
+            const alpha=item.actualFinal!=null&&refFinal!=null?parseFloat((item.actualFinal-refFinal).toFixed(2)):null;
+            const refM=refRaw?computeMetrics(refRaw.map(v=>100+v),refRaw.map(v=>100+v)):null;
+            const chartData=(item.chartData||[]).map((pt,j)=>({...pt,ref:refRaw?refRaw[item.idxs?.[j]??j]:null}));
+            const actualColor=(!item.error&&item.actualFinal>=0)?"#4ade80":"#f87171";
+            const fmtPct=(v,always)=>`${v>=0&&always?"+":""}${v>=0?"+":""}${v.toFixed(2)}%`;
+
             return (
               <div onClick={()=>setTrackModalId(null)} style={{position:"fixed",inset:0,background:"#000c",zIndex:60,display:"flex",alignItems:isMobile?"flex-end":"center",justifyContent:"center",padding:isMobile?0:16}}>
                 <div onClick={e=>e.stopPropagation()} style={{
@@ -1902,45 +1896,73 @@ export default function App(){
                   <div style={{padding:isMobile?"14px 16px":"20px 24px"}}>
 
                     {/* Composition */}
-                    <div style={{marginBottom:18}}>
+                    <div style={{marginBottom:16}}>
                       <div style={{fontSize:7,color:T.t4,letterSpacing:3,textTransform:"uppercase",marginBottom:7}}>Composition</div>
                       <div style={{display:"flex",flexWrap:"wrap",gap:5}}>
                         {item.assets?.map(a=>{
                           let ret=null;
                           if(priceData?.raw?.[a.ticker]&&item.startDate){
-                            const bd=priceData.bdays;
                             const arr=priceData.raw[a.ticker];
-                            const si=bd.findIndex(d=>d>=item.startDate);
-                            if(si>=0&&si<arr.length&&arr[si]&&arr[arr.length-1]){
-                              ret=(arr[arr.length-1]/arr[si]-1)*100;
-                            }
+                            const si=item.startIdx;
+                            if(si>=0&&si<arr.length&&arr[si]&&arr[arr.length-1]) ret=(arr[arr.length-1]/arr[si]-1)*100;
                           }
-                          return (
-                          <div key={a.ticker} style={{background:T.bg,border:`1px solid ${T.b1}`,borderRadius:6,padding:"5px 10px",fontSize:9,fontFamily:"'Space Mono'",display:"flex",gap:7,alignItems:"center",transition:"border-color .12s"}}
-                            onMouseEnter={e=>e.currentTarget.style.borderColor=T.b2}
-                            onMouseLeave={e=>e.currentTarget.style.borderColor=T.b1}>
-                            <span style={{color:T.t1,fontWeight:700}}>{a.ticker}</span>
-                            <span style={{color:T.t5,borderRight:`1px solid ${T.b1}`,paddingRight:7}}>{a.weight}%</span>
-                            {ret!=null
-                              ?<span style={{color:ret>=0?"#4ade80":"#f87171",fontSize:8}}>{ret>=0?"↑":"↓"}{ret>=0?"+":""}{ret.toFixed(1)}%</span>
-                              :<span style={{color:T.t4,fontSize:8}}>—</span>
-                            }
-                          </div>
+                          return(
+                            <div key={a.ticker} style={{background:T.bg,border:`1px solid ${T.b1}`,borderRadius:6,padding:"5px 10px",fontSize:9,fontFamily:"'Space Mono'",display:"flex",gap:7,alignItems:"center"}}>
+                              <span style={{color:T.t1,fontWeight:700}}>{a.ticker}</span>
+                              <span style={{color:T.t5,borderRight:`1px solid ${T.b1}`,paddingRight:7}}>{a.weight}%</span>
+                              {ret!=null?<span style={{color:ret>=0?"#4ade80":"#f87171",fontSize:8}}>{ret>=0?"↑":"↓"}{ret>=0?"+":""}{ret.toFixed(1)}%</span>:<span style={{color:T.t4,fontSize:8}}>—</span>}
+                            </div>
                           );
                         })}
                       </div>
                     </div>
 
+                    {/* Reference selector */}
+                    <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:16,paddingTop:12,paddingBottom:12,borderTop:`1px solid ${T.b1}`,borderBottom:`1px solid ${T.b1}`,flexWrap:"wrap"}}>
+                      <div style={{display:"flex",gap:4}}>
+                        {[{k:"bench",l:"Benchmark"},{k:"port",l:t('tab_track')||"Portfolio"}].map(({k,l})=>(
+                          <button key={k} onClick={()=>setTrackRefType(k)}
+                            style={{padding:"4px 10px",border:`1px solid ${trackRefType===k?"#4ade80":T.b2}`,borderRadius:6,background:trackRefType===k?"#4ade8012":"transparent",color:trackRefType===k?"#4ade80":T.t4,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,transition:"all .12s"}}>
+                            {l}
+                          </button>
+                        ))}
+                      </div>
+                      <div style={{width:1,height:18,background:T.b2,flexShrink:0}}/>
+                      {trackRefType==="bench"?(
+                        <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
+                          {BENCHMARKS.map(b=>(
+                            <button key={b.ticker} onClick={()=>setTrackBench(b.ticker)}
+                              className={`pill${trackBench===b.ticker?" active":""}`}
+                              style={{fontSize:9,padding:"3px 9px"}}>
+                              {b.label}
+                            </button>
+                          ))}
+                        </div>
+                      ):(
+                        <select value={trackRefPortId||savedPortfolios.find(p=>p.id!==item.id)?.id||""}
+                          onChange={e=>setTrackRefPortId(e.target.value)}
+                          style={{background:T.bg,border:`1px solid ${T.b2}`,color:T.t1,borderRadius:6,padding:"4px 8px",fontFamily:"'Space Mono'",fontSize:9,outline:"none",cursor:"pointer"}}>
+                          {savedPortfolios.filter(p=>p.id!==item.id).map(p=>(
+                            <option key={p.id} value={p.id}>{p.name}</option>
+                          ))}
+                        </select>
+                      )}
+                    </div>
+
                     {/* KPIs */}
                     <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:20}}>
                       {[
-                        {l:t('trk_actual'), mk:"trk_actual", v:item.error?null:item.actualFinal, c:!item.error?(item.actualFinal>=0?"#4ade80":"#f87171"):T.t5, bc:!item.error?(item.actualFinal>=0?"#4ade8035":"#f8717135"):T.b1},
-                        {l:t('trk_mc'),     mk:"trk_mc_kpi", v:item.error?null:item.mcFinal,     c:!item.error?"#fb923c":T.t5,                                  bc:!item.error?"#fb923c35":T.b1},
-                        {l:t('trk_delta'),  mk:"trk_delta",  v:item.error?null:(item.actualFinal-item.mcFinal), c:!item.error?((item.actualFinal-item.mcFinal)>=0?"#4ade80":"#f87171"):T.t5, bc:!item.error?((item.actualFinal-item.mcFinal)>=0?"#4ade8035":"#f8717135"):T.b1},
-                      ].map(({l,v,c,bc,mk})=>(
+                        {l:item.name,            v:item.error?null:item.actualFinal, c:!item.error?(item.actualFinal>=0?"#4ade80":"#f87171"):T.t5, bc:!item.error?(item.actualFinal>=0?"#4ade8035":"#f8717135"):T.b1, dot:item.color,  mk:null},
+                        {l:refName||"Référence", v:refFinal,                        c:refFinal!=null?(refFinal>=0?"#4ade80":"#f87171"):T.t5,      bc:refFinal!=null?(refFinal>=0?"#4ade8035":"#f8717135"):T.b1,   dot:refColor,    mk:null},
+                        {l:"Alpha",              v:alpha,                            c:alpha!=null?(alpha>=0?"#4ade80":"#f87171"):T.t5,            bc:alpha!=null?(alpha>=0?"#4ade8035":"#f8717135"):T.b1,         dot:null,        mk:"alpha"},
+                      ].map(({l,v,c,bc,dot,mk})=>(
                         <div key={l} style={{background:T.bg,border:`1px solid ${bc}`,borderRadius:9,padding:"13px 14px"}}>
-                          <div style={{fontSize:7,color:T.t5,letterSpacing:2,textTransform:"uppercase",marginBottom:7,display:"flex",alignItems:"center",gap:5}}>{l}<InfoBubble info={mi(mk)} T={T}/></div>
-                          <div style={{fontFamily:"'Unbounded'",fontSize:isMobile?17:22,color:c,fontWeight:700,lineHeight:1}}>
+                          <div style={{fontSize:7,color:T.t5,letterSpacing:2,textTransform:"uppercase",marginBottom:7,display:"flex",alignItems:"center",gap:5}}>
+                            {dot&&<span style={{width:6,height:6,borderRadius:"50%",background:dot,flexShrink:0,display:"inline-block"}}/>}
+                            <span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flex:1}}>{l}</span>
+                            {mk&&<InfoBubble info={mi(mk)} T={T}/>}
+                          </div>
+                          <div style={{fontFamily:"'Unbounded'",fontSize:isMobile?17:20,color:c,fontWeight:700,lineHeight:1}}>
                             {v==null?"—":`${v>=0?"+":""}${v.toFixed(2)}%`}
                           </div>
                         </div>
@@ -1949,116 +1971,91 @@ export default function App(){
 
                     {/* Chart */}
                     <div style={{marginBottom:20}}>
-                      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
-                        {/* Legend */}
-                        <div style={{display:"flex",gap:12,alignItems:"center",flexWrap:"wrap"}}>
-                          {!item.error&&(()=>{const ac=item.actualFinal>=0?"#4ade80":"#f87171";return(<>
-                            <span style={{fontSize:8,color:T.t4,display:"flex",alignItems:"center",gap:5}}>
-                              <span style={{display:"inline-block",width:14,height:2,background:ac,borderRadius:1}}/>
-                              {t('trk_actual')}
-                            </span>
-                            <span style={{fontSize:8,color:T.t4,display:"flex",alignItems:"center",gap:5}}>
-                              <span style={{display:"inline-block",width:14,height:0,borderTop:"2px dashed #fb923c"}}/>
-                              {t('trk_mc')}
-                            </span>
-                          </>);})()}
-                          <span style={{fontSize:8,color:T.t4,display:"flex",alignItems:"center",gap:5}}>
-                            <span style={{display:"inline-block",width:14,height:0,borderTop:"2px dashed #22d3ee"}}/>
-                            {t('trk_proj_lbl')}
-                          </span>
+                      <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:10,flexWrap:"wrap"}}>
+                        <div style={{display:"flex",alignItems:"center",gap:5}}>
+                          <div style={{width:16,height:2,background:item.color,borderRadius:1}}/>
+                          <span style={{fontSize:8,color:T.t4}}>{item.name}</span>
                         </div>
-                        {/* Horizon pills */}
-                        <div style={{display:"flex",gap:4}}>
-                          {[{k:"y1",l:t('trk_proj_1y')},{k:"y3",l:t('trk_proj_3y')},{k:"y5",l:t('trk_proj_5y')}].map(({k,l})=>(
-                            <button key={k} onClick={()=>setProjHorizon(k)} className={`pill${projHorizon===k?" active":""}`}
-                              style={{fontSize:9,padding:"3px 10px"}}>
-                              {l}
-                            </button>
-                          ))}
-                        </div>
+                        {refRaw&&<div style={{display:"flex",alignItems:"center",gap:5}}>
+                          <div style={{width:16,height:0,borderTop:`2px dashed ${refColor}`}}/>
+                          <span style={{fontSize:8,color:T.t4}}>{refName}</span>
+                        </div>}
                       </div>
-
                       {item.error==='no_data'?(
                         <div style={{height:140,background:T.bg,borderRadius:9,border:`1px dashed ${T.b2}`,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:8}}>
                           <div style={{fontSize:28,opacity:0.18}}>📡</div>
                           <div style={{fontSize:9,color:T.t4,textAlign:"center",maxWidth:240}}>{t('trk_no_data')}</div>
                         </div>
-                      ):(()=>{
-                        const actualColor=(!item.error&&item.actualFinal>=0)?"#4ade80":"#f87171";
-                        let combined;
-                        if(item.error){
-                          combined=(item.projChartData||[]).filter(pt=>pt.d<=hDays);
-                        } else {
-                          const ji=item.chartData.length-1;
-                          combined=[
-                            ...item.chartData.map((pt,i)=>i===ji?{...pt,proj:item.actualFinal}:pt),
-                            ...(item.projChartData||[]).filter(pt=>pt.d>0&&pt.d<=hDays),
-                          ];
-                        }
-                        const fmtLabel=d=>d&&d.length>=10?`${d.slice(8)}/${d.slice(5,7)}/${d.slice(0,4)}`:d||'';
-                        return (
-                          <ResponsiveContainer width="100%" height={200}>
-                            <ComposedChart data={combined} margin={{top:4,right:8,left:0,bottom:0}}>
-                              <defs>
-                                <linearGradient id={`trkMG_${item.id}`} x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="0%" stopColor={actualColor} stopOpacity={0.2}/>
-                                  <stop offset="100%" stopColor={actualColor} stopOpacity={0}/>
-                                </linearGradient>
-                                <linearGradient id={`projMG_${item.id}`} x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="0%" stopColor="#22d3ee" stopOpacity={0.15}/>
-                                  <stop offset="100%" stopColor="#22d3ee" stopOpacity={0}/>
-                                </linearGradient>
-                              </defs>
-                              <XAxis dataKey="date" tick={{fill:T.t4,fontSize:9}} axisLine={false} tickLine={false} interval="preserveStartEnd" minTickGap={48} tickFormatter={d=>d&&d.length>=10?d.slice(5).replace('-','/'):d}/>
-                              <YAxis tick={{fill:T.t4,fontSize:9}} axisLine={false} tickLine={false} tickFormatter={v=>`${v>0?"+":""}${v.toFixed(0)}%`} width={44}/>
-                              <Tooltip contentStyle={{background:T.bg2,border:`1px solid ${T.b2}`,borderRadius:7,fontSize:10,fontFamily:"'Space Mono'",boxShadow:"0 8px 24px #0006"}}
-                                labelFormatter={fmtLabel}
-                                formatter={(v,name)=>[`${v>=0?"+":""}${v.toFixed(2)}%`,name==="actual"?t('trk_actual'):name==="mc"?t('trk_mc'):t('trk_proj_lbl')]}/>
-                              <ReferenceLine y={0} stroke={T.b2} strokeDasharray="2 2"/>
-                              {!item.error&&<Area type="monotone" dataKey="actual" stroke={actualColor} strokeWidth={2} fill={`url(#trkMG_${item.id})`} dot={false} isAnimationActive={false}/>}
-                              {!item.error&&<Line type="monotone" dataKey="mc" stroke="#fb923c" strokeWidth={1.5} strokeDasharray="5 4" dot={false} isAnimationActive={false}/>}
-                              <Area type="monotone" dataKey="proj" stroke="#22d3ee" strokeWidth={1.5} strokeDasharray="5 3" fill={`url(#projMG_${item.id})`} dot={false} isAnimationActive={false} connectNulls={false}/>
-                            </ComposedChart>
-                          </ResponsiveContainer>
-                        );
-                      })()}
+                      ):(
+                        <ResponsiveContainer width="100%" height={200}>
+                          <ComposedChart data={chartData} margin={{top:4,right:8,left:0,bottom:0}}>
+                            <defs>
+                              <linearGradient id={`trkG_${item.id}`} x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor={item.color} stopOpacity={0.2}/>
+                                <stop offset="100%" stopColor={item.color} stopOpacity={0}/>
+                              </linearGradient>
+                            </defs>
+                            <XAxis dataKey="date" tick={{fill:T.t4,fontSize:9}} axisLine={false} tickLine={false} interval="preserveStartEnd" minTickGap={48} tickFormatter={d=>d&&d.length>=10?d.slice(5).replace('-','/'):d}/>
+                            <YAxis tick={{fill:T.t4,fontSize:9}} axisLine={false} tickLine={false} tickFormatter={v=>`${v>0?"+":""}${v.toFixed(0)}%`} width={44}/>
+                            <Tooltip contentStyle={{background:T.bg2,border:`1px solid ${T.b2}`,borderRadius:7,fontSize:10,fontFamily:"'Space Mono'",boxShadow:"0 8px 24px #0006"}}
+                              labelFormatter={d=>d&&d.length>=10?`${d.slice(8)}/${d.slice(5,7)}/${d.slice(0,4)}`:d||''}
+                              formatter={(v,name)=>[`${v>=0?"+":""}${v.toFixed(2)}%`,name==="actual"?item.name:refName]}/>
+                            <ReferenceLine y={0} stroke={T.b2} strokeDasharray="2 2"/>
+                            {!item.error&&<Area type="monotone" dataKey="actual" stroke={item.color} strokeWidth={2} fill={`url(#trkG_${item.id})`} dot={false} isAnimationActive={false}/>}
+                            {refRaw&&<Line type="monotone" dataKey="ref" stroke={refColor} strokeWidth={1.5} strokeDasharray="5 4" dot={false} isAnimationActive={false}/>}
+                          </ComposedChart>
+                        </ResponsiveContainer>
+                      )}
                     </div>
 
-                    {/* Metrics table — only when real data */}
-                    {!item.error&&<>
-                      <div style={{fontSize:7,color:T.t4,letterSpacing:3,textTransform:"uppercase",marginBottom:10}}>{t('trk_metrics_title')}</div>
+                    {/* Metrics table */}
+                    {!item.error&&refM&&(()=>{
+                      const rows=[
+                        {k:"totalReturn",l:t('ct_perf'),   ik:"perf",   fmt:v=>`${parseFloat(v)>=0?"+":""}${v}%`, best:"max"},
+                        {k:"annReturn",  l:t('ct_ann'),    ik:"ann",    fmt:v=>`${parseFloat(v)>=0?"+":""}${v}%`, best:"max"},
+                        {k:"sharpe",     l:t('ct_sharpe'), ik:"sharpe", fmt:v=>v,                                  best:"max"},
+                        {k:"maxDD",      l:t('ct_maxdd'),  ik:"maxdd",  fmt:v=>`${v}%`,                            best:"min"},
+                        {k:"annVol",     l:t('ct_vol'),    ik:"vol",    fmt:v=>`${v}%`,                            best:"min"},
+                        {k:"alpha",      l:t('ct_alpha'),  ik:"alpha",  fmt:v=>`${parseFloat(v)>=0?"+":""}${v}%`, best:"max"},
+                      ];
+                      return <>
+                      <div style={{fontSize:7,color:T.t4,letterSpacing:3,textTransform:"uppercase",marginBottom:10}}>
+                        {item.name} vs {refName}
+                      </div>
+                      <div style={{overflowX:"auto"}}>
                       <table style={{width:"100%",borderCollapse:"collapse",fontSize:10,fontFamily:"'Space Mono'"}}>
                         <thead>
-                          <tr>{["",t('trk_actual'),t('trk_mc'),t('trk_delta')].map((h,i)=>(
-                            <th key={i} style={{padding:"6px 8px",color:T.t5,fontWeight:400,textAlign:i===0?"left":"right",fontSize:8,borderBottom:`1px solid ${T.b1}`,letterSpacing:1,textTransform:"uppercase"}}>{h}</th>
-                          ))}</tr>
+                          <tr style={{borderBottom:`1px solid ${T.b2}`}}>
+                            <td style={{padding:"6px 8px",color:T.t4,fontSize:8,textTransform:"uppercase",letterSpacing:1}}>{t('cmp_table_hdr')}</td>
+                            <td style={{padding:"6px 8px",color:refColor,fontSize:9,textAlign:"right",whiteSpace:"nowrap"}}>{refName}</td>
+                            <td style={{padding:"6px 8px",color:item.color,fontSize:9,textAlign:"right",whiteSpace:"nowrap"}}>{item.name}</td>
+                            <td style={{padding:"6px 8px",color:T.t4,fontSize:9,textAlign:"right",whiteSpace:"nowrap"}}>Delta</td>
+                          </tr>
                         </thead>
                         <tbody>
-                          {[
-                            {l:t('trk_ann'),   mk:"ann",    ka:"annReturn",inv:false},
-                            {l:t('trk_sharpe'),mk:"sharpe", ka:"sharpe",   inv:false},
-                            {l:t('trk_vol'),   mk:"vol",    ka:"annVol",   inv:true},
-                            {l:t('trk_maxdd'), mk:"maxdd",  ka:"maxDD",    inv:false},
-                          ].map(({l,ka,inv,mk},ri)=>{
-                            const va=parseFloat(item.actualM[ka]);
-                            const vm=parseFloat(item.mcM[ka]);
-                            const d=parseFloat((va-vm).toFixed(2));
-                            const better=inv?d<0:d>0;
-                            const fmt=v=>ka==="annReturn"||ka==="annVol"||ka==="maxDD"?`${v>=0&&ka!=="maxDD"?"+":""}${v.toFixed(2)}%`:v.toFixed(3);
-                            return (
-                              <tr key={l} style={{borderBottom:`1px solid ${T.b1}`,background:ri%2===0?T.bg:"transparent",transition:"background .1s",cursor:"default"}}
-                                onMouseEnter={e=>e.currentTarget.style.background=T.bg2}
-                                onMouseLeave={e=>e.currentTarget.style.background=ri%2===0?T.bg:"transparent"}>
-                                <td style={{padding:"8px 8px",color:T.t4,fontSize:9}}><div style={{display:"flex",alignItems:"center",gap:4}}>{l}<InfoBubble info={mi(mk)} T={T} up/></div></td>
-                                <td style={{padding:"8px 8px",color:item.color,fontWeight:700,textAlign:"right"}}>{fmt(va)}</td>
-                                <td style={{padding:"8px 8px",color:"#fb923c",textAlign:"right"}}>{fmt(vm)}</td>
-                                <td style={{padding:"8px 8px",color:better?"#4ade80":"#f87171",fontWeight:700,textAlign:"right"}}>{d>=0?"+":""}{ka==="annReturn"||ka==="annVol"||ka==="maxDD"?`${d.toFixed(2)}%`:d.toFixed(3)}</td>
+                          {rows.map(({k,l,ik,fmt,best},ri)=>{
+                            const vr=parseFloat(refM[k]);
+                            const va=parseFloat(item.actualM[k]);
+                            const d=parseFloat((va-vr).toFixed(2));
+                            const portIsBest=best==="max"?va>vr:va<vr;
+                            const refIsBest=best==="max"?vr>va:vr<va;
+                            const deltaGood=best==="max"?d>0:d<0;
+                            return(
+                              <tr key={k} style={{borderBottom:`1px solid ${T.b1}`,background:ri%2===0?T.bg:"transparent"}}>
+                                <td style={{padding:"5px 8px",color:T.t3,fontSize:9}}>
+                                  <TableMetricLabel label={l} info={mi(ik)} T={T}/>
+                                </td>
+                                <td style={{padding:"5px 8px",textAlign:"right",fontSize:9,color:refColor,fontWeight:refIsBest?700:400,background:refIsBest?refColor+"18":"transparent"}}>{fmt(refM[k])}</td>
+                                <td style={{padding:"5px 8px",textAlign:"right",fontSize:9,color:item.color,fontWeight:portIsBest?700:400,background:portIsBest?item.color+"18":"transparent"}}>{fmt(item.actualM[k])}</td>
+                                <td style={{padding:"5px 8px",textAlign:"right",fontSize:9,fontWeight:700,color:deltaGood?"#4ade80":"#f87171"}}>{d>=0?"+":""}{k==="sharpe"||k==="alpha"?d.toFixed(3):`${d.toFixed(2)}%`}</td>
                               </tr>
                             );
                           })}
                         </tbody>
                       </table>
-                    </>}
+                      </div>
+                      </>;
+                    })()}
 
                   </div>
                 </div>
