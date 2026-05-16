@@ -1429,18 +1429,18 @@ export default function App(){
           onMouseEnter={e=>{e.currentTarget.style.borderColor="#4ade80";e.currentTarget.style.color="#4ade80";}}
           onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t3;}}
         >{isMobile?(darkMode?"☀":"◑"):(darkMode?t('light_mode'):t('dark_mode'))}</button>
-        {!isXS&&<button
+        <button
           onClick={()=>setTutorialOpen(true)}
           style={{background:"transparent",border:`1px solid ${T.b2}`,color:T.t3,borderRadius:6,padding:isMobile?"5px 7px":"4px 10px",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:isMobile?13:10,transition:"all .12s",whiteSpace:"nowrap",flexShrink:0}}
           onMouseEnter={e=>{e.currentTarget.style.borderColor="#4ade80";e.currentTarget.style.color="#4ade80";}}
           onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t3;}}>
-          {isMobile?"?":"? Tuto"}</button>}
-        {!isXS&&<button
+          {isMobile?"?":"? Tuto"}</button>
+        <button
           onClick={()=>setContactOpen(true)}
           style={{background:"transparent",border:`1px solid ${T.b2}`,color:T.t3,borderRadius:6,padding:isMobile?"5px 7px":"4px 10px",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:isMobile?13:10,transition:"all .12s",whiteSpace:"nowrap",flexShrink:0}}
           onMouseEnter={e=>{e.currentTarget.style.borderColor="#4ade80";e.currentTarget.style.color="#4ade80";}}
           onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t3;}}>
-          {isMobile?"✉":"✉ Contact"}</button>}
+          {isMobile?"✉":"✉ Contact"}</button>
       </div>
 
       {/* TABS */}
