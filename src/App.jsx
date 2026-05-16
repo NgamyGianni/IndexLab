@@ -705,6 +705,15 @@ export default function App(){
   const [tutorialOpen,setTutorialOpen] = useState(()=>{
     try { return !localStorage.getItem("indexlab_tuto_seen"); } catch { return true; }
   });
+  const [contactOpen,setContactOpen] = useState(false);
+  const [discordInfo,setDiscordInfo] = useState(null);
+
+  useEffect(()=>{
+    fetch("https://discord.com/api/v9/invites/CD29XujPnz?with_counts=true")
+      .then(r=>r.json())
+      .then(d=>{ if(d.guild) setDiscordInfo({name:d.guild.name, id:d.guild.id, icon:d.guild.icon, members:d.approximate_member_count}); })
+      .catch(()=>{});
+  },[]);
 
   useEffect(()=>{ try{localStorage.setItem("indexlab_dark",darkMode);}catch{} },[darkMode]);
   useEffect(()=>{ try{localStorage.setItem("indexlab_lang",lang);}catch{} },[lang]);
@@ -981,6 +990,7 @@ export default function App(){
   }
 
   function toggleCompare(id){ setSelectedCompare(prev=>prev.includes(id)?prev.filter(s=>s!==id):[...prev,id]); }
+
 
   const lastBT  = chartData[chartData.length-1]?.value??0;
   const isPos   = lastBT>=0;
@@ -1346,6 +1356,32 @@ export default function App(){
         </div>
       </div>}
 
+      {/* CONTACT MODAL */}
+      {contactOpen&&<div className="modal-bg" onClick={()=>setContactOpen(false)}>
+        <div className="modal" onClick={e=>e.stopPropagation()} style={{maxWidth:360}}>
+          <div style={{fontFamily:"'Unbounded'",fontSize:14,fontWeight:700,marginBottom:20,color:T.t1}}>{t('contact_title')}</div>
+          <div style={{background:T.bg1,border:`1px solid ${T.b2}`,borderRadius:10,padding:"16px"}}>
+            <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:14}}>
+              {discordInfo?.icon && discordInfo?.id
+                ? <img src={`https://cdn.discordapp.com/icons/${discordInfo.id}/${discordInfo.icon}.webp?size=64`} alt="" style={{width:44,height:44,borderRadius:10,objectFit:"cover",flexShrink:0}}/>
+                : <div style={{width:44,height:44,background:"#5865F2",borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,color:"#fff",flexShrink:0,fontWeight:900}}>D</div>}
+              <div>
+                <div style={{fontSize:13,fontWeight:700,color:T.t1,fontFamily:"'Space Mono'"}}>{discordInfo?.name||t('contact_discord_lbl')}</div>
+                <div style={{fontSize:9,color:T.t4,letterSpacing:1,textTransform:"uppercase",marginTop:3}}>
+                  {discordInfo?.members!=null?`${discordInfo.members.toLocaleString()} membres`:t('contact_discord_sub')}
+                </div>
+              </div>
+            </div>
+            <a href="https://discord.gg/CD29XujPnz" target="_blank" rel="noopener noreferrer"
+              style={{display:"block",background:"#5865F2",color:"#fff",borderRadius:6,padding:"10px",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:11,fontWeight:700,textAlign:"center",textDecoration:"none",transition:"opacity .12s"}}
+              onClick={()=>setContactOpen(false)}
+              onMouseEnter={e=>{e.currentTarget.style.opacity="0.85";}}
+              onMouseLeave={e=>{e.currentTarget.style.opacity="1";}}
+            >{t('contact_discord_btn')}</a>
+          </div>
+        </div>
+      </div>}
+
       {/* MOBILE DRAWER */}
       {isMobile&&panelOpen&&<>
         <div className="drawer-overlay" onClick={()=>setPanelOpen(false)} />
@@ -1377,10 +1413,16 @@ export default function App(){
         >{isMobile?(darkMode?"☀":"◑"):(darkMode?t('light_mode'):t('dark_mode'))}</button>
         {!isXS&&<button
           onClick={()=>setTutorialOpen(true)}
-          title="Tutorial"
-          style={{background:"transparent",border:`1px solid ${T.b2}`,color:T.t4,borderRadius:"50%",width:28,height:28,cursor:"pointer",fontFamily:"serif",fontSize:13,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .12s"}}
+          style={{background:"transparent",border:`1px solid ${T.b2}`,color:T.t3,borderRadius:6,padding:isMobile?"5px 7px":"4px 10px",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:isMobile?13:10,transition:"all .12s",whiteSpace:"nowrap",flexShrink:0}}
           onMouseEnter={e=>{e.currentTarget.style.borderColor="#4ade80";e.currentTarget.style.color="#4ade80";}}
-          onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t4;}}>?</button>}
+          onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t3;}}>
+          {isMobile?"?":"? Tuto"}</button>}
+        {!isXS&&<button
+          onClick={()=>setContactOpen(true)}
+          style={{background:"transparent",border:`1px solid ${T.b2}`,color:T.t3,borderRadius:6,padding:isMobile?"5px 7px":"4px 10px",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:isMobile?13:10,transition:"all .12s",whiteSpace:"nowrap",flexShrink:0}}
+          onMouseEnter={e=>{e.currentTarget.style.borderColor="#4ade80";e.currentTarget.style.color="#4ade80";}}
+          onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t3;}}>
+          {isMobile?"✉":"✉ Contact"}</button>}
       </div>
 
       {/* TABS */}

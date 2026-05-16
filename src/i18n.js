@@ -103,6 +103,10 @@ export const I18N = {
     tuto_prev:"← Préc.", tuto_next:"Suiv. →", tuto_close:"C'est parti !",
     tuto_no_show:"Ne plus afficher au démarrage",
     tuto_step:(n,tot)=>`${n} / ${tot}`,
+    contact_title:"Contact",
+    contact_discord_lbl:"Rejoindre le Discord",
+    contact_discord_sub:"Communauté & support",
+    contact_discord_btn:"Rejoindre →",
     tuto_steps:[
       { icon:"🧪", title:"Bienvenue sur IndexLab", body:"IndexLab est un simulateur de portefeuille alimenté par des données financières réelles. Construis, backteste et compare tes stratégies d'investissement en quelques secondes." },
       { icon:"🔍", title:"Ajouter des actifs", body:"Dans l'onglet Constructeur, cherche des actions, ETF ou cryptos par ticker, secteur ou thème. Ajuste le poids de chaque actif — la somme doit atteindre exactement 100%." },
@@ -236,6 +240,10 @@ export const I18N = {
     tuto_prev:"← Prev", tuto_next:"Next →", tuto_close:"Let's go!",
     tuto_no_show:"Don't show this again at startup",
     tuto_step:(n,tot)=>`${n} / ${tot}`,
+    contact_title:"Contact",
+    contact_discord_lbl:"Join the Discord",
+    contact_discord_sub:"Community & support",
+    contact_discord_btn:"Join →",
     tuto_steps:[
       { icon:"🧪", title:"Welcome to IndexLab", body:"IndexLab is a portfolio simulator powered by real financial data. Build, backtest and compare your investment strategies in seconds." },
       { icon:"🔍", title:"Add assets", body:"In the Builder tab, search for stocks, ETFs or cryptos by ticker, sector or theme. Adjust each asset's weight — the total must reach exactly 100%." },
@@ -369,6 +377,10 @@ export const I18N = {
     tuto_prev:"← Ant.", tuto_next:"Sig. →", tuto_close:"¡Empezamos!",
     tuto_no_show:"No mostrar al iniciar",
     tuto_step:(n,tot)=>`${n} / ${tot}`,
+    contact_title:"Contacto",
+    contact_discord_lbl:"Unirse al Discord",
+    contact_discord_sub:"Comunidad & soporte",
+    contact_discord_btn:"Unirse →",
     tuto_steps:[
       { icon:"🧪", title:"Bienvenido a IndexLab", body:"IndexLab es un simulador de carteras con datos financieros reales. Construye, haz backtests y compara tus estrategias de inversión en segundos." },
       { icon:"🔍", title:"Añadir activos", body:"En la pestaña Constructor, busca acciones, ETFs o criptos por ticker, sector o tema. Ajusta el peso de cada activo — la suma debe ser exactamente 100%." },
