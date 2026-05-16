@@ -113,6 +113,7 @@ export const I18N = {
       { icon:"📊", title:"Lancer une analyse", body:"Backtest : rejoue ton portefeuille sur des données historiques réelles.\nMonte Carlo : simule 600 scénarios futurs aléatoires pour visualiser la distribution des risques et du potentiel.\nSuivi : après avoir sauvegardé un portfolio, l'onglet Suivi compare ta performance réelle jour après jour avec la projection Monte Carlo médiane." },
       { icon:"💾", title:"Sauvegarder & Comparer", body:"Clique sur 💾 pour sauvegarder ton portefeuille. Dans l'onglet Comparaison, sélectionne plusieurs portfolios pour les analyser côte à côte avec toutes les métriques." },
       { icon:"📈", title:"Lire les métriques", body:"Clique sur le bouton ℹ à côté de chaque métrique pour une explication détaillée. Choisis ton benchmark de référence (S&P 500, CAC 40…) pour mesurer ta surperformance." },
+      { icon:"💬", title:"Rejoins la communauté", body:"Des questions ou des suggestions ?\nRejoins le Discord IndexLab pour échanger, signaler des bugs et suivre les prochaines mises à jour.", discord:true },
     ],
     mi: {
       "perf":     { what:"Le gain ou la perte total de ton portefeuille sur la période choisie.", how:"Ex : +18% signifie que 10 000 € seraient devenus 11 800 €.", good:"Plus c'est élevé, mieux c'est — mais toujours à comparer au risque pris." },
@@ -250,6 +251,7 @@ export const I18N = {
       { icon:"📊", title:"Run an analysis", body:"Backtest: replay your portfolio on real historical data.\nMonte Carlo: simulate 600 random future scenarios to visualise the distribution of risk and potential.\nTracking: once a portfolio is saved, the Tracking tab compares your real day-by-day performance against the Monte Carlo median projection." },
       { icon:"💾", title:"Save & Compare", body:"Click 💾 to save your portfolio. In the Compare tab, select multiple portfolios to analyse them side by side with all metrics." },
       { icon:"📈", title:"Read the metrics", body:"Click the ℹ button next to any metric for a detailed explanation. Choose your reference benchmark (S&P 500, CAC 40…) to measure your outperformance." },
+      { icon:"💬", title:"Join the community", body:"Questions or suggestions?\nJoin the IndexLab Discord to chat, report bugs and follow upcoming updates.", discord:true },
     ],
     mi: {
       "perf":     { what:"The total gain or loss of your portfolio over the chosen period.", how:"Ex: +18% means €10,000 would have become €11,800.", good:"Higher is better — but always compare it to the risk taken." },
@@ -387,6 +389,7 @@ export const I18N = {
       { icon:"📊", title:"Lanzar un análisis", body:"Backtest: reproduce tu cartera con datos históricos reales.\nMonte Carlo: simula 600 escenarios futuros aleatorios para visualizar la distribución de riesgos y potencial.\nSeguimiento: una vez guardada una cartera, la pestaña Seguimiento compara tu rendimiento real día a día con la proyección mediana de Monte Carlo." },
       { icon:"💾", title:"Guardar & Comparar", body:"Haz clic en 💾 para guardar tu cartera. En la pestaña Comparar, selecciona varias carteras para analizarlas en paralelo con todas las métricas." },
       { icon:"📈", title:"Leer las métricas", body:"Haz clic en el botón ℹ junto a cada métrica para una explicación detallada. Elige tu benchmark de referencia (S&P 500, CAC 40…) para medir tu superación." },
+      { icon:"💬", title:"Únete a la comunidad", body:"¿Preguntas o sugerencias?\nÚnete al Discord de IndexLab para chatear, reportar bugs y seguir las próximas actualizaciones.", discord:true },
     ],
     mi: {
       "perf":     { what:"La ganancia o pérdida total de tu cartera durante el período elegido.", how:"Ej: +18% significa que €10.000 se habrían convertido en €11.800.", good:"Cuanto más alto, mejor — pero siempre compáralo con el riesgo asumido." },

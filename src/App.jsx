@@ -499,7 +499,7 @@ const ChartTooltip = ({active,payload,label,invest,T,mois})=>{
 };
 
 // ── Tutorial Modal ────────────────────────────────────────────────────────────
-function TutorialModal({ lang, setLang, T, onClose }) {
+function TutorialModal({ lang, setLang, T, discordInfo, onClose }) {
   const L = I18N[lang];
   const steps = L.tuto_steps;
   const total = steps.length;
@@ -560,9 +560,27 @@ function TutorialModal({ lang, setLang, T, onClose }) {
         <div style={{fontSize:15,fontWeight:700,color:T.t1,marginBottom:14,letterSpacing:-0.3}}>{cur.title}</div>
 
         {/* Body */}
-        <div style={{fontSize:11,color:T.t2,lineHeight:1.8,marginBottom:22,whiteSpace:"pre-line",minHeight:72}}>
+        <div style={{fontSize:11,color:T.t2,lineHeight:1.8,marginBottom:cur.discord?14:22,whiteSpace:"pre-line",minHeight:cur.discord?0:72}}>
           {cur.body}
         </div>
+
+        {/* Discord card (optional step) */}
+        {cur.discord&&<div style={{background:"#5865F218",border:"1px solid #5865F240",borderRadius:10,padding:"12px 14px",marginBottom:20}}>
+          <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
+            {discordInfo?.icon&&discordInfo?.id
+              ?<img src={`https://cdn.discordapp.com/icons/${discordInfo.id}/${discordInfo.icon}.webp?size=64`} alt="" style={{width:34,height:34,borderRadius:8,objectFit:"cover",flexShrink:0}}/>
+              :<div style={{width:34,height:34,background:"#5865F2",borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,color:"#fff",flexShrink:0,fontWeight:900}}>D</div>}
+            <div>
+              <div style={{fontSize:11,fontWeight:700,color:T.t1,fontFamily:"'Space Mono'"}}>{discordInfo?.name||"Discord IndexLab"}</div>
+              {discordInfo?.members!=null&&<div style={{fontSize:9,color:T.t4,letterSpacing:1,marginTop:2}}>{discordInfo.members.toLocaleString()} membres</div>}
+            </div>
+          </div>
+          <a href="https://discord.gg/CD29XujPnz" target="_blank" rel="noopener noreferrer"
+            style={{display:"block",background:"#5865F2",color:"#fff",borderRadius:6,padding:"9px",fontFamily:"'Space Mono',monospace",fontSize:10,fontWeight:700,textAlign:"center",textDecoration:"none",transition:"opacity .12s"}}
+            onMouseEnter={e=>{e.currentTarget.style.opacity="0.85";}} onMouseLeave={e=>{e.currentTarget.style.opacity="1";}}>
+            {L.contact_discord_btn}
+          </a>
+        </div>}
 
         {/* Progress dots */}
         <div style={{display:"flex",gap:6,justifyContent:"center",marginBottom:20}}>
@@ -1328,7 +1346,7 @@ export default function App(){
       {notification&&<div className="notif" style={{background:notification.type==="error"?"#f8717122":"#4ade8022",border:`1px solid ${notification.type==="error"?"#f87171":"#4ade80"}`,color:notification.type==="error"?"#f87171":"#4ade80"}}>{notification.msg}</div>}
 
       {/* TUTORIAL MODAL */}
-      {tutorialOpen&&<TutorialModal lang={lang} setLang={setLang} T={T} onClose={()=>{ setTutorialOpen(false); if(isMobile) setPanelOpen(true); }}/>}
+      {tutorialOpen&&<TutorialModal lang={lang} setLang={setLang} T={T} discordInfo={discordInfo} onClose={()=>{ setTutorialOpen(false); if(isMobile) setPanelOpen(true); }}/>}
 
       {/* SAVE MODAL */}
       {saveModalOpen&&<div className="modal-bg" onClick={()=>setSaveModalOpen(false)}>
