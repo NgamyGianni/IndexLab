@@ -705,6 +705,9 @@ export default function App(){
   const [tutorialOpen,setTutorialOpen] = useState(()=>{
     try { return !localStorage.getItem("indexlab_tuto_seen"); } catch { return true; }
   });
+  const [contactOpen,setContactOpen] = useState(false);
+  const [contactName,setContactName] = useState("");
+  const [contactMsg,setContactMsg]   = useState("");
 
   useEffect(()=>{ try{localStorage.setItem("indexlab_dark",darkMode);}catch{} },[darkMode]);
   useEffect(()=>{ try{localStorage.setItem("indexlab_lang",lang);}catch{} },[lang]);
@@ -981,6 +984,15 @@ export default function App(){
   }
 
   function toggleCompare(id){ setSelectedCompare(prev=>prev.includes(id)?prev.filter(s=>s!==id):[...prev,id]); }
+
+  function handleSendContact(){
+    const sub = encodeURIComponent(`IndexLab feedback${contactName?` - ${contactName}`:""}`);
+    const body = encodeURIComponent(contactMsg);
+    window.open(`mailto:test@gmail.com?subject=${sub}&body=${body}`);
+    setContactOpen(false);
+    setContactName("");
+    setContactMsg("");
+  }
 
   const lastBT  = chartData[chartData.length-1]?.value??0;
   const isPos   = lastBT>=0;
@@ -1346,6 +1358,50 @@ export default function App(){
         </div>
       </div>}
 
+      {/* CONTACT MODAL */}
+      {contactOpen&&<div className="modal-bg" onClick={()=>setContactOpen(false)}>
+        <div className="modal" onClick={e=>e.stopPropagation()} style={{maxWidth:400}}>
+          <div style={{fontFamily:"'Unbounded'",fontSize:14,fontWeight:700,marginBottom:20,color:T.t1}}>{t('contact_title')}</div>
+          {/* Discord section */}
+          <div style={{background:T.bg1,border:`1px solid ${T.b2}`,borderRadius:10,padding:"14px 16px",marginBottom:16}}>
+            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}>
+              <div style={{width:36,height:36,background:"#5865F2",borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,color:"#fff",flexShrink:0,fontWeight:900}}>D</div>
+              <div>
+                <div style={{fontSize:12,fontWeight:700,color:T.t1,fontFamily:"'Space Mono'"}}>{t('contact_discord_lbl')}</div>
+                <div style={{fontSize:9,color:T.t4,letterSpacing:1,textTransform:"uppercase",marginTop:2}}>{t('contact_discord_sub')}</div>
+              </div>
+            </div>
+            <a href="https://discord.gg/CD29XujPnz" target="_blank" rel="noopener noreferrer"
+              style={{display:"block",background:"#5865F2",color:"#fff",borderRadius:6,padding:"9px",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:11,fontWeight:700,textAlign:"center",textDecoration:"none",transition:"opacity .12s"}}
+              onClick={()=>setContactOpen(false)}
+              onMouseEnter={e=>{e.currentTarget.style.opacity="0.85";}}
+              onMouseLeave={e=>{e.currentTarget.style.opacity="1";}}
+            >{t('contact_discord_btn')}</a>
+          </div>
+          {/* Divider */}
+          <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:16}}>
+            <div style={{flex:1,height:1,background:T.b1}}/>
+            <div style={{fontSize:9,color:T.t4,letterSpacing:2,textTransform:"uppercase"}}>{t('contact_or')}</div>
+            <div style={{flex:1,height:1,background:T.b1}}/>
+          </div>
+          {/* Email form */}
+          <SL T={T}>{t('contact_name_lbl')}</SL>
+          <input value={contactName} onChange={e=>setContactName(e.target.value)}
+            style={{width:"100%",background:T.bg,border:`1px solid ${T.b2}`,color:T.t1,borderRadius:6,padding:"8px 12px",fontFamily:"'Space Mono'",fontSize:12,outline:"none",marginBottom:12,boxSizing:"border-box"}}
+            placeholder={t('contact_name_ph')} />
+          <SL T={T}>{t('contact_msg_lbl')}</SL>
+          <textarea value={contactMsg} onChange={e=>setContactMsg(e.target.value)}
+            rows={4}
+            style={{width:"100%",background:T.bg,border:`1px solid ${T.b2}`,color:T.t1,borderRadius:6,padding:"8px 12px",fontFamily:"'Space Mono'",fontSize:12,outline:"none",marginBottom:12,resize:"vertical",boxSizing:"border-box"}}
+            placeholder={t('contact_msg_ph')} />
+          <div style={{display:"flex",gap:8}}>
+            <button onClick={()=>{setContactOpen(false);setContactName("");setContactMsg("");}}
+              style={{flex:1,padding:"10px",border:`1px solid ${T.b2}`,background:"transparent",color:T.t3,borderRadius:6,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:11}}>{t('contact_cancel')}</button>
+            <button onClick={handleSendContact} className="run" style={{flex:2,padding:"10px"}}>{t('contact_send')}</button>
+          </div>
+        </div>
+      </div>}
+
       {/* MOBILE DRAWER */}
       {isMobile&&panelOpen&&<>
         <div className="drawer-overlay" onClick={()=>setPanelOpen(false)} />
@@ -1381,6 +1437,12 @@ export default function App(){
           style={{background:"transparent",border:`1px solid ${T.b2}`,color:T.t4,borderRadius:"50%",width:28,height:28,cursor:"pointer",fontFamily:"serif",fontSize:13,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .12s"}}
           onMouseEnter={e=>{e.currentTarget.style.borderColor="#4ade80";e.currentTarget.style.color="#4ade80";}}
           onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t4;}}>?</button>}
+        {!isXS&&<button
+          onClick={()=>setContactOpen(true)}
+          title="Contact"
+          style={{background:"transparent",border:`1px solid ${T.b2}`,color:T.t4,borderRadius:"50%",width:28,height:28,cursor:"pointer",fontSize:13,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .12s"}}
+          onMouseEnter={e=>{e.currentTarget.style.borderColor="#4ade80";e.currentTarget.style.color="#4ade80";}}
+          onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t4;}}>✉</button>}
       </div>
 
       {/* TABS */}
