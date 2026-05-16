@@ -379,9 +379,12 @@ const PRESETS = Object.entries(ASSET_PARAMS)
 
 // ── UI Helpers ────────────────────────────────────────────────────────────────
 function Empty({T, label="CONFIGURE ET LANCE"}){
-  return <div style={{height:280,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:8,color:T.b2}}>
-    <div style={{fontSize:40}}>◈</div>
-    <div style={{fontSize:10,letterSpacing:3}}>{label}</div>
+  return <div style={{height:340,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:16}}>
+    <div style={{width:72,height:72,border:`1px solid ${T.b2}`,borderRadius:16,display:"flex",alignItems:"center",justifyContent:"center",color:T.b2,fontSize:32}}>◈</div>
+    <div style={{textAlign:"center"}}>
+      <div style={{fontSize:11,letterSpacing:3,color:T.t4,textTransform:"uppercase",marginBottom:6}}>{label}</div>
+      <div style={{fontSize:9,color:T.b3,letterSpacing:1}}>Ajoutez des actifs · configurez les poids · lancez</div>
+    </div>
   </div>;
 }
 
@@ -1034,7 +1037,7 @@ export default function App(){
     }
   `;
 
-  const MetricsPanel = ({m,color})=>{
+  const MetricsPanel = ({m, layout="list"})=>{
     if(!m) return null;
     const gr = v=>parseFloat(v)>=0?"#4ade80":"#f87171";
     const perDay = lang==="fr"?"%/j":lang==="es"?"%/d":"%/d";
@@ -1062,6 +1065,18 @@ export default function App(){
         {k:"corr",l:t('mr_corr'),v:m.correlation,c:T.t2},
       ]},
     ];
+    if(layout==="cols"){
+      return(
+        <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:12}}>
+          {sections.map(sec=>(
+            <div key={sec.title} className="card">
+              <div style={{fontSize:8,color:T.t4,letterSpacing:3,textTransform:"uppercase",marginBottom:10}}>{sec.title}</div>
+              {sec.rows.map(r=><MetricRow key={r.k} label={r.l} val={r.v} color={r.c} info={mi(r.k)} T={T}/>)}
+            </div>
+          ))}
+        </div>
+      );
+    }
     return <div>{sections.map(sec=>(
       <div key={sec.title} className="metric-section">
         <div className="metric-group-title">{sec.title}</div>
@@ -1638,39 +1653,12 @@ export default function App(){
                 </div>
               </div>}
 
-              {/* Metrics + asset mini-cards */}
-              {(isMobile||builderTab==="metrics")&&<div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr",gap:10,marginBottom:12}}>
-                <div className="card">
-                  <div style={{fontSize:8,color:T.t4,letterSpacing:3,textTransform:"uppercase",marginBottom:8}}>{t('ch_metrics')}</div>
-                  <MetricsPanel m={metrics}/>
-                </div>
-                <div>
-                  <div style={{fontSize:8,color:T.t4,letterSpacing:3,textTransform:"uppercase",marginBottom:8}}>{t('ch_assets_ind')}</div>
-                  <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(100px,1fr))",gap:6}}>
-                    {assetPerfs.map(({ticker,weight,perf,contribution})=>{
-                      const meta=ASSET_PARAMS[ticker]; const type=meta?.type||"action"; const p=parseFloat(perf);
-                      const rc = riskContribs?.find(r=>r.ticker===ticker)?.riskContrib??0;
-                      const isMoteur = contribution===Math.max(...assetPerfs.map(a=>a.contribution));
-                      const isFrein  = contribution===Math.min(...assetPerfs.map(a=>a.contribution));
-                      return <div key={ticker} className="card" style={{padding:"9px 11px",border:`1px solid ${isMoteur?"#4ade8033":isFrein?"#f8717133":T.b1}`}}>
-                        <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
-                          <span style={{fontSize:10,fontWeight:700,color:T.t1}}>{ticker}</span>
-                          <span className="tag" style={{background:TYPE_COLOR[type]+"18",color:TYPE_COLOR[type]}}>{type}</span>
-                        </div>
-                        <div style={{fontFamily:"'Unbounded'",fontSize:16,color:p>=0?"#4ade80":"#f87171",fontWeight:700}}>{p>=0?"+":""}{perf}%</div>
-                        <div style={{fontSize:8,color:T.t4,marginTop:2}}>{t('asset_poids')} {weight}%</div>
-                        <div style={{fontSize:8,color:contribution>=0?"#4ade8099":"#f8717199",marginTop:1}}>
-                          {t('asset_contrib')} {contribution>=0?"+":""}{contribution.toFixed(2)}%
-                        </div>
-                        <div style={{fontSize:8,color:"#fb923c99",marginTop:1}}>{t('asset_risque')} {rc.toFixed(1)}%</div>
-                        {invest>0&&<div style={{fontSize:8,color:T.t5,marginTop:1}}>→ {(invest*(parseFloat(weight)||0)/100*(1+p/100)).toFixed(0)} €</div>}
-                        {isMoteur&&<div style={{fontSize:8,color:"#4ade80",marginTop:3}}>{t('role_engine')}</div>}
-                        {isFrein&&<div style={{fontSize:8,color:"#f87171",marginTop:3}}>{t('role_drag')}</div>}
-                      </div>;
-                    })}
-                  </div>
-                </div>
-              </div>}
+              {/* Metrics — 4 colonnes desktop, liste mobile */}
+              {(isMobile||builderTab==="metrics")&&(
+                isMobile
+                  ? <div className="card" style={{marginBottom:12}}><MetricsPanel m={metrics}/></div>
+                  : <MetricsPanel m={metrics} layout="cols"/>
+              )}
             </>)}
 
             {/* MONTE CARLO */}
