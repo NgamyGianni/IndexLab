@@ -691,7 +691,7 @@ export default function App(){
   const [trackBench,setTrackBench]       = useState("^GSPC");
   const [trackRefPortId,setTrackRefPortId] = useState(null);
   const [selectedTicker,setSelectedTicker]   = useState(null);
-  const [selectedOptim,setSelectedOptim]     = useState(null);
+  const [selectedOptim,setSelectedOptim]     = useState("opt_equal");
   const [builderTab,setBuilderTab]           = useState("chart"); // "chart"|"metrics"|"attribution"
   const [pickerOpen,setPickerOpen]           = useState(true);
   const [btStartDate,setBtStartDate] = useState(()=>new Date().toISOString().split('T')[0]);
@@ -787,8 +787,8 @@ export default function App(){
     if(minBtStartDate && btStartDate < minBtStartDate) setBtStartDate(minBtStartDate);
   },[minBtStartDate]);
 
-  function addAsset(t){ t=t.trim().toUpperCase(); if(!t||assets.find(a=>a.ticker===t)) return; setAssets(prev=>reequalize([...prev,{ticker:t,weight:0}])); }
-  function removeAsset(t){ setAssets(prev=>reequalize(prev.filter(a=>a.ticker!==t))); }
+  function addAsset(t){ t=t.trim().toUpperCase(); if(!t||assets.find(a=>a.ticker===t)) return; setAssets(prev=>reequalize([...prev,{ticker:t,weight:0}])); setSelectedOptim("opt_equal"); }
+  function removeAsset(t){ setAssets(prev=>reequalize(prev.filter(a=>a.ticker!==t))); setSelectedOptim("opt_equal"); }
   function setWeight(t,v){ setSelectedOptim(null); setAssets(prev=>prev.map(a=>a.ticker===t?{...a,weight:parseFloat(v)||0}:a)); }
 
   // ── Backtest data ──
