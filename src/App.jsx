@@ -372,6 +372,27 @@ function reequalize(list){
   return list.map((a,i)=>({...a,weight:i===list.length-1?parseFloat((100-w*(list.length-1)).toFixed(1)):w}));
 }
 
+// Gauss-Jordan elimination — solves A·z = b, returns z or null if singular
+function solveLinear(A, b) {
+  const n = A.length;
+  const M = A.map((row, i) => [...row, b[i]]);
+  for (let col = 0; col < n; col++) {
+    let maxRow = col;
+    for (let row = col + 1; row < n; row++)
+      if (Math.abs(M[row][col]) > Math.abs(M[maxRow][col])) maxRow = row;
+    [M[col], M[maxRow]] = [M[maxRow], M[col]];
+    if (Math.abs(M[col][col]) < 1e-12) return null;
+    const piv = M[col][col];
+    for (let j = col; j <= n; j++) M[col][j] /= piv;
+    for (let row = 0; row < n; row++) {
+      if (row === col) continue;
+      const f = M[row][col];
+      for (let j = col; j <= n; j++) M[row][j] -= f * M[col][j];
+    }
+  }
+  return M.map(row => row[n]);
+}
+
 const PRESETS = Object.entries(ASSET_PARAMS)
   .map(([ticker,{name,type,sector,themes,cap}])=>({ticker,name,type,sector,themes,cap}))
   .filter((p,i,arr)=>arr.findIndex(x=>x.ticker===p.ticker)===i)
@@ -1065,52 +1086,80 @@ export default function App(){
     }
   `;
 
-  const MetricsPanel = ({m, layout="list"})=>{
+  const MetricsPanel = ({m, layout="list", days=252})=>{
     if(!m) return null;
     const gr = v=>parseFloat(v)>=0?"#4ade80":"#f87171";
     const perDay = lang==="fr"?"%/j":lang==="es"?"%/d":"%/d";
+    const veryShort = days < 21;
+    const short     = days < 63;
+    // keys that become unreliable when days < 21
+    const unreliableKeys = new Set(["ann","alpha","vol","var95","cvar95","sharpe","sortino","calmar","beta","corr"]);
+    const applyReliability = rows => rows.map(r=>
+      veryShort && unreliableKeys.has(r.k)
+        ? {...r, v:`~${r.v}`, c:T.t5}
+        : r
+    );
     const sections=[
-      { title:t('ms_rend'), rows:[
+      { title:t('ms_rend'), rows: applyReliability([
         {k:"perf",  l:t('mr_total_return'),v:`${parseFloat(m.totalReturn)>=0?"+":""}${m.totalReturn}%`,c:gr(m.totalReturn)},
         {k:"ann",   l:t('mr_ann_return'),  v:`${parseFloat(m.annReturn)>=0?"+":""}${m.annReturn}%`,  c:gr(m.annReturn)},
         {k:"alpha", l:t('mr_alpha')(benchmarkLabel), v:`${parseFloat(m.alpha)>=0?"+":""}${m.alpha}%`, c:gr(m.alpha)},
         {k:"win",   l:t('mr_win_rate'),    v:`${m.winRate}%`,c:parseFloat(m.winRate)>50?"#4ade80":"#f87171"},
-      ]},
-      { title:t('ms_risque'), rows:[
+      ])},
+      { title:t('ms_risque'), rows: applyReliability([
         {k:"vol",   l:t('mr_vol'),   v:`${m.annVol}%`,      c:"#fb923c"},
         {k:"maxdd", l:t('mr_maxdd'), v:`${m.maxDD}%`,       c:"#f87171"},
         {k:"var95", l:t('mr_var'),   v:`${m.var95}${perDay}`,c:"#f87171"},
         {k:"cvar95",l:t('mr_cvar'),  v:`${m.cvar95}${perDay}`,c:"#f87171"},
-      ]},
-      { title:t('ms_ratios'), rows:[
+      ])},
+      { title:t('ms_ratios'), rows: applyReliability([
         {k:"sharpe", l:t('mr_sharpe'), v:m.sharpe, c:parseFloat(m.sharpe)>1?"#4ade80":parseFloat(m.sharpe)>0?"#fb923c":"#f87171"},
         {k:"sortino",l:t('mr_sortino'),v:m.sortino,c:parseFloat(m.sortino)>1?"#4ade80":parseFloat(m.sortino)>0?"#fb923c":"#f87171"},
         {k:"calmar", l:t('mr_calmar'), v:m.calmar, c:parseFloat(m.calmar)>1?"#4ade80":"#fb923c"},
         {k:"omega",  l:t('mr_omega'),  v:m.omega,  c:parseFloat(m.omega)>1?"#4ade80":parseFloat(m.omega)>0?"#fb923c":"#f87171"},
-      ]},
-      { title:t('ms_bench')(benchmarkLabel), rows:[
+      ])},
+      { title:t('ms_bench')(benchmarkLabel), rows: applyReliability([
         {k:"beta",l:t('mr_beta'),v:m.beta,c:parseFloat(m.beta)>1?"#fb923c":"#38bdf8"},
         {k:"corr",l:t('mr_corr'),v:m.correlation,c:T.t2},
-      ]},
+      ])},
     ];
+    const warnBanner = (veryShort || short) && (
+      <div style={{
+        display:"flex",alignItems:"center",gap:7,
+        background: veryShort?"#f8717112":"#fb923c12",
+        border:`1px solid ${veryShort?"#f8717140":"#fb923c40"}`,
+        borderRadius:7, padding:"7px 10px", marginBottom:10,
+        fontSize:9, color: veryShort?"#f87171":"#fb923c",
+        fontFamily:"'Space Mono'",lineHeight:1.5,
+      }}>
+        <span style={{fontSize:13}}>⚠</span>
+        <span>{veryShort ? t('warn_very_short') : t('warn_short')}</span>
+      </div>
+    );
     if(layout==="cols"){
       return(
-        <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:12}}>
-          {sections.map(sec=>(
-            <div key={sec.title} className="card">
-              <div style={{fontSize:8,color:T.t4,letterSpacing:3,textTransform:"uppercase",marginBottom:10}}>{sec.title}</div>
-              {sec.rows.map(r=><MetricRow key={r.k} label={r.l} val={r.v} color={r.c} info={mi(r.k)} T={T}/>)}
-            </div>
-          ))}
+        <div>
+          {warnBanner}
+          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:12}}>
+            {sections.map(sec=>(
+              <div key={sec.title} className="card">
+                <div style={{fontSize:8,color:T.t4,letterSpacing:3,textTransform:"uppercase",marginBottom:10}}>{sec.title}</div>
+                {sec.rows.map(r=><MetricRow key={r.k} label={r.l} val={r.v} color={r.c} info={mi(r.k)} T={T}/>)}
+              </div>
+            ))}
+          </div>
         </div>
       );
     }
-    return <div>{sections.map(sec=>(
-      <div key={sec.title} className="metric-section">
-        <div className="metric-group-title">{sec.title}</div>
-        {sec.rows.map(r=><MetricRow key={r.k} label={r.l} val={r.v} color={r.c} info={mi(r.k)} T={T}/>)}
-      </div>
-    ))}</div>;
+    return <div>
+      {warnBanner}
+      {sections.map(sec=>(
+        <div key={sec.title} className="metric-section">
+          <div className="metric-group-title">{sec.title}</div>
+          {sec.rows.map(r=><MetricRow key={r.k} label={r.l} val={r.v} color={r.c} info={mi(r.k)} T={T}/>)}
+        </div>
+      ))}
+    </div>;
   };
 
   const ConfigPanel = ()=>{
@@ -1138,22 +1187,50 @@ export default function App(){
       if(assets.length<2){ notify(t('notif_need2'),"error"); return; }
       const d=PERIOD_DAYS["1A"]; const n=assets.length;
       const allDr=assets.map(({ticker})=>{ const pr=getPrices(ticker,d); return pr.slice(1).map((p,i)=>(p-pr[i])/pr[i]); });
+      const T=allDr[0].length||1;
+      const means=allDr.map(dr=>dr.reduce((a,b)=>a+b,0)/T);
+      const cov=Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>allDr[i].reduce((a,r,k)=>a+(r-means[i])*(allDr[j][k]-means[j]),0)/T));
+      const rf=0.02/252;
+      const excess=means.map(mu=>mu-rf);
+      // Analytical tangency portfolio: solve Σz = excess, then normalize
+      let z=solveLinear(cov,excess)||excess;
+      z=z.map(zi=>Math.max(0,zi));
+      const sumZ=z.reduce((a,b)=>a+b,0);
+      if(sumZ<1e-10){ notify(t('notif_need2'),"error"); return; }
+      const w=z.map(zi=>zi/sumZ);
+      const rounded=w.map((wi,i)=>i<n-1?parseFloat((wi*100).toFixed(1)):0);
+      rounded[n-1]=parseFloat((100-rounded.slice(0,-1).reduce((a,b)=>a+b,0)).toFixed(1));
+      setAssets(prev=>prev.map((a,i)=>({...a,weight:rounded[i]})));
+      notify(t('notif_ms'));
+    }
+
+    function applyMinVol(){
+      if(assets.length<2){ notify(t('notif_need2'),"error"); return; }
+      const d=PERIOD_DAYS["1A"]; const n=assets.length;
+      const allDr=assets.map(({ticker})=>{ const pr=getPrices(ticker,d); return pr.slice(1).map((p,i)=>(p-pr[i])/pr[i]); });
       const means=allDr.map(dr=>dr.reduce((a,b)=>a+b,0)/dr.length);
       const cov=Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>allDr[i].reduce((a,r,k)=>a+(r-means[i])*(allDr[j][k]-means[j]),0)/d));
-      const rf=0.02/252;
       let w=Array(n).fill(1/n);
-      for(let iter=0;iter<500;iter++){
-        const pRet=w.reduce((a,wi,i)=>a+wi*means[i],0);
-        let pVar=0; for(let i=0;i<n;i++) for(let j=0;j<n;j++) pVar+=w[i]*w[j]*cov[i][j];
-        const pVol=Math.sqrt(pVar)||1e-8;
-        const grad=means.map((mu,i)=>{ let dc=0; for(let j=0;j<n;j++) dc+=w[j]*cov[i][j]; return((mu-rf)*pVol-(pRet-rf)*dc/pVol)/pVar; });
-        w=w.map((wi,i)=>Math.max(0.01,wi+0.01*grad[i]));
+      for(let iter=0;iter<600;iter++){
+        const grad=Array.from({length:n},(_,i)=>{ let g=0; for(let j=0;j<n;j++) g+=2*w[j]*cov[i][j]; return g; });
+        w=w.map((wi,i)=>Math.max(0.01,wi-0.008*grad[i]));
         const s=w.reduce((a,b)=>a+b,0); w=w.map(wi=>wi/s);
       }
       const rounded=w.map((wi,i)=>i<n-1?parseFloat((wi*100).toFixed(1)):0);
       rounded[n-1]=parseFloat((100-rounded.slice(0,-1).reduce((a,b)=>a+b,0)).toFixed(1));
       setAssets(prev=>prev.map((a,i)=>({...a,weight:rounded[i]})));
-      notify(t('notif_ms'));
+      notify(t('notif_mv'));
+    }
+
+    function applyMarketCap(){
+      const caps=assets.map(({ticker})=>ASSET_PARAMS[ticker]?.cap||0);
+      const totalCap=caps.reduce((a,b)=>a+b,0);
+      if(!totalCap){ notify(t('notif_need2'),"error"); return; }
+      const raw=caps.map(c=>c/totalCap*100);
+      const rounded=raw.map((w,i)=>i<raw.length-1?parseFloat(w.toFixed(1)):0);
+      rounded[rounded.length-1]=parseFloat((100-rounded.slice(0,-1).reduce((a,b)=>a+b,0)).toFixed(1));
+      setAssets(prev=>prev.map((a,i)=>({...a,weight:rounded[i]})));
+      notify(t('notif_cap'));
     }
 
     return(
@@ -1288,12 +1365,19 @@ export default function App(){
 
       {assets.length>0&&<div>
         <SL mb={6} T={T}>{t('cfg_composition')}</SL>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:4,marginBottom:9}}>
-          {[
+        {[
+          [
             {lk:"opt_equal", icon:"÷", dk:"opt_equal_d", action:()=>setAssets(prev=>reequalize(prev))},
             {lk:"opt_rp",    icon:"⚖", dk:"opt_rp_d",    action:applyRiskParity},
             {lk:"opt_ms",    icon:"◎", dk:"opt_ms_d",    action:applyMaxSharpe},
-          ].map(({lk,icon,dk,action})=>{
+          ],
+          [
+            {lk:"opt_mv",  icon:"~",  dk:"opt_mv_d",  action:applyMinVol},
+            {lk:"opt_cap", icon:"●",  dk:"opt_cap_d", action:applyMarketCap},
+          ],
+        ].map((row,ri)=>(
+        <div key={ri} style={{display:"grid",gridTemplateColumns:`repeat(${row.length},1fr)`,gap:4,marginBottom:ri===0?4:9}}>
+          {row.map(({lk,icon,dk,action})=>{
             const isAct=selectedOptim===lk;
             return(
             <button key={lk} onClick={()=>{setSelectedOptim(lk);action();}}
@@ -1307,6 +1391,7 @@ export default function App(){
             );
           })}
         </div>
+        ))}
         {assets.map(({ticker,weight})=>{
           const meta=ASSET_PARAMS[ticker]; const type=meta?.type||"action";
           const tc=TYPE_COLOR[type]||"#4ade80";
@@ -1716,8 +1801,8 @@ export default function App(){
               {/* Metrics — 4 colonnes desktop, liste mobile */}
               {(isMobile||builderTab==="metrics")&&(
                 isMobile
-                  ? <div className="card" style={{marginBottom:12}}><MetricsPanel m={metrics}/></div>
-                  : <MetricsPanel m={metrics} layout="cols"/>
+                  ? <div className="card" style={{marginBottom:12}}><MetricsPanel m={metrics} days={days}/></div>
+                  : <MetricsPanel m={metrics} layout="cols" days={days}/>
               )}
             </>)}
 
