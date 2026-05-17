@@ -1499,7 +1499,7 @@ export default function App(){
 
       {/* HEADER */}
       <div style={{borderBottom:`1px solid ${T.b1}`,padding:isMobile?"10px 12px":"14px 24px",display:"flex",alignItems:"center",gap:isMobile?5:12}}>
-        <span style={{fontFamily:"'Unbounded'",fontSize:isMobile?15:20,fontWeight:900,letterSpacing:-0.5,color:T.t1,flexShrink:0}}>INDEX LAB</span>
+        <img src={darkMode?"/logo-dark.png":"/logo-light.png"} alt="IndexLab" style={{height:isMobile?26:34,flexShrink:0}}/>
         {!isMobile&&<span style={{marginLeft:"auto",fontSize:9,color:priceData?"#4ade80":T.b3}}>
           {priceData ? t('data_real')(priceData.updated, Object.keys(priceData.raw||{}).length) : t('data_sim')}
         </span>}

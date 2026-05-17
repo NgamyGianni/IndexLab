@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 54">
+  <defs>
+    <clipPath id="fc-l">
+      <path d="M16,2 L28,2 L28,16 Q42,22 43,50 Q43,52 40,52 L8,52 Q5,52 5,50 Q6,22 16,16 Z"/>
+    </clipPath>
+  </defs>
+  <!-- Flask body -->
+  <path d="M16,2 L28,2 L28,16 Q42,22 43,50 Q43,52 40,52 L8,52 Q5,52 5,50 Q6,22 16,16 Z" fill="#ffffff"/>
+  <!-- Liquid -->
+  <rect x="0" y="28" width="50" height="26" fill="#4a7fc1" clip-path="url(#fc-l)"/>
+  <!-- Flask outline -->
+  <path d="M16,2 L28,2 L28,16 Q42,22 43,50 Q43,52 40,52 L8,52 Q5,52 5,50 Q6,22 16,16 Z" fill="none" stroke="#1a1f2e" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round"/>
+  <!-- Wordmark -->
+  <text y="37" font-family="Georgia, 'Times New Roman', serif" font-size="27">
+    <tspan x="54" font-weight="700" fill="#1a1f2e">Index </tspan><tspan font-style="italic" fill="#4a7fc1">Lab</tspan>
+  </text>
+</svg>
