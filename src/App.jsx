@@ -425,6 +425,7 @@ const TableMetricLabel = ({label, info, T})=>{
           onMouseEnter={e=>setRect(e.currentTarget.getBoundingClientRect())}
           onMouseLeave={()=>setRect(null)}
           onClick={e=>{e.stopPropagation();setRect(r=>r?null:e.currentTarget.getBoundingClientRect());}}
+          className="capture-hide"
           style={{width:13,height:13,borderRadius:"50%",border:`1px solid ${T.b2}`,background:T.bg2,color:T.t4,fontSize:7,cursor:"pointer",display:"inline-flex",alignItems:"center",justifyContent:"center",fontFamily:"serif",fontWeight:700,flexShrink:0,lineHeight:1,padding:0}}
         >?</button>
       )}
@@ -452,6 +453,7 @@ const MetricRow = ({label,val,color,highlight,info,T})=>{
               onMouseEnter={e=>setRect(e.currentTarget.getBoundingClientRect())}
               onMouseLeave={()=>setRect(null)}
               onClick={e=>{e.stopPropagation();setRect(r=>r?null:e.currentTarget.getBoundingClientRect());}}
+              className="capture-hide"
               style={{width:14,height:14,borderRadius:"50%",border:`1px solid ${T.b3}`,background:T.bg2,color:T.t4,fontSize:8,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"serif",fontWeight:700,flexShrink:0,lineHeight:1}}
             >?</button>
           )}
@@ -485,6 +487,7 @@ const InfoBubble = ({info,T})=>{
         onMouseEnter={e=>setRect(e.currentTarget.getBoundingClientRect())}
         onMouseLeave={()=>setRect(null)}
         onClick={e=>{e.stopPropagation();setRect(r=>r?null:e.currentTarget.getBoundingClientRect());}}
+        className="capture-hide"
         style={{width:13,height:13,borderRadius:"50%",border:`1px solid ${T.b2}`,background:T.bg2,color:T.t4,fontSize:7,cursor:"pointer",display:"inline-flex",alignItems:"center",justifyContent:"center",fontFamily:"serif",fontWeight:700,flexShrink:0,lineHeight:1,padding:0}}
       >?</button>
       {rect&&(
@@ -707,26 +710,35 @@ function addWatermark(dataUrl){
   return new Promise(resolve=>{
     const img=new Image();
     img.onload=()=>{
-      const W=img.width,H=img.height,barH=46;
+      const W=img.width,H=img.height,barH=60;
       const cv=document.createElement('canvas');
       cv.width=W; cv.height=H;
       const c=cv.getContext('2d');
       c.drawImage(img,0,0);
-      // Dark bar
       c.fillStyle='#070910f2'; c.fillRect(0,H-barH,W,barH);
       c.strokeStyle='#1e2535'; c.lineWidth=1;
       c.beginPath(); c.moveTo(0,H-barH); c.lineTo(W,H-barH); c.stroke();
-      // Logo "Index Lab"
-      c.font=`bold 17px Georgia,serif`; c.fillStyle='#e2e8f0'; c.textAlign='left';
-      const iw=c.measureText('Index ').width;
-      const logoX=W/2-iw/2-c.measureText('Lab').width/2;
-      c.fillText('Index ',logoX,H-14);
-      c.font=`italic 17px Georgia,serif`; c.fillStyle='#4a7fc1';
-      c.fillText('Lab',logoX+iw,H-14);
-      // URL
-      c.font='12px "Courier New",monospace'; c.fillStyle='#64748b'; c.textAlign='right';
-      c.fillText('indexlab.finance',W-20,H-14);
-      resolve(cv.toDataURL('image/png'));
+      c.font=`11px 'Courier New',monospace`; c.fillStyle='#4a7fc1'; c.textAlign='right';
+      c.fillText('indexlab.finance',W-18,H-14);
+      function drawWithLogo(logoImg){
+        if(logoImg){
+          const lh=barH-18; const lw=logoImg.width*(lh/logoImg.height);
+          c.drawImage(logoImg,(W-lw)/2,H-barH+9,lw,lh);
+        } else {
+          c.font=`bold 17px Georgia,serif`; c.fillStyle='#e2e8f0'; c.textAlign='left';
+          const iw=c.measureText('Index ').width;
+          const lx=W/2-iw/2-c.measureText('Lab').width/2;
+          c.fillText('Index ',lx,H-18);
+          c.font=`italic 17px Georgia,serif`; c.fillStyle='#4a7fc1';
+          c.fillText('Lab',lx+iw,H-18);
+        }
+        resolve(cv.toDataURL('image/png'));
+      }
+      const logo=new Image();
+      logo.crossOrigin='anonymous';
+      logo.onload=()=>drawWithLogo(logo);
+      logo.onerror=()=>drawWithLogo(null);
+      logo.src=window.location.origin+'/logo-dark.png';
     };
     img.src=dataUrl;
   });
@@ -740,15 +752,10 @@ const ShareIcon=()=>(
   </svg>
 );
 
-function ShareModal({imgSrc,loading,tab,shareUrl,metrics,T,onClose}){
+function ShareModal({imgSrc,loading,tab,shareUrl,T,onClose}){
   const [copiedImg,setCopiedImg]=useState(false);
-  const [copiedLink,setCopiedLink]=useState(false);
   const canShare=typeof navigator!=='undefined'&&!!navigator.share;
   const dateStr=new Date().toISOString().split('T')[0];
-  const shareText=tab==='builder'
-    ?`My portfolio on IndexLab — CAGR: ${metrics?.annReturn||'?'}% | Sharpe: ${metrics?.sharpe||'?'}`
-    :tab==='compare'?'Portfolio comparison on IndexLab':'Portfolio tracking on IndexLab';
-  const linkUrl=shareUrl||'https://www.indexlab.finance';
 
   function download(){
     const a=document.createElement('a');
@@ -761,73 +768,47 @@ function ShareModal({imgSrc,loading,tab,shareUrl,metrics,T,onClose}){
       setCopiedImg(true); setTimeout(()=>setCopiedImg(false),2000);
     }catch(e){}
   }
-  function copyLink(){
-    navigator.clipboard.writeText(linkUrl).catch(()=>{});
-    setCopiedLink(true); setTimeout(()=>setCopiedLink(false),2000);
-  }
   async function nativeShare(){
     try{
       const blob=await fetch(imgSrc).then(r=>r.blob());
       const file=new File([blob],`indexlab-${tab}-${dateStr}.png`,{type:'image/png'});
-      if(navigator.canShare?.({files:[file]})) await navigator.share({title:'IndexLab Portfolio',text:shareText,files:[file]});
-      else await navigator.share({title:'IndexLab Portfolio',text:shareText,url:linkUrl});
+      if(navigator.canShare?.({files:[file]})) await navigator.share({title:'IndexLab',files:[file]});
+      else await navigator.share({title:'IndexLab',url:shareUrl||'https://www.indexlab.finance'});
     }catch(e){}
   }
 
-  const btn=(label,onClick,style={})=>(
-    <button onClick={onClick} style={{display:'flex',alignItems:'center',justifyContent:'center',gap:6,border:`1px solid ${T.b2}`,borderRadius:6,padding:'9px 12px',fontFamily:"'Space Mono'",fontSize:10,cursor:'pointer',transition:'border-color .12s, color .12s',background:'transparent',color:T.t2,...style}}
-      onMouseEnter={e=>{e.currentTarget.style.borderColor='#4ade80';e.currentTarget.style.color='#4ade80';}}
-      onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=style.color||T.t2;}}>
-      {label}
-    </button>
-  );
-
+  const cols=canShare?'1fr 1fr 1fr':'1fr 1fr';
   return(
-    <div className="modal-bg" onClick={onClose}>
-      <div className="modal" onClick={e=>e.stopPropagation()} style={{maxWidth:620}}>
-        <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:20}}>
-          <ShareIcon/><span style={{fontFamily:"'Unbounded'",fontSize:13,fontWeight:700,color:T.t1}}>Share</span>
+    <div className="modal-bg" onClick={onClose} style={{zIndex:90}}>
+      <div className="modal" onClick={e=>e.stopPropagation()} style={{maxWidth:580}}>
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
+          <div style={{display:'flex',alignItems:'center',gap:8}}>
+            <ShareIcon/><span style={{fontFamily:"'Unbounded'",fontSize:13,fontWeight:700,color:T.t1}}>Share</span>
+          </div>
+          <button onClick={onClose} style={{background:'none',border:'none',color:T.t4,fontSize:18,cursor:'pointer',lineHeight:1,padding:'2px 6px',transition:'color .12s'}}
+            onMouseEnter={e=>e.currentTarget.style.color='#f87171'} onMouseLeave={e=>e.currentTarget.style.color=T.t4}>×</button>
         </div>
         {loading
           ?<div style={{height:160,display:'flex',alignItems:'center',justifyContent:'center',color:T.t3,fontFamily:"'Space Mono'",fontSize:11}}>Generating…</div>
           :imgSrc&&<>
             <img src={imgSrc} alt="" style={{width:'100%',borderRadius:8,marginBottom:14,border:`1px solid ${T.b2}`,display:'block'}}/>
-            {/* Primary actions */}
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:10}}>
-              <button onClick={download} style={{display:'flex',alignItems:'center',justifyContent:'center',gap:7,background:'#4ade80',color:'#070910',border:'none',borderRadius:6,padding:'10px',fontFamily:"'Space Mono'",fontSize:11,fontWeight:700,cursor:'pointer'}}>
+            <div style={{display:'grid',gridTemplateColumns:cols,gap:8}}>
+              <button onClick={download}
+                style={{display:'flex',alignItems:'center',justifyContent:'center',gap:7,background:'#4ade80',color:'#070910',border:'none',borderRadius:6,padding:'11px',fontFamily:"'Space Mono'",fontSize:10,fontWeight:700,cursor:'pointer'}}>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 Download PNG
               </button>
-              {btn(copiedImg?'✓ Copied!':'Copy image',copyImg,{})}
+              <button onClick={copyImg}
+                style={{display:'flex',alignItems:'center',justifyContent:'center',gap:6,border:`1px solid ${copiedImg?'#4ade80':T.b2}`,borderRadius:6,padding:'11px',fontFamily:"'Space Mono'",fontSize:10,cursor:'pointer',background:'transparent',color:copiedImg?'#4ade80':T.t2,transition:'border-color .12s,color .12s'}}>
+                {copiedImg?'✓ Image copied!':'Copy image'}
+              </button>
+              {canShare&&<button onClick={nativeShare}
+                style={{display:'flex',alignItems:'center',justifyContent:'center',gap:6,border:`1px solid ${T.b2}`,borderRadius:6,padding:'11px',fontFamily:"'Space Mono'",fontSize:10,cursor:'pointer',background:'transparent',color:T.t2,transition:'border-color .12s,color .12s'}}
+                onMouseEnter={e=>{e.currentTarget.style.borderColor='#4ade80';e.currentTarget.style.color='#4ade80';}}
+                onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t2;}}>
+                <ShareIcon/> Share
+              </button>}
             </div>
-            {/* Secondary: link + native share */}
-            <div style={{display:'grid',gridTemplateColumns:tab==='builder'&&canShare?'1fr 1fr 1fr':tab==='builder'?'1fr 1fr':canShare?'1fr':'1fr',gap:8,marginBottom:14}}>
-              {tab==='builder'&&btn(copiedLink?'✓ Link copied!':'🔗 Copy link',copyLink)}
-              {canShare&&btn('📱 Share',nativeShare)}
-              {tab==='builder'&&btn('',()=>{})} {/* spacer placeholder removed below */}
-            </div>
-            {/* Social networks (only when we have a shareable URL) */}
-            {tab==='builder'&&<>
-              <div style={{fontSize:9,color:T.t4,letterSpacing:2,textTransform:'uppercase',marginBottom:8}}>Share on</div>
-              <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
-                <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(linkUrl)}`} target="_blank" rel="noopener noreferrer"
-                  style={{display:'flex',alignItems:'center',gap:6,background:'#000',color:'#fff',borderRadius:6,padding:'8px 14px',fontFamily:"'Space Mono'",fontSize:10,textDecoration:'none',fontWeight:700}}>
-                  𝕏 Post
-                </a>
-                <a href={`https://wa.me/?text=${encodeURIComponent(shareText+' '+linkUrl)}`} target="_blank" rel="noopener noreferrer"
-                  style={{display:'flex',alignItems:'center',gap:6,background:'#25d366',color:'#fff',borderRadius:6,padding:'8px 14px',fontFamily:"'Space Mono'",fontSize:10,textDecoration:'none',fontWeight:700}}>
-                  WhatsApp
-                </a>
-                <a href={`https://t.me/share/url?url=${encodeURIComponent(linkUrl)}&text=${encodeURIComponent(shareText)}`} target="_blank" rel="noopener noreferrer"
-                  style={{display:'flex',alignItems:'center',gap:6,background:'#229ed9',color:'#fff',borderRadius:6,padding:'8px 14px',fontFamily:"'Space Mono'",fontSize:10,textDecoration:'none',fontWeight:700}}>
-                  Telegram
-                </a>
-                <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(linkUrl)}`} target="_blank" rel="noopener noreferrer"
-                  style={{display:'flex',alignItems:'center',gap:6,background:'#0a66c2',color:'#fff',borderRadius:6,padding:'8px 14px',fontFamily:"'Space Mono'",fontSize:10,textDecoration:'none',fontWeight:700}}>
-                  LinkedIn
-                </a>
-              </div>
-            </>}
           </>
         }
       </div>
@@ -884,6 +865,7 @@ export default function App(){
   const [shareImg,setShareImg]       = useState(null);
   const [shareLoading,setShareLoading] = useState(false);
   const [shareUrl,setShareUrl]       = useState(null);
+  const [isCapturing,setIsCapturing] = useState(false);
   const builderShareRef  = useRef(null);
   const compareShareRef  = useRef(null);
   const trackShareRef    = useRef(null);
@@ -1146,21 +1128,27 @@ export default function App(){
   },[savedPortfolios,priceData]);
 
   // ── Share ─────────────────────────────────────────────────────────────────
-  async function captureAndShare(ref, url=null){
+  async function captureAndShare(ref, url=null, layout='normal'){
     if(!ref?.current) return;
     setShareUrl(url); setShareOpen(true); setShareLoading(true); setShareImg(null);
+    const s=document.createElement('style');
+    s.textContent='.capture-hide{display:none!important}';
+    document.head.appendChild(s);
+    if(layout==='builder'){ setIsCapturing(true); await new Promise(r=>setTimeout(r,160)); }
     try{
       const dataUrl=await domtoimage.toPng(ref.current,{scale:2,bgcolor:T.bg,style:{borderRadius:'0'}});
       const withWM=await addWatermark(dataUrl);
       setShareImg(withWM);
     }catch(e){ console.error('Share capture failed:',e); }
+    document.head.removeChild(s);
+    if(layout==='builder') setIsCapturing(false);
     setShareLoading(false);
   }
   function builderShare(){
     const enc=btoa(JSON.stringify({assets:assets.map(a=>({t:a.ticker,w:parseFloat(a.weight)})),period,s:btStartDate}));
     const url=window.location.origin+window.location.pathname+'#share='+enc;
     window.history.replaceState(null,'',url);
-    captureAndShare(builderShareRef, url);
+    captureAndShare(builderShareRef, url, 'builder');
   }
 
   // ── Save / edit portfolio ──
@@ -1605,7 +1593,7 @@ export default function App(){
 
       {/* TUTORIAL MODAL */}
       {tutorialOpen&&<TutorialModal lang={lang} setLang={setLang} T={T} discordInfo={discordInfo} onClose={()=>{ setTutorialOpen(false); if(isMobile) setPanelOpen(true); }}/>}
-      {shareOpen&&<ShareModal imgSrc={shareImg} loading={shareLoading} tab={tab} shareUrl={shareUrl} metrics={metrics} T={T} onClose={()=>{ setShareOpen(false); setShareImg(null); window.history.replaceState(null,'',window.location.pathname); }}/>}
+      {shareOpen&&<ShareModal imgSrc={shareImg} loading={shareLoading} tab={tab} shareUrl={shareUrl} T={T} onClose={()=>{ setShareOpen(false); setShareImg(null); window.history.replaceState(null,'',window.location.pathname); }}/>}
 
       {/* SAVE MODAL */}
       {saveModalOpen&&<div className="modal-bg" onClick={()=>setSaveModalOpen(false)}>
@@ -1853,9 +1841,10 @@ export default function App(){
             )}
 
             {/* BACKTEST */}
-            {mode==="backtest"&&(!chartData.length?<Empty T={T} label={t('empty_launch')}/>:<div ref={builderShareRef}>
+            {mode==="backtest"&&(!chartData.length?<Empty T={T} label={t('empty_launch')}/>:<div ref={builderShareRef} style={isCapturing?{display:'flex',gap:16,alignItems:'flex-start'}:{}}>
+              <div style={isCapturing?{flex:2,minWidth:0}:{}}>
               {/* KPIs + Chart */}
-              {(isMobile||builderTab==="chart")&&<>
+              {(isMobile||builderTab==="chart"||isCapturing)&&<>
               {/* KPIs top row */}
               <div style={{display:"grid",gridTemplateColumns:isMobile?"repeat(2,1fr)":"repeat(4,1fr)",gap:8,marginBottom:14}}>
                 {[
@@ -1907,7 +1896,7 @@ export default function App(){
               </>}
 
               {/* Attribution panel */}
-              {(isMobile||builderTab==="attribution")&&<div className="card" style={{marginBottom:12}}>
+              {!isCapturing&&(isMobile||builderTab==="attribution")&&<div className="card" style={{marginBottom:12}}>
                 <div style={{fontSize:8,color:T.t4,letterSpacing:3,textTransform:"uppercase",marginBottom:14}}>{t('ch_attribution')}</div>
 
                 <div style={{marginBottom:18}}>
@@ -1985,11 +1974,15 @@ export default function App(){
               </div>}
 
               {/* Metrics — 4 colonnes desktop, liste mobile */}
-              {(isMobile||builderTab==="metrics")&&(
+              {!isCapturing&&(isMobile||builderTab==="metrics")&&(
                 isMobile
                   ? <div className="card" style={{marginBottom:12}}><MetricsPanel m={metrics} days={days}/></div>
                   : <MetricsPanel m={metrics} layout="cols" days={days}/>
               )}
+              </div>{/* /main column */}
+              {isCapturing&&<div style={{flex:1,minWidth:200}}>
+                <div className="card"><MetricsPanel m={metrics} days={days}/></div>
+              </div>}
             </div>)}
 
             {/* MONTE CARLO */}
