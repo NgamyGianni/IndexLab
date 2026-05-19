@@ -794,7 +794,7 @@ function ShareModal({imgSrc,loading,tab,shareUrl,T,onClose}){
   const btnBase={display:'flex',alignItems:'center',justifyContent:'center',gap:6,borderRadius:6,padding:'11px',fontFamily:"'Space Mono'",fontSize:10,cursor:'pointer',transition:'border-color .12s,color .12s'};
   return(
     <div className="modal-bg" onClick={onClose} style={{zIndex:90}}>
-      <div className="modal" onClick={e=>e.stopPropagation()} style={{maxWidth:580}}>
+      <div className="modal" onClick={e=>e.stopPropagation()} style={{maxWidth:580,maxHeight:'calc(90vh - 32px)',overflowY:'auto'}}>
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
           <div style={{display:'flex',alignItems:'center',gap:8}}>
             <ShareIcon/><span style={{fontFamily:"'Unbounded'",fontSize:13,fontWeight:700,color:T.t1}}>Share</span>
@@ -805,7 +805,9 @@ function ShareModal({imgSrc,loading,tab,shareUrl,T,onClose}){
         {loading
           ?<div style={{height:160,display:'flex',alignItems:'center',justifyContent:'center',color:T.t3,fontFamily:"'Space Mono'",fontSize:11}}>Generating…</div>
           :imgSrc&&<>
-            <img src={imgSrc} alt="" style={{width:'100%',borderRadius:8,marginBottom:14,border:`1px solid ${T.b2}`,display:'block'}}/>
+            <div style={{maxHeight:'52vh',overflowY:'auto',borderRadius:8,marginBottom:14,border:`1px solid ${T.b2}`}}>
+              <img src={imgSrc} alt="" style={{width:'100%',display:'block'}}/>
+            </div>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8}}>
               <button onClick={download}
                 style={{...btnBase,background:'#4ade80',color:'#070910',border:'none',fontWeight:700}}>
@@ -1889,7 +1891,7 @@ export default function App(){
               {/* KPIs + Chart */}
               {(isMobile||builderTab==="chart"||isCapturing)&&<>
               {/* KPIs top row */}
-              <div style={{display:"grid",gridTemplateColumns:isMobile?"repeat(2,1fr)":"repeat(4,1fr)",gap:8,marginBottom:14}}>
+              <div style={{display:"grid",gridTemplateColumns:(isMobile||isCapturing)?"repeat(2,1fr)":"repeat(4,1fr)",gap:8,marginBottom:14}}>
                 {[
                   {l:t('kpi_perf'),  mk:"perf",   v:`${parseFloat(metrics?.totalReturn||0)>=0?"+":""}${metrics?.totalReturn||"—"}%`,c:parseFloat(metrics?.totalReturn||0)>=0?"#4ade80":"#f87171",s:invest>0?`→ ${(invest*(1+parseFloat(metrics?.totalReturn||0)/100)).toFixed(0)} €`:period},
                   {l:t('kpi_sharpe'),mk:"sharpe",  v:metrics?.sharpe||"—",c:parseFloat(metrics?.sharpe||0)>1?"#4ade80":parseFloat(metrics?.sharpe||0)>0?"#fb923c":"#f87171",s:t('kpi_sharpe_sub')},
@@ -2384,7 +2386,7 @@ export default function App(){
                     </div>
 
                     {/* Reference selector */}
-                    <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:16,paddingTop:12,paddingBottom:12,borderTop:`1px solid ${T.b1}`,borderBottom:`1px solid ${T.b1}`,flexWrap:"wrap"}}>
+                    <div className="capture-hide" style={{display:"flex",alignItems:"center",gap:8,marginBottom:16,paddingTop:12,paddingBottom:12,borderTop:`1px solid ${T.b1}`,borderBottom:`1px solid ${T.b1}`,flexWrap:"wrap"}}>
                       <div style={{display:"flex",gap:4}}>
                         {[{k:"bench",l:"Benchmark"},{k:"port",l:t('tab_track')||"Portfolio"}].map(({k,l})=>(
                           <button key={k} onClick={()=>setTrackRefType(k)}
