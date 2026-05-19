@@ -718,7 +718,7 @@ function addWatermark(dataUrl){
       c.fillStyle='#070910f2'; c.fillRect(0,H-barH,W,barH);
       c.strokeStyle='#1e2535'; c.lineWidth=1;
       c.beginPath(); c.moveTo(0,H-barH); c.lineTo(W,H-barH); c.stroke();
-      c.font=`11px 'Courier New',monospace`; c.fillStyle='#4a7fc1'; c.textAlign='right';
+      c.font=`11px 'Space Mono',monospace`; c.fillStyle='#4a7fc1'; c.textAlign='right';
       c.fillText('indexlab.finance',W-18,H-14);
       function drawWithLogo(logoImg){
         if(logoImg){
@@ -754,8 +754,11 @@ const ShareIcon=()=>(
 
 function ShareModal({imgSrc,loading,tab,shareUrl,T,onClose}){
   const [copiedImg,setCopiedImg]=useState(false);
+  const [socialOpen,setSocialOpen]=useState(false);
   const canShare=typeof navigator!=='undefined'&&!!navigator.share;
   const dateStr=new Date().toISOString().split('T')[0];
+  const linkUrl=shareUrl||'https://www.indexlab.finance';
+  const shareText='Portfolio on IndexLab — indexlab.finance';
 
   function download(){
     const a=document.createElement('a');
@@ -768,16 +771,27 @@ function ShareModal({imgSrc,loading,tab,shareUrl,T,onClose}){
       setCopiedImg(true); setTimeout(()=>setCopiedImg(false),2000);
     }catch(e){}
   }
-  async function nativeShare(){
-    try{
-      const blob=await fetch(imgSrc).then(r=>r.blob());
-      const file=new File([blob],`indexlab-${tab}-${dateStr}.png`,{type:'image/png'});
-      if(navigator.canShare?.({files:[file]})) await navigator.share({title:'IndexLab',files:[file]});
-      else await navigator.share({title:'IndexLab',url:shareUrl||'https://www.indexlab.finance'});
-    }catch(e){}
+  async function handleShare(){
+    if(canShare){
+      try{
+        const blob=await fetch(imgSrc).then(r=>r.blob());
+        const file=new File([blob],`indexlab-${tab}-${dateStr}.png`,{type:'image/png'});
+        if(navigator.canShare?.({files:[file]})) await navigator.share({title:'IndexLab',files:[file]});
+        else await navigator.share({title:'IndexLab',url:linkUrl});
+      }catch(e){}
+    } else {
+      setSocialOpen(s=>!s);
+    }
   }
 
-  const cols=canShare?'1fr 1fr 1fr':'1fr 1fr';
+  const socials=[
+    {label:'𝕏 Post',  bg:'#000',     href:`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(linkUrl)}`},
+    {label:'WhatsApp',bg:'#25d366',  href:`https://wa.me/?text=${encodeURIComponent(shareText+' '+linkUrl)}`},
+    {label:'Telegram',bg:'#229ed9',  href:`https://t.me/share/url?url=${encodeURIComponent(linkUrl)}&text=${encodeURIComponent(shareText)}`},
+    {label:'LinkedIn',bg:'#0a66c2',  href:`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(linkUrl)}`},
+  ];
+
+  const btnBase={display:'flex',alignItems:'center',justifyContent:'center',gap:6,borderRadius:6,padding:'11px',fontFamily:"'Space Mono'",fontSize:10,cursor:'pointer',transition:'border-color .12s,color .12s'};
   return(
     <div className="modal-bg" onClick={onClose} style={{zIndex:90}}>
       <div className="modal" onClick={e=>e.stopPropagation()} style={{maxWidth:580}}>
@@ -792,23 +806,31 @@ function ShareModal({imgSrc,loading,tab,shareUrl,T,onClose}){
           ?<div style={{height:160,display:'flex',alignItems:'center',justifyContent:'center',color:T.t3,fontFamily:"'Space Mono'",fontSize:11}}>Generating…</div>
           :imgSrc&&<>
             <img src={imgSrc} alt="" style={{width:'100%',borderRadius:8,marginBottom:14,border:`1px solid ${T.b2}`,display:'block'}}/>
-            <div style={{display:'grid',gridTemplateColumns:cols,gap:8}}>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8}}>
               <button onClick={download}
-                style={{display:'flex',alignItems:'center',justifyContent:'center',gap:7,background:'#4ade80',color:'#070910',border:'none',borderRadius:6,padding:'11px',fontFamily:"'Space Mono'",fontSize:10,fontWeight:700,cursor:'pointer'}}>
+                style={{...btnBase,background:'#4ade80',color:'#070910',border:'none',fontWeight:700}}>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 Download PNG
               </button>
               <button onClick={copyImg}
-                style={{display:'flex',alignItems:'center',justifyContent:'center',gap:6,border:`1px solid ${copiedImg?'#4ade80':T.b2}`,borderRadius:6,padding:'11px',fontFamily:"'Space Mono'",fontSize:10,cursor:'pointer',background:'transparent',color:copiedImg?'#4ade80':T.t2,transition:'border-color .12s,color .12s'}}>
+                style={{...btnBase,border:`1px solid ${copiedImg?'#4ade80':T.b2}`,background:'transparent',color:copiedImg?'#4ade80':T.t2}}>
                 {copiedImg?'✓ Image copied!':'Copy image'}
               </button>
-              {canShare&&<button onClick={nativeShare}
-                style={{display:'flex',alignItems:'center',justifyContent:'center',gap:6,border:`1px solid ${T.b2}`,borderRadius:6,padding:'11px',fontFamily:"'Space Mono'",fontSize:10,cursor:'pointer',background:'transparent',color:T.t2,transition:'border-color .12s,color .12s'}}
-                onMouseEnter={e=>{e.currentTarget.style.borderColor='#4ade80';e.currentTarget.style.color='#4ade80';}}
-                onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t2;}}>
+              <button onClick={handleShare}
+                style={{...btnBase,border:`1px solid ${socialOpen?'#4ade80':T.b2}`,background:socialOpen?'#4ade8010':'transparent',color:socialOpen?'#4ade80':T.t2}}
+                onMouseEnter={e=>{if(!socialOpen){e.currentTarget.style.borderColor='#4ade80';e.currentTarget.style.color='#4ade80';}}}
+                onMouseLeave={e=>{if(!socialOpen){e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t2;}}}>
                 <ShareIcon/> Share
-              </button>}
+              </button>
             </div>
+            {socialOpen&&<div style={{marginTop:8,display:'flex',gap:6,flexWrap:'wrap',animation:'fadeIn .15s ease'}}>
+              {socials.map(({label,bg,href})=>(
+                <a key={label} href={href} target="_blank" rel="noopener noreferrer"
+                  style={{display:'flex',alignItems:'center',gap:5,background:bg,color:'#fff',borderRadius:6,padding:'7px 13px',fontFamily:"'Space Mono'",fontSize:10,textDecoration:'none',fontWeight:700,flex:'1 1 auto',justifyContent:'center'}}>
+                  {label}
+                </a>
+              ))}
+            </div>}
           </>
         }
       </div>
@@ -1135,6 +1157,7 @@ export default function App(){
     s.textContent='.capture-hide{display:none!important}';
     document.head.appendChild(s);
     if(layout==='builder'){ setIsCapturing(true); await new Promise(r=>setTimeout(r,160)); }
+    await document.fonts.ready;
     try{
       const dataUrl=await domtoimage.toPng(ref.current,{scale:2,bgcolor:T.bg,style:{borderRadius:'0'}});
       const withWM=await addWatermark(dataUrl);
@@ -1297,6 +1320,21 @@ export default function App(){
         <span>{veryShort ? t('warn_very_short') : t('warn_short')}</span>
       </div>
     );
+    if(layout==="capture"){
+      return(
+        <div>
+          {warnBanner}
+          <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8}}>
+            {sections.map(sec=>(
+              <div key={sec.title} className="card">
+                <div style={{fontSize:8,color:T.t4,letterSpacing:3,textTransform:"uppercase",marginBottom:10}}>{sec.title}</div>
+                {sec.rows.map(r=><MetricRow key={r.k} label={r.l} val={r.v} color={r.c} info={mi(r.k)} T={T}/>)}
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
     if(layout==="cols"){
       return(
         <div>
@@ -1980,8 +2018,8 @@ export default function App(){
                   : <MetricsPanel m={metrics} layout="cols" days={days}/>
               )}
               </div>{/* /main column */}
-              {isCapturing&&<div style={{flex:1,minWidth:200}}>
-                <div className="card"><MetricsPanel m={metrics} days={days}/></div>
+              {isCapturing&&<div style={{flex:1,minWidth:220}}>
+                <MetricsPanel m={metrics} layout="capture" days={days}/>
               </div>}
             </div>)}
 
@@ -2083,7 +2121,7 @@ export default function App(){
                     <div style={{fontSize:8,color:T.t4,letterSpacing:3,textTransform:"uppercase"}}>{t('cmp_chart')}</div>
                     <div style={{display:"flex",alignItems:"center",gap:10}}>
                       {compareData.compareStartDate&&compareData.compareEndDate&&<div style={{fontSize:9,color:T.t4,fontFamily:"'Space Mono'"}}>{compareData.compareStartDate} → {compareData.compareEndDate}</div>}
-                      <button onClick={()=>captureAndShare(compareShareRef)}
+                      <button className="capture-hide" onClick={()=>captureAndShare(compareShareRef)}
                         style={{display:"flex",alignItems:"center",gap:5,background:"transparent",border:`1px solid ${T.b2}`,color:T.t3,borderRadius:6,padding:"3px 9px",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:10,transition:"all .12s"}}
                         onMouseEnter={e=>{e.currentTarget.style.borderColor="#4ade80";e.currentTarget.style.color="#4ade80";}}
                         onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t3;}}>
