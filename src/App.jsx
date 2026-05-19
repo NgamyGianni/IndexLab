@@ -1,4 +1,5 @@
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
+import domtoimage from 'dom-to-image-more';
 import { XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, Area, AreaChart, Line, ComposedChart, LineChart, Legend } from "recharts";
 import { I18N } from "./i18n.js";
 
@@ -701,6 +702,139 @@ function LocaleDateInput({ value, onChange, min, max, T, darkMode, lang }){
   return <div style={{display:"flex",gap:4}}>{order}</div>;
 }
 
+// ── Share (dom-to-image watermark) ───────────────────────────────────────────
+function addWatermark(dataUrl){
+  return new Promise(resolve=>{
+    const img=new Image();
+    img.onload=()=>{
+      const W=img.width,H=img.height,barH=46;
+      const cv=document.createElement('canvas');
+      cv.width=W; cv.height=H;
+      const c=cv.getContext('2d');
+      c.drawImage(img,0,0);
+      // Dark bar
+      c.fillStyle='#070910f2'; c.fillRect(0,H-barH,W,barH);
+      c.strokeStyle='#1e2535'; c.lineWidth=1;
+      c.beginPath(); c.moveTo(0,H-barH); c.lineTo(W,H-barH); c.stroke();
+      // Logo "Index Lab"
+      c.font=`bold 17px Georgia,serif`; c.fillStyle='#e2e8f0'; c.textAlign='left';
+      const iw=c.measureText('Index ').width;
+      const logoX=W/2-iw/2-c.measureText('Lab').width/2;
+      c.fillText('Index ',logoX,H-14);
+      c.font=`italic 17px Georgia,serif`; c.fillStyle='#4a7fc1';
+      c.fillText('Lab',logoX+iw,H-14);
+      // URL
+      c.font='12px "Courier New",monospace'; c.fillStyle='#64748b'; c.textAlign='right';
+      c.fillText('indexlab.finance',W-20,H-14);
+      resolve(cv.toDataURL('image/png'));
+    };
+    img.src=dataUrl;
+  });
+}
+
+const ShareIcon=()=>(
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+    <polyline points="16 6 12 2 8 6"/>
+    <line x1="12" y1="2" x2="12" y2="15"/>
+  </svg>
+);
+
+function ShareModal({imgSrc,loading,tab,shareUrl,metrics,T,onClose}){
+  const [copiedImg,setCopiedImg]=useState(false);
+  const [copiedLink,setCopiedLink]=useState(false);
+  const canShare=typeof navigator!=='undefined'&&!!navigator.share;
+  const dateStr=new Date().toISOString().split('T')[0];
+  const shareText=tab==='builder'
+    ?`My portfolio on IndexLab — CAGR: ${metrics?.annReturn||'?'}% | Sharpe: ${metrics?.sharpe||'?'}`
+    :tab==='compare'?'Portfolio comparison on IndexLab':'Portfolio tracking on IndexLab';
+  const linkUrl=shareUrl||'https://www.indexlab.finance';
+
+  function download(){
+    const a=document.createElement('a');
+    a.href=imgSrc; a.download=`indexlab-${tab}-${dateStr}.png`; a.click();
+  }
+  async function copyImg(){
+    try{
+      const blob=await fetch(imgSrc).then(r=>r.blob());
+      await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
+      setCopiedImg(true); setTimeout(()=>setCopiedImg(false),2000);
+    }catch(e){}
+  }
+  function copyLink(){
+    navigator.clipboard.writeText(linkUrl).catch(()=>{});
+    setCopiedLink(true); setTimeout(()=>setCopiedLink(false),2000);
+  }
+  async function nativeShare(){
+    try{
+      const blob=await fetch(imgSrc).then(r=>r.blob());
+      const file=new File([blob],`indexlab-${tab}-${dateStr}.png`,{type:'image/png'});
+      if(navigator.canShare?.({files:[file]})) await navigator.share({title:'IndexLab Portfolio',text:shareText,files:[file]});
+      else await navigator.share({title:'IndexLab Portfolio',text:shareText,url:linkUrl});
+    }catch(e){}
+  }
+
+  const btn=(label,onClick,style={})=>(
+    <button onClick={onClick} style={{display:'flex',alignItems:'center',justifyContent:'center',gap:6,border:`1px solid ${T.b2}`,borderRadius:6,padding:'9px 12px',fontFamily:"'Space Mono'",fontSize:10,cursor:'pointer',transition:'border-color .12s, color .12s',background:'transparent',color:T.t2,...style}}
+      onMouseEnter={e=>{e.currentTarget.style.borderColor='#4ade80';e.currentTarget.style.color='#4ade80';}}
+      onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=style.color||T.t2;}}>
+      {label}
+    </button>
+  );
+
+  return(
+    <div className="modal-bg" onClick={onClose}>
+      <div className="modal" onClick={e=>e.stopPropagation()} style={{maxWidth:620}}>
+        <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:20}}>
+          <ShareIcon/><span style={{fontFamily:"'Unbounded'",fontSize:13,fontWeight:700,color:T.t1}}>Share</span>
+        </div>
+        {loading
+          ?<div style={{height:160,display:'flex',alignItems:'center',justifyContent:'center',color:T.t3,fontFamily:"'Space Mono'",fontSize:11}}>Generating…</div>
+          :imgSrc&&<>
+            <img src={imgSrc} alt="" style={{width:'100%',borderRadius:8,marginBottom:14,border:`1px solid ${T.b2}`,display:'block'}}/>
+            {/* Primary actions */}
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:10}}>
+              <button onClick={download} style={{display:'flex',alignItems:'center',justifyContent:'center',gap:7,background:'#4ade80',color:'#070910',border:'none',borderRadius:6,padding:'10px',fontFamily:"'Space Mono'",fontSize:11,fontWeight:700,cursor:'pointer'}}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download PNG
+              </button>
+              {btn(copiedImg?'✓ Copied!':'Copy image',copyImg,{})}
+            </div>
+            {/* Secondary: link + native share */}
+            <div style={{display:'grid',gridTemplateColumns:tab==='builder'&&canShare?'1fr 1fr 1fr':tab==='builder'?'1fr 1fr':canShare?'1fr':'1fr',gap:8,marginBottom:14}}>
+              {tab==='builder'&&btn(copiedLink?'✓ Link copied!':'🔗 Copy link',copyLink)}
+              {canShare&&btn('📱 Share',nativeShare)}
+              {tab==='builder'&&btn('',()=>{})} {/* spacer placeholder removed below */}
+            </div>
+            {/* Social networks (only when we have a shareable URL) */}
+            {tab==='builder'&&<>
+              <div style={{fontSize:9,color:T.t4,letterSpacing:2,textTransform:'uppercase',marginBottom:8}}>Share on</div>
+              <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+                <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(linkUrl)}`} target="_blank" rel="noopener noreferrer"
+                  style={{display:'flex',alignItems:'center',gap:6,background:'#000',color:'#fff',borderRadius:6,padding:'8px 14px',fontFamily:"'Space Mono'",fontSize:10,textDecoration:'none',fontWeight:700}}>
+                  𝕏 Post
+                </a>
+                <a href={`https://wa.me/?text=${encodeURIComponent(shareText+' '+linkUrl)}`} target="_blank" rel="noopener noreferrer"
+                  style={{display:'flex',alignItems:'center',gap:6,background:'#25d366',color:'#fff',borderRadius:6,padding:'8px 14px',fontFamily:"'Space Mono'",fontSize:10,textDecoration:'none',fontWeight:700}}>
+                  WhatsApp
+                </a>
+                <a href={`https://t.me/share/url?url=${encodeURIComponent(linkUrl)}&text=${encodeURIComponent(shareText)}`} target="_blank" rel="noopener noreferrer"
+                  style={{display:'flex',alignItems:'center',gap:6,background:'#229ed9',color:'#fff',borderRadius:6,padding:'8px 14px',fontFamily:"'Space Mono'",fontSize:10,textDecoration:'none',fontWeight:700}}>
+                  Telegram
+                </a>
+                <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(linkUrl)}`} target="_blank" rel="noopener noreferrer"
+                  style={{display:'flex',alignItems:'center',gap:6,background:'#0a66c2',color:'#fff',borderRadius:6,padding:'8px 14px',fontFamily:"'Space Mono'",fontSize:10,textDecoration:'none',fontWeight:700}}>
+                  LinkedIn
+                </a>
+              </div>
+            </>}
+          </>
+        }
+      </div>
+    </div>
+  );
+}
+
 // ── Main App ──────────────────────────────────────────────────────────────────
 export default function App(){
   const [tab,setTab]           = useState("builder");
@@ -746,6 +880,13 @@ export default function App(){
   });
   const [contactOpen,setContactOpen] = useState(false);
   const [discordInfo,setDiscordInfo] = useState(null);
+  const [shareOpen,setShareOpen]     = useState(false);
+  const [shareImg,setShareImg]       = useState(null);
+  const [shareLoading,setShareLoading] = useState(false);
+  const [shareUrl,setShareUrl]       = useState(null);
+  const builderShareRef  = useRef(null);
+  const compareShareRef  = useRef(null);
+  const trackShareRef    = useRef(null);
 
   useEffect(()=>{
     fetch("https://discord.com/api/v9/invites/CD29XujPnz?with_counts=true")
@@ -776,6 +917,20 @@ export default function App(){
       if(saved) setSavedPortfolios(saved);
     } catch(e) {}
     setStorageReady(true);
+  },[]);
+
+  // ── URL share decode on mount ─────────────────────────────────────────────
+  useEffect(()=>{
+    const hash=window.location.hash;
+    if(!hash.startsWith('#share=')) return;
+    try{
+      const data=JSON.parse(atob(hash.slice(7)));
+      if(data.assets) setAssets(data.assets.map(a=>({ticker:a.t,weight:a.w})));
+      if(data.period) setPeriod(data.period);
+      if(data.s) setBtStartDate(data.s);
+      setTab('builder'); setMode('backtest');
+      window.history.replaceState(null,'',window.location.pathname);
+    }catch(e){}
   },[]);
 
   // ── Theme object ──────────────────────────────────────────────────────────
@@ -989,6 +1144,24 @@ export default function App(){
       return {...base,trackDays,startIdx,idxs,startDate:bdays[startIdx],actualFinal:actualRaw[trackDays],chartData,actualM};
     });
   },[savedPortfolios,priceData]);
+
+  // ── Share ─────────────────────────────────────────────────────────────────
+  async function captureAndShare(ref, url=null){
+    if(!ref?.current) return;
+    setShareUrl(url); setShareOpen(true); setShareLoading(true); setShareImg(null);
+    try{
+      const dataUrl=await domtoimage.toPng(ref.current,{scale:2,bgcolor:T.bg,style:{borderRadius:'0'}});
+      const withWM=await addWatermark(dataUrl);
+      setShareImg(withWM);
+    }catch(e){ console.error('Share capture failed:',e); }
+    setShareLoading(false);
+  }
+  function builderShare(){
+    const enc=btoa(JSON.stringify({assets:assets.map(a=>({t:a.ticker,w:parseFloat(a.weight)})),period,s:btStartDate}));
+    const url=window.location.origin+window.location.pathname+'#share='+enc;
+    window.history.replaceState(null,'',url);
+    captureAndShare(builderShareRef, url);
+  }
 
   // ── Save / edit portfolio ──
   function savePortfolio(){
@@ -1432,6 +1605,7 @@ export default function App(){
 
       {/* TUTORIAL MODAL */}
       {tutorialOpen&&<TutorialModal lang={lang} setLang={setLang} T={T} discordInfo={discordInfo} onClose={()=>{ setTutorialOpen(false); if(isMobile) setPanelOpen(true); }}/>}
+      {shareOpen&&<ShareModal imgSrc={shareImg} loading={shareLoading} tab={tab} shareUrl={shareUrl} metrics={metrics} T={T} onClose={()=>{ setShareOpen(false); setShareImg(null); window.history.replaceState(null,'',window.location.pathname); }}/>}
 
       {/* SAVE MODAL */}
       {saveModalOpen&&<div className="modal-bg" onClick={()=>setSaveModalOpen(false)}>
@@ -1591,6 +1765,12 @@ export default function App(){
                   <span>💾</span>
                   <span style={{fontSize:10}}>{editingPortfolioId?t('save_update').replace(" ✓",""):t('save_confirm').replace(" ✓","")}</span>
                 </button>
+                {chartData.length>0&&metrics&&<button onClick={builderShare}
+                  style={{display:"flex",alignItems:"center",gap:5,background:"transparent",border:`1px solid ${T.b2}`,color:T.t3,borderRadius:6,padding:"5px 10px",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:10,flexShrink:0,transition:"all .12s"}}
+                  onMouseEnter={e=>{e.currentTarget.style.borderColor="#4ade80";e.currentTarget.style.color="#4ade80";}}
+                  onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t3;}}>
+                  <ShareIcon/><span>Share</span>
+                </button>}
               </div>
               {/* Row 2 : Benchmark (backtest only) */}
               {mode==="backtest"&&(
@@ -1638,8 +1818,8 @@ export default function App(){
             )}
 
             {/* ── MOBILE: bouton sauvegarde portfolio ── */}
-            {isMobile&&<div style={{marginBottom:12}}>
-              <button className="save-btn" style={{width:"100%",padding:"9px",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}
+            {isMobile&&<div style={{marginBottom:12,display:"flex",gap:8}}>
+              <button className="save-btn" style={{flex:1,padding:"9px",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}
                 disabled={!weightOk||!assets.length}
                 onClick={()=>{
                   const auto=`Portfolio #${savedPortfolios.length+1} · ${new Date().toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit"})}`;
@@ -1648,6 +1828,12 @@ export default function App(){
                 <span>💾</span>
                 <span style={{fontSize:10}}>{editingPortfolioId?t('save_update').replace(" ✓",""):t('save_confirm').replace(" ✓","")}</span>
               </button>
+              {chartData.length>0&&metrics&&<button onClick={builderShare}
+                style={{display:"flex",alignItems:"center",gap:5,background:"transparent",border:`1px solid ${T.b2}`,color:T.t3,borderRadius:6,padding:"9px 14px",cursor:"pointer",flexShrink:0}}
+                onMouseEnter={e=>{e.currentTarget.style.borderColor="#4ade80";e.currentTarget.style.color="#4ade80";}}
+                onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t3;}}>
+                <ShareIcon/>
+              </button>}
             </div>}
 
             {/* ── RESULT TABS (desktop, backtest only) ── */}
@@ -1667,7 +1853,7 @@ export default function App(){
             )}
 
             {/* BACKTEST */}
-            {mode==="backtest"&&(!chartData.length?<Empty T={T} label={t('empty_launch')}/>:<>
+            {mode==="backtest"&&(!chartData.length?<Empty T={T} label={t('empty_launch')}/>:<div ref={builderShareRef}>
               {/* KPIs + Chart */}
               {(isMobile||builderTab==="chart")&&<>
               {/* KPIs top row */}
@@ -1804,7 +1990,7 @@ export default function App(){
                   ? <div className="card" style={{marginBottom:12}}><MetricsPanel m={metrics} days={days}/></div>
                   : <MetricsPanel m={metrics} layout="cols" days={days}/>
               )}
-            </>)}
+            </div>)}
 
             {/* MONTE CARLO */}
             {mode==="monte_carlo"&&(!mcData.length?<Empty T={T} label={t('empty_launch')}/>:<>
@@ -1897,12 +2083,20 @@ export default function App(){
                 </div>
               </div>
 
-              {selectedCompare.length>=1&&compareData.chart.length>0&&<>
+              {selectedCompare.length>=1&&compareData.chart.length>0&&<div ref={compareShareRef}>
                 {/* Superposed chart */}
                 <div className="card" style={{marginBottom:12}}>
                   <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
                     <div style={{fontSize:8,color:T.t4,letterSpacing:3,textTransform:"uppercase"}}>{t('cmp_chart')}</div>
-                    {compareData.compareStartDate&&compareData.compareEndDate&&<div style={{fontSize:9,color:T.t4,fontFamily:"'Space Mono'"}}>{compareData.compareStartDate} → {compareData.compareEndDate}</div>}
+                    <div style={{display:"flex",alignItems:"center",gap:10}}>
+                      {compareData.compareStartDate&&compareData.compareEndDate&&<div style={{fontSize:9,color:T.t4,fontFamily:"'Space Mono'"}}>{compareData.compareStartDate} → {compareData.compareEndDate}</div>}
+                      <button onClick={()=>captureAndShare(compareShareRef)}
+                        style={{display:"flex",alignItems:"center",gap:5,background:"transparent",border:`1px solid ${T.b2}`,color:T.t3,borderRadius:6,padding:"3px 9px",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:10,transition:"all .12s"}}
+                        onMouseEnter={e=>{e.currentTarget.style.borderColor="#4ade80";e.currentTarget.style.color="#4ade80";}}
+                        onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t3;}}>
+                        <ShareIcon/><span>Share</span>
+                      </button>
+                    </div>
                   </div>
                   <ResponsiveContainer width="100%" height={CH+20}>
                     <LineChart data={compareData.chart}>
@@ -1988,7 +2182,7 @@ export default function App(){
                   </div>
                   <div style={{fontSize:8,color:T.t6,marginTop:10}}>{t('cmp_table_foot')}</div>
                 </div>
-              </>}
+              </div>}
             </>}
             {isMobile&&<div style={{height:40}}/>}
           </>}
@@ -2110,15 +2304,26 @@ export default function App(){
                           </span>
                         </div>
                       </div>
-                      <button onClick={()=>setTrackModalId(null)}
-                        style={{background:"none",border:"none",color:T.t4,fontSize:18,cursor:"pointer",lineHeight:1,padding:"2px 6px",flexShrink:0,transition:"color .12s"}}
-                        onMouseEnter={e=>e.currentTarget.style.color="#f87171"}
-                        onMouseLeave={e=>e.currentTarget.style.color=T.t4}>×</button>
+                      <div style={{display:"flex",gap:6,alignItems:"center",flexShrink:0}}>
+                        {!item.error&&item.chartData?.length>1&&<button onClick={()=>captureAndShare(trackShareRef)}
+                          style={{display:"flex",alignItems:"center",gap:5,background:"transparent",border:`1px solid ${T.b2}`,color:T.t3,borderRadius:6,padding:"4px 10px",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:10,transition:"all .12s"}}
+                          onMouseEnter={e=>{e.currentTarget.style.borderColor="#4ade80";e.currentTarget.style.color="#4ade80";}}
+                          onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t3;}}>
+                          <ShareIcon/><span>Share</span>
+                        </button>}
+                        <button onClick={()=>setTrackModalId(null)}
+                          style={{background:"none",border:"none",color:T.t4,fontSize:18,cursor:"pointer",lineHeight:1,padding:"2px 6px",transition:"color .12s"}}
+                          onMouseEnter={e=>e.currentTarget.style.color="#f87171"}
+                          onMouseLeave={e=>e.currentTarget.style.color=T.t4}>×</button>
+                      </div>
                     </div>
                   </div>
 
                   {/* ── Content ── */}
                   <div style={{padding:isMobile?"14px 16px":"20px 24px"}}>
+
+                    {/* Composition + ref capture starts here */}
+                    <div ref={trackShareRef}>
 
                     {/* Composition */}
                     <div style={{marginBottom:16}}>
@@ -2281,6 +2486,8 @@ export default function App(){
                       </div>
                       </>;
                     })()}
+
+                    </div>{/* /trackShareRef */}
 
                   </div>
                 </div>
