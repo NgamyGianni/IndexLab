@@ -128,7 +128,6 @@ const SECTORS = [
   { id:"Industrie", label:"Industrie",  icon:"⚙️" },
   { id:"Crypto",    label:"Crypto",     icon:"₿"  },
   { id:"ETF",       label:"ETF",        icon:"📦" },
-  { id:"Indices",    label:"Indices",    icon:"📊" },
   { id:"Immobilier",label:"Immobilier", icon:"🏢" },
   { id:"Matériaux", label:"Matériaux",  icon:"⛏" },
   { id:"Utilities", label:"Utilities",  icon:"💡" },
@@ -190,48 +189,29 @@ function seededRng(seed) {
   let s = seed;
   return () => { s=(s*1664525+1013904223)&0xffffffff; return (s>>>0)/0xffffffff; };
 }
-function tickerSeed(t){ return t.split("").reduce((a,c)=>a*31+c.charCodeAt(0),7)&0x7fffffff; }
 function randNormal(rng){ const u1=Math.max(rng(),1e-10),u2=rng(); return Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2); }
 
-function generatePrices(ticker, days, seedOverride){
-  const p = ASSET_PARAMS[ticker]||{mu:0.15,sigma:0.25};
-  const rng = seededRng(seedOverride||tickerSeed(ticker));
-  const dt=1/252; let price=100; const prices=[price];
-  for(let i=0;i<days;i++){ price*=Math.exp((p.mu-0.5*p.sigma**2)*dt+p.sigma*Math.sqrt(dt)*randNormal(rng)); prices.push(price); }
-  return prices;
-}
-
 function generateBenchmark(days, ticker="^GSPC", endIdx=null){
-  if(_priceData?.raw?.[ticker]){
-    const arr = _priceData.raw[ticker];
-    const end = endIdx !== null ? Math.min(endIdx + 1, arr.length) : arr.length;
-    const n = days + 1;
-    if(end >= n && !arr.slice(end-n, end).some(v=>v==null)){
-      const slice = arr.slice(end - n, end);
-      const base = slice[0] || 1;
-      return slice.map(p => (p / base) * 100);
-    }
-  }
-  const p = ASSET_PARAMS[ticker] || BENCHMARK;
-  const rng=seededRng(tickerSeed(ticker)); const dt=1/252; let price=100; const prices=[price];
-  for(let i=0;i<days;i++){ price*=Math.exp((p.mu-0.5*p.sigma**2)*dt+p.sigma*Math.sqrt(dt)*randNormal(rng)); prices.push(price); }
-  return prices;
+  if(!_priceData?.raw?.[ticker]) return null;
+  const arr = _priceData.raw[ticker];
+  const end = endIdx !== null ? Math.min(endIdx + 1, arr.length) : arr.length;
+  const n = days + 1;
+  if(end < n || arr.slice(end-n, end).some(v=>v==null)) return null;
+  const slice = arr.slice(end - n, end);
+  const base = slice[0] || 1;
+  return slice.map(p => (p / base) * 100);
 }
 
 function getPrices(ticker, days, endIdx=null){
-  if(_priceData?.raw?.[ticker]){
-    const arr = _priceData.raw[ticker];
-    const end = endIdx !== null ? Math.min(endIdx + 1, arr.length) : arr.length;
-    const n = days + 1;
-    if(end >= n){
-      const slice = arr.slice(end - n, end);
-      if(!slice.some(v => v == null)){
-        const base = slice[0] || 1;
-        return slice.map(p => (p / base) * 100);
-      }
-    }
-  }
-  return generatePrices(ticker, days);
+  if(!_priceData?.raw?.[ticker]) return null;
+  const arr = _priceData.raw[ticker];
+  const end = endIdx !== null ? Math.min(endIdx + 1, arr.length) : arr.length;
+  const n = days + 1;
+  if(end < n) return null;
+  const slice = arr.slice(end - n, end);
+  if(slice.some(v => v == null)) return null;
+  const base = slice[0] || 1;
+  return slice.map(p => (p / base) * 100);
 }
 
 function getRealDates(days, endIdx=null){
@@ -244,7 +224,11 @@ function getRealDates(days, endIdx=null){
 
 function portfolioReturns(assets, days, endIdx=null){
   const ap={};
-  assets.forEach(({ticker})=>{ ap[ticker]=getPrices(ticker,days,endIdx); });
+  for(const {ticker} of assets){
+    const pr=getPrices(ticker,days,endIdx);
+    if(!pr) return null;
+    ap[ticker]=pr;
+  }
   return Array.from({length:days+1},(_,i)=>{
     let v=0;
     for(const {ticker,weight} of assets) v+=(ap[ticker][i]/ap[ticker][0]-1)*100*((parseFloat(weight)||0)/100);
@@ -999,7 +983,16 @@ export default function App(){
     if(minBtStartDate && btStartDate < minBtStartDate) setBtStartDate(minBtStartDate);
   },[minBtStartDate]);
 
-  function addAsset(t){ t=t.trim().toUpperCase(); if(!t||assets.find(a=>a.ticker===t)) return; setAssets(prev=>reequalize([...prev,{ticker:t,weight:0}])); setSelectedOptim("opt_equal"); }
+  const availablePresets = useMemo(()=>
+    !priceData?.raw ? [] : PRESETS.filter(p=>priceData.raw[p.ticker]&&p.type!=='indice')
+  ,[priceData]);
+
+  function addAsset(t){
+    t=t.trim().toUpperCase();
+    if(!t||assets.find(a=>a.ticker===t)) return;
+    if(priceData&&!priceData.raw?.[t]){ notify(t('notif_no_data')||"Pas de données pour ce ticker","error"); return; }
+    setAssets(prev=>reequalize([...prev,{ticker:t,weight:0}])); setSelectedOptim("opt_equal");
+  }
   function removeAsset(t){ setAssets(prev=>reequalize(prev.filter(a=>a.ticker!==t))); setSelectedOptim("opt_equal"); }
   function setWeight(t,v){ setSelectedOptim(null); setAssets(prev=>prev.map(a=>a.ticker===t?{...a,weight:parseFloat(v)||0}:a)); }
 
@@ -1007,13 +1000,19 @@ export default function App(){
   const {chartData,assetPerfs,riskContribs,metrics,benchData} = useMemo(()=>{
     if(!assets.length||!weightOk||mode!=="backtest") return {chartData:[],assetPerfs:[],riskContribs:[],metrics:null,benchData:[]};
     const returns = portfolioReturns(assets,days,btEndIdx);
+    if(!returns) return {chartData:[],assetPerfs:[],riskContribs:[],metrics:null,benchData:[]};
     const benchPrices = generateBenchmark(days, benchmark, btEndIdx);
+    if(!benchPrices) return {chartData:[],assetPerfs:[],riskContribs:[],metrics:null,benchData:[]};
     const bench = benchPrices.map((p,i,arr)=>(p/arr[0]-1)*100);
     const realDates = getRealDates(days, btEndIdx);
     const pts = returns.map((v,i)=>({date:realDates?realDates[i]:dateLabel(i,days,false,moisArr),value:parseFloat(v.toFixed(3)),bench:parseFloat(bench[i].toFixed(3))}));
 
     const allPrices = {};
-    assets.forEach(({ticker})=>{ allPrices[ticker]=getPrices(ticker,days,btEndIdx); });
+    for(const {ticker} of assets){
+      const pr=getPrices(ticker,days,btEndIdx);
+      if(!pr) return {chartData:[],assetPerfs:[],riskContribs:[],metrics:null,benchData:[]};
+      allPrices[ticker]=pr;
+    }
 
     const perfs = assets.map(({ticker,weight})=>{
       const pr = allPrices[ticker];
@@ -1387,6 +1386,7 @@ export default function App(){
       const d=PERIOD_DAYS["3M"];
       const vols=assets.map(({ticker})=>{
         const pr=getPrices(ticker,d);
+        if(!pr) return 0.01;
         const dr=pr.slice(1).map((p,i)=>(p-pr[i])/pr[i]);
         const mean=dr.reduce((a,b)=>a+b,0)/dr.length;
         return Math.sqrt(dr.reduce((a,b)=>a+(b-mean)**2,0)/dr.length*252)||0.01;
@@ -1402,7 +1402,9 @@ export default function App(){
     function applyMaxSharpe(){
       if(assets.length<2){ notify(t('notif_need2'),"error"); return; }
       const d=PERIOD_DAYS["1A"]; const n=assets.length;
-      const allDr=assets.map(({ticker})=>{ const pr=getPrices(ticker,d); return pr.slice(1).map((p,i)=>(p-pr[i])/pr[i]); });
+      const allDrRaw=assets.map(({ticker})=>getPrices(ticker,d));
+      if(allDrRaw.some(pr=>!pr)){ notify(t('notif_no_data')||"Données manquantes","error"); return; }
+      const allDr=allDrRaw.map(pr=>pr.slice(1).map((p,i)=>(p-pr[i])/pr[i]));
       const T=allDr[0].length||1;
       const means=allDr.map(dr=>dr.reduce((a,b)=>a+b,0)/T);
       const cov=Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>allDr[i].reduce((a,r,k)=>a+(r-means[i])*(allDr[j][k]-means[j]),0)/T));
@@ -1423,7 +1425,9 @@ export default function App(){
     function applyMinVol(){
       if(assets.length<2){ notify(t('notif_need2'),"error"); return; }
       const d=PERIOD_DAYS["1A"]; const n=assets.length;
-      const allDr=assets.map(({ticker})=>{ const pr=getPrices(ticker,d); return pr.slice(1).map((p,i)=>(p-pr[i])/pr[i]); });
+      const allDrRaw=assets.map(({ticker})=>getPrices(ticker,d));
+      if(allDrRaw.some(pr=>!pr)){ notify(t('notif_no_data')||"Données manquantes","error"); return; }
+      const allDr=allDrRaw.map(pr=>pr.slice(1).map((p,i)=>(p-pr[i])/pr[i]));
       const means=allDr.map(dr=>dr.reduce((a,b)=>a+b,0)/dr.length);
       const cov=Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>allDr[i].reduce((a,r,k)=>a+(r-means[i])*(allDr[j][k]-means[j]),0)/d));
       let w=Array(n).fill(1/n);
@@ -1510,7 +1514,7 @@ export default function App(){
           }
         </select>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:4,maxHeight:200,overflowY:"auto",paddingRight:2}}>
-          {PRESETS.filter(p=>pickerMode==="sector"
+          {availablePresets.filter(p=>pickerMode==="sector"
             ?(activeSector==="all"||p.sector===activeSector)
             :(activeTheme==="all"?p.themes?.length>0:p.themes?.includes(activeTheme))
           ).map(p=>{
@@ -1538,7 +1542,7 @@ export default function App(){
 
       {pickerOpen&&(()=>{
         const suggestions = custom.length>0
-          ? PRESETS.filter(p=>p.ticker.startsWith(custom)||p.ticker.includes(custom)||p.name.toUpperCase().includes(custom)).slice(0,8)
+          ? availablePresets.filter(p=>p.ticker.startsWith(custom)||p.ticker.includes(custom)||p.name.toUpperCase().includes(custom)).slice(0,8)
           : [];
         const doAdd = (ticker)=>{ addAsset(ticker); setCustom(""); setSuggestionIdx(-1); setCustomFocused(false); };
         return (
