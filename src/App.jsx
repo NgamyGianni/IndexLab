@@ -2030,8 +2030,8 @@ export default function App(){
                 </div>
               </div>}
 
-              {/* Metrics — 4 colonnes desktop, liste mobile */}
-              {(isMobile||builderTab==="metrics"||isCapturing)&&(
+              {/* Metrics — 4 colonnes desktop, liste mobile (hors capture) */}
+              {!isCapturing&&(isMobile||builderTab==="metrics")&&(
                 isMobile
                   ? <div className="card" style={{marginBottom:12}}><MetricsPanel m={metrics} days={days}/></div>
                   : <MetricsPanel m={metrics} layout="cols" days={days}/>
@@ -2484,8 +2484,8 @@ export default function App(){
                       )}
                     </div>
 
-                    {/* Metrics table */}
-                    {!item.error&&refM&&(()=>{
+                    {/* Metrics table — hidden in capture */}
+                    {!item.error&&refM&&<div className="capture-hide">{(()=>{
                       const rows=[
                         {k:"totalReturn",l:t('ct_perf'),   ik:"perf",   fmt:v=>`${parseFloat(v)>=0?"+":""}${v}%`, best:"max"},
                         {k:"annReturn",  l:t('ct_ann'),    ik:"ann",    fmt:v=>`${parseFloat(v)>=0?"+":""}${v}%`, best:"max"},
@@ -2531,7 +2531,7 @@ export default function App(){
                       </table>
                       </div>
                       </>;
-                    })()}
+                    })()}</div>}{/* /capture-hide metrics table */}
 
                     </div>{/* /trackShareRef */}
 
