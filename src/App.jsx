@@ -1159,26 +1159,23 @@ export default function App(){
     s.textContent='.capture-hide{display:none!important}';
     document.head.appendChild(s);
     if(layout==='builder'){ setIsCapturing(true); await new Promise(r=>setTimeout(r,160)); }
-    // Temporarily remove overflow/maxHeight clipping from scroll ancestors
-    const clipped=[];
-    let el=ref.current?.parentElement;
-    while(el&&el!==document.body){
-      const cs=window.getComputedStyle(el);
-      if(['auto','scroll','hidden'].includes(cs.overflowY)||['auto','scroll','hidden'].includes(cs.overflow)||el.style.maxHeight){
-        clipped.push({el,oy:el.style.overflowY,ov:el.style.overflow,mh:el.style.maxHeight});
-        el.style.overflowY='visible'; el.style.overflow='visible'; el.style.maxHeight='none';
-      }
-      el=el.parentElement;
-    }
+    // Expand element to full scroll height so dom-to-image captures all content
+    // without touching parent overflow (which would trigger ResizeObserver on Recharts)
+    const captEl=ref.current;
+    const savedH=captEl.style.height;
+    const savedOv=captEl.style.overflow;
+    captEl.style.height=captEl.scrollHeight+'px';
+    captEl.style.overflow='visible';
     await document.fonts.ready;
-    await new Promise(r=>setTimeout(r,60));
+    await new Promise(r=>setTimeout(r,80));
     try{
-      const dataUrl=await domtoimage.toPng(ref.current,{scale:2,bgcolor:T.bg,style:{borderRadius:'0'}});
+      const dataUrl=await domtoimage.toPng(captEl,{scale:2,bgcolor:T.bg,style:{borderRadius:'0'},filter:n=>!n.classList?.contains('capture-hide')});
       const withWM=await addWatermark(dataUrl);
       setShareImg(withWM);
     }catch(e){ console.error('Share capture failed:',e); }
     document.head.removeChild(s);
-    clipped.forEach(({el,oy,ov,mh})=>{ el.style.overflowY=oy; el.style.overflow=ov; el.style.maxHeight=mh; });
+    captEl.style.height=savedH;
+    captEl.style.overflow=savedOv;
     if(layout==='builder') setIsCapturing(false);
     setShareLoading(false);
   }
@@ -1903,14 +1900,14 @@ export default function App(){
               {/* KPIs + Chart */}
               {(isMobile||builderTab==="chart"||isCapturing)&&<>
               {/* KPIs top row */}
-              <div style={{display:"grid",gridTemplateColumns:isMobile?"repeat(2,1fr)":"repeat(4,1fr)",gap:8,marginBottom:14}}>
+              <div style={{display:"grid",gridTemplateColumns:(isMobile||isCapturing)?"repeat(2,1fr)":"repeat(4,1fr)",gap:8,marginBottom:14}}>
                 {[
                   {l:t('kpi_perf'),  mk:"perf",   v:`${parseFloat(metrics?.totalReturn||0)>=0?"+":""}${metrics?.totalReturn||"—"}%`,c:parseFloat(metrics?.totalReturn||0)>=0?"#4ade80":"#f87171",s:invest>0?`→ ${(invest*(1+parseFloat(metrics?.totalReturn||0)/100)).toFixed(0)} €`:period},
                   {l:t('kpi_sharpe'),mk:"sharpe",  v:metrics?.sharpe||"—",c:parseFloat(metrics?.sharpe||0)>1?"#4ade80":parseFloat(metrics?.sharpe||0)>0?"#fb923c":"#f87171",s:t('kpi_sharpe_sub')},
                   {l:t('kpi_maxdd'), mk:"maxdd",   v:`${metrics?.maxDD||"—"}%`,c:"#f87171",s:t('kpi_maxdd_sub')},
                   {l:t('kpi_alpha'), mk:"alpha",   v:`${parseFloat(metrics?.alpha||0)>=0?"+":""}${metrics?.alpha||"—"}%`,c:parseFloat(metrics?.alpha||0)>=0?"#4ade80":"#f87171",s:t('kpi_alpha_sub')(benchmarkLabel)},
                 ].map(({l,v,c,s,mk})=>(
-                  <div key={l} className="card">
+                  <div key={l} className="card" style={{minWidth:0,overflow:'hidden'}}>
                     <div style={{fontSize:8,color:T.t4,letterSpacing:2,textTransform:"uppercase",marginBottom:3,display:"flex",alignItems:"center",gap:5}}>{l}<InfoBubble info={mi(mk)} T={T}/></div>
                     <div style={{fontFamily:"'Unbounded'",fontSize:isMobile?17:20,color:c,fontWeight:700}}>{v}</div>
                     <div style={{fontSize:8,color:T.t5,marginTop:2}}>{s}</div>
@@ -2447,14 +2444,19 @@ export default function App(){
 
                     {/* Chart */}
                     <div style={{marginBottom:20}}>
-                      <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:10,flexWrap:"wrap"}}>
-                        <div style={{display:"flex",alignItems:"center",gap:5}}>
-                          <div style={{width:16,height:2,background:item.color,borderRadius:1}}/>
-                          <span style={{fontSize:8,color:T.t4}}>{item.name}</span>
+                      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10,flexWrap:"wrap",gap:6}}>
+                        <div style={{display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
+                          <div style={{display:"flex",alignItems:"center",gap:5}}>
+                            <div style={{width:16,height:2,background:item.color,borderRadius:1}}/>
+                            <span style={{fontSize:8,color:T.t4}}>{item.name}</span>
+                          </div>
+                          {refRaw&&<div style={{display:"flex",alignItems:"center",gap:5}}>
+                            <div style={{width:16,height:0,borderTop:`2px dashed ${refColor}`}}/>
+                            <span style={{fontSize:8,color:T.t4}}>{refName}</span>
+                          </div>}
                         </div>
-                        {refRaw&&<div style={{display:"flex",alignItems:"center",gap:5}}>
-                          <div style={{width:16,height:0,borderTop:`2px dashed ${refColor}`}}/>
-                          <span style={{fontSize:8,color:T.t4}}>{refName}</span>
+                        {chartData.length>1&&<div style={{fontSize:9,color:T.t4,fontFamily:"'Space Mono'",flexShrink:0}}>
+                          {chartData[0].date} → {chartData[chartData.length-1].date}
                         </div>}
                       </div>
                       {item.error==='no_data'?(
