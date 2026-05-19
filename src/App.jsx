@@ -1159,13 +1159,26 @@ export default function App(){
     s.textContent='.capture-hide{display:none!important}';
     document.head.appendChild(s);
     if(layout==='builder'){ setIsCapturing(true); await new Promise(r=>setTimeout(r,160)); }
+    // Temporarily remove overflow/maxHeight clipping from scroll ancestors
+    const clipped=[];
+    let el=ref.current?.parentElement;
+    while(el&&el!==document.body){
+      const cs=window.getComputedStyle(el);
+      if(['auto','scroll','hidden'].includes(cs.overflowY)||['auto','scroll','hidden'].includes(cs.overflow)||el.style.maxHeight){
+        clipped.push({el,oy:el.style.overflowY,ov:el.style.overflow,mh:el.style.maxHeight});
+        el.style.overflowY='visible'; el.style.overflow='visible'; el.style.maxHeight='none';
+      }
+      el=el.parentElement;
+    }
     await document.fonts.ready;
+    await new Promise(r=>setTimeout(r,60));
     try{
       const dataUrl=await domtoimage.toPng(ref.current,{scale:2,bgcolor:T.bg,style:{borderRadius:'0'}});
       const withWM=await addWatermark(dataUrl);
       setShareImg(withWM);
     }catch(e){ console.error('Share capture failed:',e); }
     document.head.removeChild(s);
+    clipped.forEach(({el,oy,ov,mh})=>{ el.style.overflowY=oy; el.style.overflow=ov; el.style.maxHeight=mh; });
     if(layout==='builder') setIsCapturing(false);
     setShareLoading(false);
   }
@@ -1886,12 +1899,11 @@ export default function App(){
             )}
 
             {/* BACKTEST */}
-            {mode==="backtest"&&(!chartData.length?<Empty T={T} label={t('empty_launch')}/>:<div ref={builderShareRef} style={isCapturing?{display:'flex',gap:16,alignItems:'flex-start'}:{}}>
-              <div style={isCapturing?{flex:2,minWidth:0}:{}}>
+            {mode==="backtest"&&(!chartData.length?<Empty T={T} label={t('empty_launch')}/>:<div ref={builderShareRef}>
               {/* KPIs + Chart */}
               {(isMobile||builderTab==="chart"||isCapturing)&&<>
               {/* KPIs top row */}
-              <div style={{display:"grid",gridTemplateColumns:(isMobile||isCapturing)?"repeat(2,1fr)":"repeat(4,1fr)",gap:8,marginBottom:14}}>
+              <div style={{display:"grid",gridTemplateColumns:isMobile?"repeat(2,1fr)":"repeat(4,1fr)",gap:8,marginBottom:14}}>
                 {[
                   {l:t('kpi_perf'),  mk:"perf",   v:`${parseFloat(metrics?.totalReturn||0)>=0?"+":""}${metrics?.totalReturn||"—"}%`,c:parseFloat(metrics?.totalReturn||0)>=0?"#4ade80":"#f87171",s:invest>0?`→ ${(invest*(1+parseFloat(metrics?.totalReturn||0)/100)).toFixed(0)} €`:period},
                   {l:t('kpi_sharpe'),mk:"sharpe",  v:metrics?.sharpe||"—",c:parseFloat(metrics?.sharpe||0)>1?"#4ade80":parseFloat(metrics?.sharpe||0)>0?"#fb923c":"#f87171",s:t('kpi_sharpe_sub')},
@@ -2019,15 +2031,11 @@ export default function App(){
               </div>}
 
               {/* Metrics — 4 colonnes desktop, liste mobile */}
-              {!isCapturing&&(isMobile||builderTab==="metrics")&&(
+              {(isMobile||builderTab==="metrics"||isCapturing)&&(
                 isMobile
                   ? <div className="card" style={{marginBottom:12}}><MetricsPanel m={metrics} days={days}/></div>
                   : <MetricsPanel m={metrics} layout="cols" days={days}/>
               )}
-              </div>{/* /main column */}
-              {isCapturing&&<div style={{flex:1,minWidth:220}}>
-                <MetricsPanel m={metrics} layout="capture" days={days}/>
-              </div>}
             </div>)}
 
             {/* MONTE CARLO */}
