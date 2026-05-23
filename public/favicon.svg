@@ -1,10 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 54 54">
-  <!-- Dark background -->
-  <rect width="54" height="54" rx="8" fill="#0b0e17"/>
-  <!-- Blue liquid (lower flask area) -->
-  <path d="M11,32 Q9,42 10,51 Q10,53 13,53 L41,53 Q44,53 44,51 Q45,42 43,32 Z" fill="#4a7fc1"/>
-  <!-- Dark upper body (neck + shoulder, covers liquid above fill line) -->
-  <path d="M22,3 L32,3 L32,17 Q42,21 43,32 L11,32 Q12,21 22,17 Z" fill="#0b0e17"/>
-  <!-- Flask outline -->
-  <path d="M22,3 L32,3 L32,17 Q46,23 47,51 Q47,53 44,53 L10,53 Q7,53 7,51 Q8,23 22,17 Z" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="3 0 44 54">
+  <!-- Background -->
+  <rect x="3" y="0" width="44" height="54" fill="#0b0e17"/>
+  <!-- Liquid: bottom portion of flask (no clipPath needed) -->
+  <path d="M9,28 Q8,38 8,50 Q8,52 11,52 L37,52 Q40,52 40,50 Q40,38 39,28 Z" fill="#4a7fc1"/>
+  <!-- Upper dark body: neck + shoulder above liquid line -->
+  <path d="M16,2 L28,2 L28,16 Q39,21 39,28 L9,28 Q15,21 16,16 Z" fill="#0b0e17"/>
+  <!-- Flask outline — exact same path as logo-dark.svg -->
+  <path d="M16,2 L28,2 L28,16 Q42,22 43,50 Q43,52 40,52 L8,52 Q5,52 5,50 Q6,22 16,16 Z" fill="none" stroke="#ffffff" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round"/>
 </svg>
