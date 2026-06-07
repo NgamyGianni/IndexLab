@@ -6,7 +6,8 @@ import { I18N } from "./i18n.js";
 let _priceData = null; // module-level cache for real price data
 
 // ── Asset universe ────────────────────────────────────────────────────────────
-const ASSET_PARAMS = {
+// `let` so asset_params.json can patch mu/sigma with real computed values at runtime
+let ASSET_PARAMS = {
   // ── Tech
   "AAPL":    { mu:0.28, sigma:0.22, name:"Apple",          type:"action", sector:"Tech",          themes:["tech","ia"],               cap:3200 },
   "MSFT":    { mu:0.24, sigma:0.19, name:"Microsoft",      type:"action", sector:"Tech",          themes:["tech","ia","cloud"],        cap:3100 },
@@ -278,8 +279,8 @@ const SECTORS = [
 const THEMES = [
   { id:"ia",       label:"Intelligence Artificielle", icon:"🤖", color:"#c084fc" },
   { id:"cloud",    label:"Cloud Computing",           icon:"☁️",  color:"#38bdf8" },
-  { id:"semi",     label:"Semi-conducteurs",          icon:"🔲", color:"#fb923c" },
-  { id:"ve",       label:"Véhicules Électriques",     icon:"🚗", color:"#4ade80" },
+  { id:"semi",     label:"Semi-conducteurs",          icon:"🔲", color:"#f59e0b" },
+  { id:"ve",       label:"Véhicules Électriques",     icon:"🚗", color:"#22c55e" },
   { id:"solaire",  label:"Énergie Solaire",           icon:"☀️",  color:"#facc15" },
   { id:"biotech",  label:"Biotechnologie",            icon:"🧬", color:"#f472b6" },
   { id:"defense",  label:"Défense",                  icon:"🛡",  color:"#94a3b8" },
@@ -288,7 +289,7 @@ const THEMES = [
   { id:"defi",     label:"DeFi & Web3",               icon:"⛓",  color:"#818cf8" },
   { id:"refuge",   label:"Valeurs Refuge",            icon:"🏰", color:"#d1d5db" },
   { id:"europe",    label:"Europe",                   icon:"🇪🇺", color:"#60a5fa" },
-  { id:"cyber",     label:"Cybersécurité",            icon:"🛡",  color:"#f87171" },
+  { id:"cyber",     label:"Cybersécurité",            icon:"🛡",  color:"#ef4444" },
   { id:"nucleaire", label:"Nucléaire",                icon:"⚛",  color:"#a3e635" },
   { id:"eau",       label:"Eau",                      icon:"💧", color:"#38bdf8" },
   { id:"gaming",    label:"Gaming & Metaverse",       icon:"🎮", color:"#c084fc" },
@@ -296,14 +297,14 @@ const THEMES = [
   { id:"space",       label:"Space & Défense",          icon:"🚀", color:"#94a3b8" },
   { id:"asie",        label:"Asie",                     icon:"🏯", color:"#fb7185" },
   { id:"obligations", label:"Obligations",              icon:"📜", color:"#a8a29e" },
-  { id:"emergent",    label:"Marchés Émergents",        icon:"🌏", color:"#4ade80" },
+  { id:"emergent",    label:"Marchés Émergents",        icon:"🌏", color:"#22c55e" },
   { id:"auto",        label:"Automobile",               icon:"🚘", color:"#f59e0b" },
   { id:"pharma",      label:"Pharmacie",                icon:"💊", color:"#e879f9" },
   { id:"logistique",  label:"Logistique",               icon:"📦", color:"#38bdf8" },
 ];
 const BENCHMARK = { mu:0.13, sigma:0.14, name:"S&P 500" };
 
-const BENCH_COLOR = "#64748b";
+const BENCH_COLOR = "#9ca3af";
 const BENCHMARKS = [
   { ticker:"^GSPC",   label:"S&P 500"  },
   { ticker:"^FCHI",   label:"CAC 40"   },
@@ -315,8 +316,8 @@ const BENCHMARKS = [
   { ticker:"BTC-USD", label:"Bitcoin"  },
 ];
 
-const TYPE_COLOR = { action:"#4ade80", crypto:"#fb923c", etf:"#38bdf8", indice:"#c084fc" };
-const PORTFOLIO_COLORS = ["#4ade80","#fb923c","#38bdf8","#f472b6","#facc15","#a78bfa","#34d399","#f87171"];
+const TYPE_COLOR = { action:"#22c55e", crypto:"#f59e0b", etf:"#38bdf8", indice:"#c084fc" };
+const PORTFOLIO_COLORS = ["#22c55e","#f59e0b","#38bdf8","#f472b6","#facc15","#a78bfa","#34d399","#ef4444"];
 const PERIOD_DAYS  = { "5J":5, "1M":21, "3M":63, "6M":126, "1A":252, "3A":756, "5A":1260 };
 const PERIOD_CAL_DAYS = { "5J":7, "1M":31, "3M":91, "6M":182, "1A":365, "3A":1095, "5A":1825 };
 const HORIZON_DAYS = { "6M":126, "1A":252, "3A":756, "5A":1260 };
@@ -562,8 +563,8 @@ const TableMetricLabel = ({label, info, T})=>{
       {rect&&info&&(
         <div style={{position:"fixed",...tipPos(rect),zIndex:9999,width:TIP_W,background:T.bg1||T.bg,border:`1px solid ${T.b2}`,borderRadius:8,padding:"10px 13px",boxShadow:"0 8px 32px #000c",pointerEvents:"none",textTransform:"none",letterSpacing:"normal"}}>
           <div style={{fontSize:10,color:T.t1,lineHeight:1.6,marginBottom:5}}>{info.what}</div>
-          <div style={{fontSize:9,color:"#fb923c",lineHeight:1.5,marginBottom:4,background:"#fb923c10",padding:"3px 6px",borderRadius:3}}>📊 {info.how}</div>
-          <div style={{fontSize:9,color:"#4ade80",lineHeight:1.5,background:"#4ade8010",padding:"3px 6px",borderRadius:3}}>✓ {info.good}</div>
+          <div style={{fontSize:9,color:"#f59e0b",lineHeight:1.5,marginBottom:4,background:"#f59e0b10",padding:"3px 6px",borderRadius:3}}>📊 {info.how}</div>
+          <div style={{fontSize:9,color:"#22c55e",lineHeight:1.5,background:"#22c55e10",padding:"3px 6px",borderRadius:3}}>✓ {info.good}</div>
         </div>
       )}
     </div>
@@ -574,7 +575,7 @@ const TableMetricLabel = ({label, info, T})=>{
 const MetricRow = ({label,val,color,highlight,info,T})=>{
   const [rect,setRect] = useState(null);
   return(
-    <div style={{padding:"6px 0",borderBottom:`1px solid ${T.b2_20}`}}>
+    <div style={{padding:"10px 0",borderBottom:`1px solid ${T.b2_20}`}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
         <div style={{display:"flex",alignItems:"center",gap:6}}>
           <span style={{fontSize:11,color:T.t2}}>{label}</span>
@@ -588,13 +589,13 @@ const MetricRow = ({label,val,color,highlight,info,T})=>{
             >?</button>
           )}
         </div>
-        <div style={{fontFamily:"'Space Mono',monospace",fontSize:13,fontWeight:700,color:color||T.t1,background:highlight?color+"18":"transparent",padding:highlight?"2px 8px":"0",borderRadius:4}}>{val}</div>
+        <div style={{fontFamily:"'Inter',sans-serif",fontSize:15,fontWeight:700,color:color||T.t1,background:highlight?color+"18":"transparent",padding:highlight?"2px 8px":"0",borderRadius:4}}>{val}</div>
       </div>
       {rect&&info&&(
         <div style={{position:"fixed",...tipPos(rect),zIndex:9999,width:TIP_W,background:T.bg1,border:`1px solid ${T.b3}`,borderRadius:8,padding:"10px 13px",boxShadow:"0 8px 32px #000a",pointerEvents:"none",textTransform:"none",letterSpacing:"normal"}}>
           <div style={{fontSize:10,color:T.t1,lineHeight:1.6,marginBottom:6}}>{info.what}</div>
-          <div style={{fontSize:9,color:"#fb923c",lineHeight:1.5,marginBottom:5,background:"#fb923c10",padding:"4px 7px",borderRadius:4}}>📊 {info.how}</div>
-          <div style={{fontSize:9,color:"#4ade80",lineHeight:1.5,background:"#4ade8010",padding:"4px 7px",borderRadius:4}}>✓ {info.good}</div>
+          <div style={{fontSize:9,color:"#f59e0b",lineHeight:1.5,marginBottom:5,background:"#f59e0b10",padding:"4px 7px",borderRadius:4}}>📊 {info.how}</div>
+          <div style={{fontSize:9,color:"#22c55e",lineHeight:1.5,background:"#22c55e10",padding:"4px 7px",borderRadius:4}}>✓ {info.good}</div>
         </div>
       )}
     </div>
@@ -623,8 +624,8 @@ const InfoBubble = ({info,T})=>{
       {rect&&(
         <div style={{position:"fixed",...tipPos(rect),zIndex:9999,width:TIP_W,background:T.bg1||T.bg,border:`1px solid ${T.b2}`,borderRadius:8,padding:"10px 13px",boxShadow:"0 8px 32px #000c",pointerEvents:"none",textTransform:"none",letterSpacing:"normal"}}>
           <div style={{fontSize:10,color:T.t1,lineHeight:1.6,marginBottom:5}}>{info.what}</div>
-          <div style={{fontSize:9,color:"#fb923c",lineHeight:1.5,marginBottom:4,background:"#fb923c10",padding:"3px 6px",borderRadius:3}}>📊 {info.how}</div>
-          <div style={{fontSize:9,color:"#4ade80",lineHeight:1.5,background:"#4ade8010",padding:"3px 6px",borderRadius:3}}>✓ {info.good}</div>
+          <div style={{fontSize:9,color:"#f59e0b",lineHeight:1.5,marginBottom:4,background:"#f59e0b10",padding:"3px 6px",borderRadius:3}}>📊 {info.how}</div>
+          <div style={{fontSize:9,color:"#22c55e",lineHeight:1.5,background:"#22c55e10",padding:"3px 6px",borderRadius:3}}>✓ {info.good}</div>
         </div>
       )}
     </div>
@@ -639,14 +640,16 @@ const ChartTooltip = ({active,payload,label,invest,T,mois})=>{
     const p = label.split('-');
     displayLabel = `${p[2]} ${mois[parseInt(p[1])-1]} ${p[0]}`;
   }
-  return <div style={{background:T.bg2,border:`1px solid ${T.b2}`,borderRadius:8,padding:"8px 14px",boxShadow:"0 4px 20px #0009"}}>
-    <div style={{color:T.t4,fontSize:10,marginBottom:4}}>{displayLabel}</div>
+  return <div style={{background:T.bg2,border:`1px solid ${T.b2}`,borderRadius:8,padding:"8px 14px",boxShadow:`0 4px 16px ${T.b2_44}`}}>
+    <div style={{color:T.t4,fontSize:10,marginBottom:6,fontWeight:500}}>{displayLabel}</div>
     {payload.map(p=>(
-      <div key={p.dataKey} style={{display:"flex",justifyContent:"space-between",gap:12,marginBottom:2}}>
-        <span style={{fontSize:10,color:p.color}}>{p.name}</span>
-        <span style={{fontSize:12,color:p.color,fontFamily:"monospace",fontWeight:700}}>
-          {p.value>=0?"+":""}{parseFloat(p.value).toFixed(2)}%
-          {invest>0?` · ${(invest*(1+p.value/100)).toFixed(0)}€`:""}
+      <div key={p.dataKey} style={{display:"flex",justifyContent:"space-between",gap:16,marginBottom:3}}>
+        <div style={{display:"flex",alignItems:"center",gap:5}}>
+          <div style={{width:8,height:8,borderRadius:"50%",background:p.color,flexShrink:0}}/>
+          <span style={{fontSize:10,color:T.t3}}>{p.name}</span>
+        </div>
+        <span style={{fontSize:11,color:T.t1,fontFamily:"'Inter',sans-serif",fontWeight:600,fontVariantNumeric:"tabular-nums"}}>
+          {p.value>=0?"+":""}{parseFloat(p.value).toFixed(2)}%{invest>0?<span style={{fontSize:9,color:T.t4,fontWeight:400}}> · {(invest*(1+p.value/100)).toFixed(0)}€</span>:""}
         </span>
       </div>
     ))}
@@ -688,7 +691,7 @@ function TutorialModal({ lang, setLang, T, discordInfo, onClose }) {
     <div className="modal-bg" onClick={close}>
       <div onClick={e => e.stopPropagation()} style={{
         background:T.bg2, border:`1px solid ${T.b2}`, borderRadius:14, padding:"28px 28px 22px",
-        width:"100%", maxWidth:420, position:"relative", fontFamily:"'Space Mono',monospace",
+        width:"100%", maxWidth:420, position:"relative", fontFamily:"'Inter',sans-serif",
         boxShadow:"0 24px 60px #0008",
       }}>
         {/* Top bar: lang flags + close */}
@@ -696,17 +699,17 @@ function TutorialModal({ lang, setLang, T, discordInfo, onClose }) {
           <div style={{display:"flex",gap:4}}>
             {[{code:"en",flag:"🇬🇧"},{code:"es",flag:"🇪🇸"},{code:"fr",flag:"🇫🇷"}].map(({code,flag})=>(
               <button key={code} onClick={()=>pickLang(code)} style={{
-                background:lang===code?"#4ade8020":"transparent",
-                border:`1px solid ${lang===code?"#4ade80":T.b1}`,
+                background:lang===code?T.b2:"transparent",
+                border:`1px solid ${lang===code?T.b3:T.b1}`,
                 borderRadius:5, padding:"3px 7px", cursor:"pointer", fontSize:14,
-                color:T.t1, opacity:lang===code?1:0.45, lineHeight:1, transition:"all .12s",
+                color:T.t1, opacity:lang===code?1:0.4, lineHeight:1, transition:"all .12s",
               }}>{flag}</button>
             ))}
           </div>
           <div style={{display:"flex",alignItems:"center",gap:10}}>
             <span style={{fontSize:8,color:T.t4,letterSpacing:3,textTransform:"uppercase"}}>{L.tuto_step(step+1, total)}</span>
             <button onClick={close} style={{background:"none",border:"none",color:T.t4,fontSize:18,cursor:"pointer",lineHeight:1,padding:"2px 6px"}}
-              onMouseEnter={e=>{e.currentTarget.style.color="#f87171";}} onMouseLeave={e=>{e.currentTarget.style.color=T.t4;}}>×</button>
+              onMouseEnter={e=>{e.currentTarget.style.color="#ef4444";}} onMouseLeave={e=>{e.currentTarget.style.color=T.t4;}}>×</button>
           </div>
         </div>
 
@@ -726,12 +729,12 @@ function TutorialModal({ lang, setLang, T, discordInfo, onClose }) {
               ?<img src={`https://cdn.discordapp.com/icons/${discordInfo.id}/${discordInfo.icon}.webp?size=64`} alt="" style={{width:34,height:34,borderRadius:8,objectFit:"cover",flexShrink:0}}/>
               :<div style={{width:34,height:34,background:"#5865F2",borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,color:"#fff",flexShrink:0,fontWeight:900}}>D</div>}
             <div>
-              <div style={{fontSize:11,fontWeight:700,color:T.t1,fontFamily:"'Space Mono'"}}>{discordInfo?.name||"Discord IndexLab"}</div>
+              <div style={{fontSize:11,fontWeight:700,color:T.t1,fontFamily:"'Inter',sans-serif"}}>{discordInfo?.name||"Discord IndexLab"}</div>
               {discordInfo?.members!=null&&<div style={{fontSize:9,color:T.t4,letterSpacing:1,marginTop:2}}>{discordInfo.members.toLocaleString()} membres</div>}
             </div>
           </div>
           <a href="https://discord.gg/CD29XujPnz" target="_blank" rel="noopener noreferrer"
-            style={{display:"block",background:"#5865F2",color:"#fff",borderRadius:6,padding:"9px",fontFamily:"'Space Mono',monospace",fontSize:10,fontWeight:700,textAlign:"center",textDecoration:"none",transition:"opacity .12s"}}
+            style={{display:"block",background:"#5865F2",color:"#fff",borderRadius:6,padding:"9px",fontFamily:"'Inter',sans-serif",fontSize:10,fontWeight:700,textAlign:"center",textDecoration:"none",transition:"opacity .12s"}}
             onMouseEnter={e=>{e.currentTarget.style.opacity="0.85";}} onMouseLeave={e=>{e.currentTarget.style.opacity="1";}}>
             {L.contact_discord_btn}
           </a>
@@ -742,7 +745,7 @@ function TutorialModal({ lang, setLang, T, discordInfo, onClose }) {
           {steps.map((_,i)=>(
             <div key={i} onClick={()=>setStep(i)} style={{
               width:i===step?20:7, height:7, borderRadius:4, cursor:"pointer",
-              background:i===step?"#4ade80":T.b2, transition:"all .2s",
+              background:i===step?T.t1:T.b2, transition:"all .2s",
             }}/>
           ))}
         </div>
@@ -750,7 +753,7 @@ function TutorialModal({ lang, setLang, T, discordInfo, onClose }) {
         {/* Don't show again */}
         <label style={{display:"flex",alignItems:"center",gap:7,fontSize:9,color:T.t4,cursor:"pointer",marginBottom:16,userSelect:"none"}}>
           <input type="checkbox" checked={noShow} onChange={e=>setNoShow(e.target.checked)}
-            style={{accentColor:"#4ade80",cursor:"pointer"}}/>
+            style={{accentColor:T.t1,cursor:"pointer"}}/>
           {L.tuto_no_show}
         </label>
 
@@ -758,27 +761,27 @@ function TutorialModal({ lang, setLang, T, discordInfo, onClose }) {
         <div style={{display:"flex",flexDirection:"column",gap:8}}>
           {!isLast&&<div style={{display:"flex",gap:8}}>
             <button onClick={()=>setStep(s=>s-1)} disabled={step===0}
-              style={{flex:1,padding:"8px 0",borderRadius:7,border:`1px solid ${T.b2}`,background:"transparent",color:step===0?T.t6:T.t3,cursor:step===0?"not-allowed":"pointer",fontFamily:"'Space Mono',monospace",fontSize:10,transition:"all .12s"}}
-              onMouseEnter={e=>{if(step>0){e.currentTarget.style.borderColor="#4ade80";e.currentTarget.style.color="#4ade80";}}}
+              style={{flex:1,padding:"8px 0",borderRadius:7,border:`1px solid ${T.b2}`,background:"transparent",color:step===0?T.t6:T.t3,cursor:step===0?"not-allowed":"pointer",fontFamily:"'Inter',sans-serif",fontSize:10,transition:"all .12s"}}
+              onMouseEnter={e=>{if(step>0){e.currentTarget.style.borderColor=T.t2;e.currentTarget.style.color=T.t1;}}}
               onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=step===0?T.t6:T.t3;}}>
               {L.tuto_prev}
             </button>
             <button onClick={()=>setStep(s=>s+1)}
-              style={{flex:2,padding:"8px 0",borderRadius:7,border:"none",background:"#4ade8020",color:"#4ade80",cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:10,fontWeight:700,transition:"all .12s"}}
-              onMouseEnter={e=>{e.currentTarget.style.background="#4ade8030";}} onMouseLeave={e=>{e.currentTarget.style.background="#4ade8020";}}>
+              style={{flex:2,padding:"8px 0",borderRadius:7,border:"none",background:T.b1,color:T.t1,cursor:"pointer",fontFamily:"'Inter',sans-serif",fontSize:10,fontWeight:600,transition:"all .12s"}}
+              onMouseEnter={e=>{e.currentTarget.style.background=T.b2;}} onMouseLeave={e=>{e.currentTarget.style.background=T.b1;}}>
               {L.tuto_next}
             </button>
           </div>}
           {isLast&&<div style={{display:"flex",gap:8}}>
             <button onClick={()=>setStep(s=>s-1)}
-              style={{flex:1,padding:"8px 0",borderRadius:7,border:`1px solid ${T.b2}`,background:"transparent",color:T.t3,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:10,transition:"all .12s"}}
-              onMouseEnter={e=>{e.currentTarget.style.borderColor="#4ade80";e.currentTarget.style.color="#4ade80";}}
+              style={{flex:1,padding:"8px 0",borderRadius:7,border:`1px solid ${T.b2}`,background:"transparent",color:T.t3,cursor:"pointer",fontFamily:"'Inter',sans-serif",fontSize:10,transition:"all .12s"}}
+              onMouseEnter={e=>{e.currentTarget.style.borderColor=T.t2;e.currentTarget.style.color=T.t1;}}
               onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t3;}}>
               {L.tuto_prev}
             </button>
           </div>}
           <button onClick={close}
-            style={{width:"100%",padding:"10px 0",borderRadius:7,border:"none",background:"linear-gradient(135deg,#4ade80,#22d3ee)",color:"#071209",cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:10,fontWeight:700,transition:"all .12s"}}
+            style={{width:"100%",padding:"10px 0",borderRadius:7,border:"none",background:T.t1,color:T.bg,cursor:"pointer",fontFamily:"'Inter',sans-serif",fontSize:10,fontWeight:700,transition:"all .12s"}}
             onMouseEnter={e=>{e.currentTarget.style.opacity="0.85";}} onMouseLeave={e=>{e.currentTarget.style.opacity="1";}}>
             {L.tuto_close}
           </button>
@@ -804,7 +807,7 @@ function LocaleDateInput({ value, onChange, min, max, T, darkMode, lang }){
   const minY=min?parseInt(min.split('-')[0]):curY-10;
   const daysInM=new Date(y,m,0).getDate();
 
-  const selStyle={flex:1,background:T.bg,border:`1px solid ${T.b2}`,color:T.t1,borderRadius:6,padding:"7px 5px",fontFamily:"'Space Mono'",fontSize:11,outline:"none",cursor:"pointer",colorScheme:darkMode?"dark":"light"};
+  const selStyle={flex:1,background:T.bg,border:`1px solid ${T.b2}`,color:T.t1,borderRadius:6,padding:"7px 5px",fontFamily:"'Inter',sans-serif",fontSize:11,outline:"none",cursor:"pointer",colorScheme:darkMode?"dark":"light"};
 
   const commit=(ny,nm,nd)=>{
     const maxD=new Date(ny,nm,0).getDate();
@@ -848,7 +851,7 @@ function addWatermark(dataUrl){
       c.fillStyle='#070910f2'; c.fillRect(0,H-barH,W,barH);
       c.strokeStyle='#1e2535'; c.lineWidth=1;
       c.beginPath(); c.moveTo(0,H-barH); c.lineTo(W,H-barH); c.stroke();
-      c.font=`11px 'Space Mono',monospace`; c.fillStyle='#4a7fc1'; c.textAlign='right';
+      c.font=`500 11px 'Inter',sans-serif`; c.fillStyle='#4a7fc1'; c.textAlign='right';
       c.fillText('indexlab.finance',W-18,H-14);
       function drawWithLogo(logoImg){
         if(logoImg){
@@ -921,36 +924,36 @@ function ShareModal({imgSrc,loading,tab,shareUrl,T,onClose}){
     {label:'LinkedIn',bg:'#0a66c2',  href:`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(linkUrl)}`},
   ];
 
-  const btnBase={display:'flex',alignItems:'center',justifyContent:'center',gap:6,borderRadius:6,padding:'11px',fontFamily:"'Space Mono'",fontSize:10,cursor:'pointer',transition:'border-color .12s,color .12s'};
+  const btnBase={display:'flex',alignItems:'center',justifyContent:'center',gap:6,borderRadius:6,padding:'11px',fontFamily:"'Inter',sans-serif",fontSize:10,cursor:'pointer',transition:'border-color .12s,color .12s'};
   return(
     <div className="modal-bg" onClick={onClose} style={{zIndex:90}}>
       <div className="modal" onClick={e=>e.stopPropagation()} style={{maxWidth:580,maxHeight:'calc(90vh - 32px)',overflowY:'auto'}}>
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
           <div style={{display:'flex',alignItems:'center',gap:8}}>
-            <ShareIcon/><span style={{fontFamily:"'Unbounded'",fontSize:13,fontWeight:700,color:T.t1}}>Share</span>
+            <ShareIcon/><span style={{fontFamily:"'Inter',sans-serif",fontSize:13,fontWeight:700,color:T.t1}}>Share</span>
           </div>
           <button onClick={onClose} style={{background:'none',border:'none',color:T.t4,fontSize:18,cursor:'pointer',lineHeight:1,padding:'2px 6px',transition:'color .12s'}}
-            onMouseEnter={e=>e.currentTarget.style.color='#f87171'} onMouseLeave={e=>e.currentTarget.style.color=T.t4}>×</button>
+            onMouseEnter={e=>e.currentTarget.style.color='#ef4444'} onMouseLeave={e=>e.currentTarget.style.color=T.t4}>×</button>
         </div>
         {loading
-          ?<div style={{height:160,display:'flex',alignItems:'center',justifyContent:'center',color:T.t3,fontFamily:"'Space Mono'",fontSize:11}}>Generating…</div>
+          ?<div style={{height:160,display:'flex',alignItems:'center',justifyContent:'center',color:T.t3,fontFamily:"'Inter',sans-serif",fontSize:11}}>Generating…</div>
           :imgSrc&&<>
             <div style={{maxHeight:'52vh',overflowY:'auto',borderRadius:8,marginBottom:14,border:`1px solid ${T.b2}`}}>
               <img src={imgSrc} alt="" style={{width:'100%',display:'block'}}/>
             </div>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8}}>
               <button onClick={download}
-                style={{...btnBase,background:'#4ade80',color:'#070910',border:'none',fontWeight:700}}>
+                style={{...btnBase,background:T.t1,color:T.bg,border:'none',fontWeight:700}}>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 Download PNG
               </button>
               <button onClick={copyImg}
-                style={{...btnBase,border:`1px solid ${copiedImg?'#4ade80':T.b2}`,background:'transparent',color:copiedImg?'#4ade80':T.t2}}>
-                {copiedImg?'✓ Image copied!':'Copy image'}
+                style={{...btnBase,border:`1px solid ${copiedImg?T.t1:T.b2}`,background:copiedImg?T.b1:'transparent',color:copiedImg?T.t1:T.t2}}>
+                {copiedImg?'✓ Copied!':'Copy image'}
               </button>
               <button onClick={handleShare}
-                style={{...btnBase,border:`1px solid ${socialOpen?'#4ade80':T.b2}`,background:socialOpen?'#4ade8010':'transparent',color:socialOpen?'#4ade80':T.t2}}
-                onMouseEnter={e=>{if(!socialOpen){e.currentTarget.style.borderColor='#4ade80';e.currentTarget.style.color='#4ade80';}}}
+                style={{...btnBase,border:`1px solid ${socialOpen?T.t1:T.b2}`,background:socialOpen?T.b1:'transparent',color:socialOpen?T.t1:T.t2}}
+                onMouseEnter={e=>{if(!socialOpen){e.currentTarget.style.borderColor=T.t1;e.currentTarget.style.color=T.t1;}}}
                 onMouseLeave={e=>{if(!socialOpen){e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t2;}}}>
                 <ShareIcon/> Share
               </button>
@@ -958,7 +961,7 @@ function ShareModal({imgSrc,loading,tab,shareUrl,T,onClose}){
             {socialOpen&&<div style={{marginTop:8,display:'flex',gap:6,flexWrap:'wrap',animation:'fadeIn .15s ease'}}>
               {socials.map(({label,bg,href})=>(
                 <a key={label} href={href} target="_blank" rel="noopener noreferrer"
-                  style={{display:'flex',alignItems:'center',gap:5,background:bg,color:'#fff',borderRadius:6,padding:'7px 13px',fontFamily:"'Space Mono'",fontSize:10,textDecoration:'none',fontWeight:700,flex:'1 1 auto',justifyContent:'center'}}>
+                  style={{display:'flex',alignItems:'center',gap:5,background:bg,color:'#fff',borderRadius:6,padding:'7px 13px',fontFamily:"'Inter',sans-serif",fontSize:10,textDecoration:'none',fontWeight:700,flex:'1 1 auto',justifyContent:'center'}}>
                   {label}
                 </a>
               ))}
@@ -980,9 +983,12 @@ export default function App(){
   const [invest,setInvest]     = useState(10000);
   const [custom,setCustom]     = useState("");
   const [panelOpen,setPanelOpen] = useState(()=> typeof window!=="undefined" && window.innerWidth<768);
+  const [compact,setCompact] = useState(false);
+  const [configTab,setConfigTab] = useState("assets");
   const [deleteConfirmId,setDeleteConfirmId] = useState(null);
   const [isMobile,setIsMobile] = useState(false);
   const [isXS,setIsXS]         = useState(false);
+  const [viewportH,setViewportH] = useState(900);
   const [savedPortfolios,setSavedPortfolios] = useState([]);
   const [saveModalOpen,setSaveModalOpen] = useState(false);
   const [saveName,setSaveName] = useState("");
@@ -1008,7 +1014,7 @@ export default function App(){
   const [btStartDate,setBtStartDate] = useState(()=>new Date().toISOString().split('T')[0]);
   const [lang,setLang] = useState(()=>{ try{return localStorage.getItem("indexlab_lang")||"en";}catch{return"en";} });
   const [darkMode,setDarkMode] = useState(()=>{
-    try { return localStorage.getItem("indexlab_dark")!=="false"; } catch { return true; }
+    try { return localStorage.getItem("indexlab_dark")==="true"; } catch { return false; }
   });
   const [tutorialOpen,setTutorialOpen] = useState(()=>{
     try { return !localStorage.getItem("indexlab_tuto_seen"); } catch { return true; }
@@ -1020,6 +1026,7 @@ export default function App(){
   const [shareLoading,setShareLoading] = useState(false);
   const [shareUrl,setShareUrl]       = useState(null);
   const [isCapturing,setIsCapturing] = useState(false);
+  const [paramsV,setParamsV]         = useState(0);
   const builderShareRef  = useRef(null);
   const compareShareRef  = useRef(null);
   const trackShareRef    = useRef(null);
@@ -1038,11 +1045,15 @@ export default function App(){
     fetch('/prices.json')
       .then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); })
       .then(data=>{ _priceData=data; setPriceData(data); })
-      .catch(()=>{}); // silently fall back to simulation
+      .catch(()=>{});
+    fetch('/asset_params.json')
+      .then(r=>r.ok ? r.json() : null)
+      .then(data=>{ if(data){ Object.assign(ASSET_PARAMS,data); setParamsV(v=>v+1); }})
+      .catch(()=>{});
   },[]);
 
   useEffect(()=>{
-    const check=()=>{ setIsMobile(window.innerWidth<768); setIsXS(window.innerWidth<420); };
+    const check=()=>{ setIsMobile(window.innerWidth<768); setIsXS(window.innerWidth<420); setViewportH(window.innerHeight); };
     check(); window.addEventListener("resize",check);
     return ()=>window.removeEventListener("resize",check);
   },[]);
@@ -1071,15 +1082,15 @@ export default function App(){
 
   // ── Theme object ──────────────────────────────────────────────────────────
   const T = darkMode ? {
-    bg:"#070910", bg1:"#0a0c14", bg2:"#0c0e15",
-    b1:"#141824", b2:"#1e2535", b3:"#2a3045",
-    t1:"#e2e8f0", t2:"#9aaabb", t3:"#7d8fa0", t4:"#677888", t5:"#546070", t6:"#425060",
-    b1_20:"#14182420", b2_20:"#1e253520", b2_44:"#1e253544",
+    bg:"#09090b", bg1:"#0f0f11", bg2:"#111113",
+    b1:"#1c1c1f", b2:"#27272a", b3:"#3f3f46",
+    t1:"#fafafa", t2:"#a1a1aa", t3:"#71717a", t4:"#52525b", t5:"#3f3f46", t6:"#27272a",
+    b1_20:"#1c1c1f20", b2_20:"#27272a20", b2_44:"#27272a44",
   } : {
-    bg:"#f0f4f8", bg1:"#e8edf4", bg2:"#ffffff",
-    b1:"#e2e8f0", b2:"#c8d4e4", b3:"#8fa3bb",
-    t1:"#0f172a", t2:"#334155", t3:"#475569", t4:"#64748b", t5:"#94a3b8", t6:"#cbd5e1",
-    b1_20:"#e2e8f020", b2_20:"#c8d4e420", b2_44:"#c8d4e444",
+    bg:"#fafafa", bg1:"#f4f4f5", bg2:"#ffffff",
+    b1:"#e4e4e7", b2:"#d4d4d8", b3:"#a1a1aa",
+    t1:"#09090b", t2:"#27272a", t3:"#52525b", t4:"#71717a", t5:"#a1a1aa", t6:"#d4d4d8",
+    b1_20:"#e4e4e720", b2_20:"#d4d4d820", b2_44:"#d4d4d844",
   };
 
   const L = I18N[lang] || I18N.fr;
@@ -1218,7 +1229,7 @@ export default function App(){
       const pct=p=>vals[Math.floor(p*vals.length)];
       return {date:dateLabel(i*step,hDays,true,moisArr),p10:+pct(0.10).toFixed(2),p25:+pct(0.25).toFixed(2),median:+pct(0.50).toFixed(2),p75:+pct(0.75).toFixed(2),p90:+pct(0.90).toFixed(2)};
     });
-  },[assets,mode,horizon,hDays,weightOk,lang]);
+  },[assets,mode,horizon,hDays,weightOk,lang,paramsV]);
 
 
   // ── Compare data ──
@@ -1375,49 +1386,85 @@ export default function App(){
   const lastBT  = chartData[chartData.length-1]?.value??0;
   const isPos   = lastBT>=0;
   const lastMC  = mcData[mcData.length-1];
-  const CH = isMobile?190:240;
+  // 400px = fixed elements: paddingTop(20)+topbar(51)+tabs(50)+KPI(93)+chartHeader(24)+legend(40)+drawdown-label(36)+stats(86)
+  const _chartArea = Math.max(200, viewportH - 400);
+  const DDH = isMobile ? 55 : Math.min(100, Math.max(50, Math.round(_chartArea * 0.22)));
+  const CH  = isMobile ? 210 : Math.min(360, Math.max(160, _chartArea - DDH));
+
+  const drawdownData = useMemo(()=>{
+    if(!chartData.length) return [];
+    let peak=1;
+    return chartData.map(pt=>{
+      const v=1+pt.value/100;
+      if(v>peak) peak=v;
+      return {date:pt.date, dd:peak>0?(v-peak)/peak*100:0};
+    });
+  },[chartData]);
+
+  const periodStats = useMemo(()=>{
+    if(chartData.length<20) return null;
+    const mEnd={},mStart={};
+    chartData.forEach(pt=>{ const ym=pt.date?.slice(0,7); if(!ym) return; if(mStart[ym]===undefined) mStart[ym]=pt.value; mEnd[ym]=pt.value; });
+    const months=Object.keys(mStart).sort();
+    const mRets=months.map((ym,i)=>{ const prev=i===0?0:mEnd[months[i-1]]; return {ym,ret:((1+mEnd[ym]/100)/(1+prev/100)-1)*100}; });
+    const yEnd={},yStart={};
+    chartData.forEach(pt=>{ const y=pt.date?.slice(0,4); if(!y) return; if(yStart[y]===undefined) yStart[y]=pt.value; yEnd[y]=pt.value; });
+    const years=Object.keys(yStart).sort();
+    const yRets=years.map((y,i)=>{ const prev=i===0?0:yEnd[years[i-1]]; return {y,ret:((1+yEnd[y]/100)/(1+prev/100)-1)*100}; });
+    if(!mRets.length) return null;
+    const bestM=mRets.reduce((a,b)=>b.ret>a.ret?b:a);
+    const worstM=mRets.reduce((a,b)=>b.ret<a.ret?b:a);
+    const showY=yRets.length>=2;
+    return {bestM,worstM,bestY:showY?yRets.reduce((a,b)=>b.ret>a.ret?b:a):null,worstY:showY?yRets.reduce((a,b)=>b.ret<a.ret?b:a):null};
+  },[chartData]);
+
+  const monthlyReturns = useMemo(()=>{
+    if(chartData.length<20) return null;
+    const byYM={};
+    chartData.forEach(pt=>{ const ym=pt.date?.slice(0,7); if(!ym) return; if(!byYM[ym]) byYM[ym]={first:pt.value,last:pt.value}; byYM[ym].last=pt.value; });
+    const yms=Object.keys(byYM).sort();
+    if(yms.length<3) return null;
+    const rets={};
+    yms.forEach((ym,i)=>{ const prev=i===0?0:byYM[yms[i-1]].last; rets[ym]=((1+byYM[ym].last/100)/(1+prev/100)-1)*100; });
+    const years=[...new Set(yms.map(ym=>ym.slice(0,4)))].sort();
+    return {rets,years};
+  },[chartData]);
 
   // ── CSS ──
   const css=`
-    @font-face{font-family:'Space Mono';font-style:normal;font-weight:400;font-display:swap;src:url('/fonts/space-mono-400-ext.woff2') format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;}
-    @font-face{font-family:'Space Mono';font-style:normal;font-weight:400;font-display:swap;src:url('/fonts/space-mono-400.woff2') format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
-    @font-face{font-family:'Space Mono';font-style:normal;font-weight:700;font-display:swap;src:url('/fonts/space-mono-700-ext.woff2') format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;}
-    @font-face{font-family:'Space Mono';font-style:normal;font-weight:700;font-display:swap;src:url('/fonts/space-mono-700.woff2') format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
-    @font-face{font-family:'Unbounded';font-style:normal;font-weight:700;font-display:swap;src:url('/fonts/unbounded-700-ext.woff2') format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;}
-    @font-face{font-family:'Unbounded';font-style:normal;font-weight:700;font-display:swap;src:url('/fonts/unbounded-700.woff2') format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
-    *{box-sizing:border-box;margin:0;padding:0;}
+    *{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',-apple-system,sans-serif;}
     ::-webkit-scrollbar{width:3px;} ::-webkit-scrollbar-thumb{background:${T.b2};}
     body{background:${T.bg};}
-    .chip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;border:1px solid ${T.b2};background:transparent;color:${T.t3};cursor:pointer;font-size:10px;font-family:'Space Mono',monospace;transition:all .12s;white-space:nowrap;}
-    .chip:hover{border-color:#4ade80;color:#4ade80;}
+    .chip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:6px;border:1px solid ${T.b2};background:transparent;color:${T.t3};cursor:pointer;font-size:11px;transition:all .12s;white-space:nowrap;}
+    .chip:hover{border-color:${T.t1};color:${T.t1};}
     .chip.used{opacity:.2;pointer-events:none;}
-    .pill{padding:4px 11px;border-radius:5px;border:1px solid ${T.b2};background:transparent;color:${T.t5};cursor:pointer;font-family:'Space Mono',monospace;font-size:11px;transition:all .12s;}
-    .pill.active{background:#4ade80;color:#0a1f0d;border-color:#4ade80;font-weight:700;}
-    .pill:hover:not(.active){border-color:#4ade80;color:#4ade80;}
-    .w-in{width:62px;background:${T.bg};border:1px solid ${T.b2};color:${T.t1};border-radius:4px;padding:3px 6px;font-family:'Space Mono',monospace;font-size:11px;text-align:right;outline:none;}
-    .w-in:focus{border-color:#4ade80;}
-    .run{width:100%;padding:12px;border:none;border-radius:7px;background:linear-gradient(135deg,#4ade80,#22d3ee);color:#071209;font-family:'Space Mono',monospace;font-weight:700;font-size:13px;cursor:pointer;transition:opacity .15s;letter-spacing:.5px;}
-    .run:hover{opacity:.85;} .run:disabled{opacity:.3;cursor:not-allowed;}
-    .card{background:${T.bg2};border:1px solid ${T.b1};border-radius:10px;padding:12px 15px;}
+    .pill{padding:5px 12px;border-radius:6px;border:1px solid ${T.b2};background:transparent;color:${T.t4};cursor:pointer;font-size:12px;font-weight:500;transition:all .12s;}
+    .pill.active{background:${T.t1};color:${T.bg};border-color:${T.t1};font-weight:600;}
+    .pill:hover:not(.active){border-color:${T.t2};color:${T.t2};}
+    .w-in{width:62px;background:${T.bg};border:1px solid ${T.b2};color:${T.t1};border-radius:5px;padding:3px 6px;font-size:12px;text-align:right;outline:none;}
+    .w-in:focus{border-color:${T.t1};}
+    .run{width:100%;padding:13px;border:none;border-radius:8px;background:${T.t1};color:${T.bg};font-weight:600;font-size:14px;cursor:pointer;transition:opacity .15s;letter-spacing:-.1px;}
+    .run:hover{opacity:.85;} .run:disabled{opacity:.25;cursor:not-allowed;}
+    .card{background:transparent;border:none;border-radius:0;padding:0 0 16px;}
     .arow{background:${T.bg2};border:1px solid ${T.b1};border-radius:7px;padding:8px 10px;display:flex;align-items:center;gap:8px;margin-bottom:5px;transition:border-color .12s;}
     .arow:hover{border-color:${T.b2};}
-    .tag{font-size:8px;padding:2px 5px;border-radius:3px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;}
-    .mode-btn{flex:1;padding:7px 4px;border-radius:7px;border:1px solid ${T.b1};background:transparent;color:${T.t5};cursor:pointer;font-family:'Space Mono',monospace;font-size:9px;transition:all .15s;text-align:center;line-height:1.6;}
-    .mode-btn.active{border-color:#4ade80;background:#4ade8010;color:#4ade80;}
-    .mode-btn:hover:not(.active){border-color:${T.b2};color:${T.t3};}
-    .tab-btn{padding:8px 16px;border:none;background:transparent;color:${T.t5};cursor:pointer;font-family:'Space Mono',monospace;font-size:11px;transition:all .12s;border-bottom:2px solid transparent;white-space:nowrap;}
-    .tab-btn.active{color:#4ade80;border-bottom-color:#4ade80;}
+    .tag{font-size:9px;padding:2px 6px;border-radius:4px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;}
+    .mode-btn{flex:1;padding:8px 4px;border-radius:7px;border:1px solid ${T.b1};background:transparent;color:${T.t4};cursor:pointer;font-size:10px;transition:all .15s;text-align:center;line-height:1.5;}
+    .mode-btn.active{border-color:${T.t1};background:${T.t1};color:${T.bg};}
+    .mode-btn:hover:not(.active){border-color:${T.b2};color:${T.t2};}
+    .tab-btn{padding:9px 16px;border:none;background:transparent;color:${T.t4};cursor:pointer;font-size:12px;font-weight:500;transition:all .12s;border-bottom:2px solid transparent;white-space:nowrap;}
+    .tab-btn.active{color:${T.t1};border-bottom-color:${T.t1};font-weight:600;}
     .tab-btn:hover:not(.active){color:${T.t2};}
-    .save-btn{padding:6px 14px;border-radius:6px;border:1px solid #4ade8055;background:#4ade8010;color:#4ade80;cursor:pointer;font-family:'Space Mono',monospace;font-size:10px;transition:all .12s;white-space:nowrap;}
-    .save-btn:hover{background:#4ade8022;border-color:#4ade80;}
+    .save-btn{padding:6px 14px;border-radius:6px;border:1px solid ${T.b2};background:transparent;color:${T.t2};cursor:pointer;font-size:11px;font-weight:500;transition:all .12s;white-space:nowrap;}
+    .save-btn:hover{border-color:${T.t1};color:${T.t1};}
     .save-btn:disabled{opacity:.3;cursor:not-allowed;}
     .del-btn{background:none;border:none;color:${T.b2};cursor:pointer;font-size:14px;padding:0 4px;transition:color .12s;}
-    .del-btn:hover{color:#f87171;}
+    .del-btn:hover{color:#ef4444;}
     .modal-bg{position:fixed;inset:0;background:#000c;z-index:60;display:flex;align-items:center;justify-content:center;padding:16px;}
     .modal{background:${T.bg2};border:1px solid ${T.b2};border-radius:12px;padding:24px;width:100%;max-width:380px;}
     .drawer-overlay{position:fixed;inset:0;background:#000a;z-index:40;}
     .drawer{position:fixed;bottom:0;left:0;right:0;background:${T.bg2};border-top:1px solid ${T.b2};border-radius:16px 16px 0 0;z-index:50;max-height:85vh;overflow-y:auto;padding:16px;}
-    .notif{position:fixed;top:16px;right:16px;z-index:100;padding:10px 16px;border-radius:8px;font-family:'Space Mono',monospace;font-size:11px;animation:fadeIn .2s ease;}
+    .notif{position:fixed;top:16px;right:16px;z-index:100;padding:10px 16px;border-radius:8px;font-family:'Inter',sans-serif;font-size:11px;animation:fadeIn .2s ease;}
     @keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
     .metric-section{margin-bottom:0;}
     .metric-group-title{font-size:8px;color:${T.t6};letter-spacing:3px;text-transform:uppercase;padding:8px 0 4px;border-bottom:1px solid ${T.b2};margin-bottom:4px;}
@@ -1430,11 +1477,127 @@ export default function App(){
     @media(max-width:420px){
       .tab-btn{padding:8px 7px;font-size:9px;}
     }
+
+    /* ── Sidebar (desktop) ── */
+    .sidebar{position:fixed;top:0;left:0;width:200px;height:100vh;background:${T.bg2};border-right:1px solid ${T.b1};display:flex;flex-direction:column;z-index:20;overflow:hidden;}
+    .sidebar-logo{padding:22px 18px 18px;border-bottom:1px solid ${T.b1};flex-shrink:0;}
+    .sidebar-nav{flex:1;padding:10px 0;overflow-y:auto;}
+    .nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;cursor:pointer;font-family:'Inter',sans-serif;font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:${T.t5};transition:all .15s;border-left:2px solid transparent;border-top:none;border-right:none;border-bottom:none;background:none;width:100%;text-align:left;}
+    .nav-item:hover{color:${T.t2};background:${T.b1};}
+    .nav-item.active{color:${T.t1};border-left-color:${T.t1};background:${T.b1};font-weight:600;}
+    .sidebar-bottom{padding:6px 0 8px;border-top:1px solid ${T.b1};flex-shrink:0;}
+    .sidebar-btn{display:flex;align-items:center;gap:9px;padding:9px 18px;cursor:pointer;font-family:'Inter',sans-serif;font-size:9px;letter-spacing:.5px;color:${T.t5};background:none;border:none;width:100%;text-align:left;transition:color .12s;white-space:nowrap;}
+    .sidebar-btn:hover{color:${T.t2};}
+
+    /* ── Mobile header ── */
+    .mobile-header{position:sticky;top:0;z-index:20;background:${T.bg2};border-bottom:1px solid ${T.b1};padding:10px 14px;display:flex;align-items:center;gap:8px;flex-shrink:0;}
+
+    /* ── Bottom nav (mobile) ── */
+    .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:${T.bg2};border-top:1px solid ${T.b1};display:flex;z-index:20;padding-bottom:env(safe-area-inset-bottom,0px);}
+    .bottom-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px 8px;cursor:pointer;font-size:8px;letter-spacing:.5px;text-transform:uppercase;color:${T.t5};background:none;border:none;transition:color .15s;}
+    .bottom-nav-item.active{color:${T.t1};}
+
+    /* ── Compact (Bloomberg) mode ── */
+    .compact .card{padding:0 0 16px;}
+    .compact .arow{padding:5px 8px;margin-bottom:3px;}
+    .compact .chip{padding:2px 7px;font-size:9px;}
+    .compact .pill{padding:2px 8px;font-size:10px;}
+    .compact .metric-group-title{padding:4px 0 2px;font-size:7px;}
+    .compact .kpi-value{font-size:24px !important;}
+    .compact .kpi-secondary{font-size:13px !important;}
+
+    /* ── KPI numbers ── */
+    .kpi-hero{font-size:36px;font-weight:700;letter-spacing:-1px;line-height:1;font-variant-numeric:tabular-nums;}
+    .kpi-sub{font-size:11px;color:${T.t4};font-weight:400;letter-spacing:.3px;text-transform:uppercase;margin-top:4px;}
+    .kpi-grid{display:flex;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid ${T.b1};}
+    .kpi-cell{flex:1;padding:0 20px;border-right:1px solid ${T.b1};}
+    .kpi-cell:first-child{padding-left:0;}
+    .kpi-cell:last-child{border-right:none;}
+    .kpi-val{font-size:24px;font-weight:600;letter-spacing:-.5px;font-variant-numeric:tabular-nums;line-height:1;}
+    .kpi-lbl{font-size:10px;color:${T.t4};font-weight:400;letter-spacing:.4px;text-transform:uppercase;margin-bottom:6px;}
+    @media(max-width:900px){.kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0;padding-bottom:0;border-bottom:none;border:1px solid ${T.b1};border-radius:8px;overflow:hidden;} .kpi-cell{padding:14px 16px;border-right:1px solid ${T.b1};border-bottom:1px solid ${T.b1};} .kpi-cell:nth-child(2){border-right:none;} .kpi-cell:nth-child(3){border-bottom:none;} .kpi-cell:last-child{border-right:none;border-bottom:none;}}
   `;
 
-  const MetricsPanel = ({m, layout="list", days=252})=>{
+  const MonthlyHeatmap = ({data, compact=false})=>{
+    if(!data||!data.years.length) return null;
+    const {rets,years}=data;
+    const MN = compact
+      ? ['J','F','M','A','M','J','J','A','S','O','N','D']
+      : ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const allVals=Object.values(rets);
+    const maxAbs=Math.max(3,Math.max(...allVals.map(Math.abs)));
+    const bg=(ret)=>{
+      if(ret==null) return T.b1;
+      const a=(0.15+Math.min(1,Math.abs(ret)/(maxAbs*0.8))*0.65).toFixed(2);
+      return ret>=0?`rgba(34,197,94,${a})`:`rgba(239,68,68,${a})`;
+    };
+    const fmt=(ret)=>{
+      if(ret==null) return "";
+      if(compact) return ret>=0?`+${Math.round(ret)}`:`${Math.round(ret)}`;
+      return ret>=0?`+${ret.toFixed(1)}%`:`${ret.toFixed(1)}%`;
+    };
+    const yearTotals={};
+    years.forEach(y=>{
+      const yms=Object.keys(rets).filter(ym=>ym.startsWith(y));
+      if(!yms.length) return;
+      let cum=1; yms.forEach(ym=>{ cum*=(1+rets[ym]/100); });
+      yearTotals[y]=(cum-1)*100;
+    });
+    const monthAvgs=Array.from({length:12},(_,mi)=>{
+      const vals=years.map(y=>{const ym=`${y}-${String(mi+1).padStart(2,'0')}`;return rets[ym];}).filter(v=>v!=null);
+      return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null;
+    });
+    const CW=compact?26:52; const CH=compact?20:26;
+    const YW=compact?34:56;
+    return(
+      <div style={{marginTop:28,paddingTop:20,borderTop:`1px solid ${T.b1}`}}>
+        <div style={{fontSize:9,color:T.t4,letterSpacing:2,textTransform:"uppercase",marginBottom:12,fontWeight:500}}>{lang==="fr"?"Rendements mensuels":lang==="es"?"Rendimientos mensuales":"Monthly Returns"}</div>
+        <div style={{overflowX:"auto",paddingBottom:4}}>
+          <table style={{borderCollapse:"separate",borderSpacing:2,tableLayout:"fixed"}}>
+            <thead>
+              <tr>
+                <th style={{width:36,textAlign:"left"}}/>
+                {MN.map(m=><th key={m} style={{width:CW,fontSize:8,color:T.t4,fontWeight:500,textAlign:"center",paddingBottom:4}}>{m}</th>)}
+                <th style={{width:YW,fontSize:8,color:T.t4,fontWeight:500,textAlign:"center",paddingBottom:4}}>YTD</th>
+              </tr>
+            </thead>
+            <tbody>
+              {years.map(y=>(
+                <tr key={y}>
+                  <td style={{fontSize:9,color:T.t3,fontWeight:600,paddingRight:6,verticalAlign:"middle"}}>{y}</td>
+                  {Array.from({length:12},(_,mi)=>{
+                    const ym=`${y}-${String(mi+1).padStart(2,'0')}`;
+                    const ret=rets[ym];
+                    return(
+                      <td key={mi} style={{height:CH,background:ret!=null?bg(ret):T.b1,borderRadius:3,textAlign:"center",verticalAlign:"middle",fontSize:compact?8:9,fontWeight:600,color:T.t1,fontVariantNumeric:"tabular-nums",opacity:ret==null?0.2:1}}>
+                        {fmt(ret)}
+                      </td>
+                    );
+                  })}
+                  <td style={{textAlign:"center",verticalAlign:"middle",fontSize:compact?8:9,fontWeight:700,color:yearTotals[y]>=0?"#22c55e":"#ef4444",fontVariantNumeric:"tabular-nums",paddingLeft:4}}>
+                    {yearTotals[y]!=null?fmt(yearTotals[y]):""}
+                  </td>
+                </tr>
+              ))}
+              <tr>
+                <td style={{fontSize:8,color:T.t5,paddingRight:6,verticalAlign:"middle"}}>Avg</td>
+                {monthAvgs.map((avg,mi)=>(
+                  <td key={mi} style={{height:CH,background:avg!=null?bg(avg):T.b1,borderRadius:3,textAlign:"center",verticalAlign:"middle",fontSize:8,fontWeight:500,color:T.t2,fontVariantNumeric:"tabular-nums",opacity:avg==null?0.2:0.75}}>
+                    {avg!=null?fmt(avg):""}
+                  </td>
+                ))}
+                <td/>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
+
+  const MetricsPanel = ({m, layout="list", days=252, monthlyData=null})=>{
     if(!m) return null;
-    const gr = v=>parseFloat(v)>=0?"#4ade80":"#f87171";
+    const gr = v=>parseFloat(v)>=0?"#22c55e":"#ef4444";
     const perDay = lang==="fr"?"%/j":lang==="es"?"%/d":"%/d";
     const veryShort = days < 21;
     const short     = days < 63;
@@ -1450,33 +1613,33 @@ export default function App(){
         {k:"perf",  l:t('mr_total_return'),v:`${parseFloat(m.totalReturn)>=0?"+":""}${m.totalReturn}%`,c:gr(m.totalReturn)},
         {k:"ann",   l:t('mr_ann_return'),  v:`${parseFloat(m.annReturn)>=0?"+":""}${m.annReturn}%`,  c:gr(m.annReturn)},
         {k:"alpha", l:t('mr_alpha')(benchmarkLabel), v:`${parseFloat(m.alpha)>=0?"+":""}${m.alpha}%`, c:gr(m.alpha)},
-        {k:"win",   l:t('mr_win_rate'),    v:`${m.winRate}%`,c:parseFloat(m.winRate)>50?"#4ade80":"#f87171"},
+        {k:"win",   l:t('mr_win_rate'),    v:`${m.winRate}%`,c:parseFloat(m.winRate)>50?"#22c55e":"#ef4444"},
       ])},
       { title:t('ms_risque'), rows: applyReliability([
-        {k:"vol",   l:t('mr_vol'),   v:`${m.annVol}%`,      c:"#fb923c"},
-        {k:"maxdd", l:t('mr_maxdd'), v:`${m.maxDD}%`,       c:"#f87171"},
-        {k:"var95", l:t('mr_var'),   v:`${m.var95}${perDay}`,c:"#f87171"},
-        {k:"cvar95",l:t('mr_cvar'),  v:`${m.cvar95}${perDay}`,c:"#f87171"},
+        {k:"vol",   l:t('mr_vol'),   v:`${m.annVol}%`,      c:T.t2},
+        {k:"maxdd", l:t('mr_maxdd'), v:`${m.maxDD}%`,       c:"#ef4444"},
+        {k:"var95", l:t('mr_var'),   v:`${m.var95}${perDay}`,c:"#ef4444"},
+        {k:"cvar95",l:t('mr_cvar'),  v:`${m.cvar95}${perDay}`,c:"#ef4444"},
       ])},
       { title:t('ms_ratios'), rows: applyReliability([
-        {k:"sharpe", l:t('mr_sharpe'), v:m.sharpe, c:parseFloat(m.sharpe)>1?"#4ade80":parseFloat(m.sharpe)>0?"#fb923c":"#f87171"},
-        {k:"sortino",l:t('mr_sortino'),v:m.sortino,c:parseFloat(m.sortino)>1?"#4ade80":parseFloat(m.sortino)>0?"#fb923c":"#f87171"},
-        {k:"calmar", l:t('mr_calmar'), v:m.calmar, c:parseFloat(m.calmar)>1?"#4ade80":"#fb923c"},
-        {k:"omega",  l:t('mr_omega'),  v:m.omega,  c:parseFloat(m.omega)>1?"#4ade80":parseFloat(m.omega)>0?"#fb923c":"#f87171"},
+        {k:"sharpe", l:t('mr_sharpe'), v:m.sharpe, c:parseFloat(m.sharpe)>1?"#22c55e":parseFloat(m.sharpe)>0?T.t2:"#ef4444"},
+        {k:"sortino",l:t('mr_sortino'),v:m.sortino,c:parseFloat(m.sortino)>1?"#22c55e":parseFloat(m.sortino)>0?T.t2:"#ef4444"},
+        {k:"calmar", l:t('mr_calmar'), v:m.calmar, c:parseFloat(m.calmar)>1?"#22c55e":T.t2},
+        {k:"omega",  l:t('mr_omega'),  v:m.omega,  c:parseFloat(m.omega)>1?"#22c55e":parseFloat(m.omega)>0?T.t2:"#ef4444"},
       ])},
       { title:t('ms_bench')(benchmarkLabel), rows: applyReliability([
-        {k:"beta",l:t('mr_beta'),v:m.beta,c:parseFloat(m.beta)>1?"#fb923c":"#38bdf8"},
+        {k:"beta",l:t('mr_beta'),v:m.beta,c:T.t2},
         {k:"corr",l:t('mr_corr'),v:m.correlation,c:T.t2},
       ])},
     ];
     const warnBanner = (veryShort || short) && (
       <div style={{
         display:"flex",alignItems:"center",gap:7,
-        background: veryShort?"#f8717112":"#fb923c12",
-        border:`1px solid ${veryShort?"#f8717140":"#fb923c40"}`,
+        background: veryShort?"#ef444412":"#f59e0b12",
+        border:`1px solid ${veryShort?"#ef444440":"#f59e0b40"}`,
         borderRadius:7, padding:"7px 10px", marginBottom:10,
-        fontSize:9, color: veryShort?"#f87171":"#fb923c",
-        fontFamily:"'Space Mono'",lineHeight:1.5,
+        fontSize:9, color: veryShort?"#ef4444":"#f59e0b",
+        fontFamily:"'Inter',sans-serif",lineHeight:1.5,
       }}>
         <span style={{fontSize:13}}>⚠</span>
         <span>{veryShort ? t('warn_very_short') : t('warn_short')}</span>
@@ -1501,14 +1664,17 @@ export default function App(){
       return(
         <div>
           {warnBanner}
-          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:12}}>
-            {sections.map(sec=>(
-              <div key={sec.title} className="card">
-                <div style={{fontSize:8,color:T.t4,letterSpacing:3,textTransform:"uppercase",marginBottom:10}}>{sec.title}</div>
-                {sec.rows.map(r=><MetricRow key={r.k} label={r.l} val={r.v} color={r.c} info={mi(r.k)} T={T}/>)}
+          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:0,borderTop:`1px solid ${T.b1}`}}>
+            {sections.map((sec,i)=>(
+              <div key={sec.title} style={{display:"flex",flexDirection:"column",paddingTop:16,paddingRight:i<3?24:0,paddingLeft:i>0?20:0,paddingBottom:16,borderRight:i<3?`1px solid ${T.b1}`:"none"}}>
+                <div style={{fontSize:9,color:T.t4,letterSpacing:2,textTransform:"uppercase",marginBottom:12,fontWeight:500,flexShrink:0}}>{sec.title}</div>
+                <div style={{display:"flex",flexDirection:"column",gap:0}}>
+                  {sec.rows.map(r=><MetricRow key={r.k} label={r.l} val={r.v} color={r.c} info={mi(r.k)} T={T}/>)}
+                </div>
               </div>
             ))}
           </div>
+          <MonthlyHeatmap data={monthlyData}/>
         </div>
       );
     }
@@ -1520,6 +1686,7 @@ export default function App(){
           {sec.rows.map(r=><MetricRow key={r.k} label={r.l} val={r.v} color={r.c} info={mi(r.k)} T={T}/>)}
         </div>
       ))}
+      <MonthlyHeatmap data={monthlyData} compact/>
     </div>;
   };
 
@@ -1600,201 +1767,263 @@ export default function App(){
     }
 
     return(
-    <div style={{display:"flex",flexDirection:"column",gap:12}}>
+    <div style={{display:"flex",flexDirection:"column",height:"100%"}}>
+
+      {/* Sub-tab switcher */}
+      <div style={{display:"flex",borderBottom:`1px solid ${T.b1}`,flexShrink:0}}>
+        {[
+          {id:"assets", label:lang==="fr"?"Actifs":lang==="es"?"Activos":"Assets"},
+          {id:"params",  label:lang==="fr"?"Paramètres":lang==="es"?"Parámetros":"Settings"},
+        ].map(st=>(
+          <button key={st.id} onClick={()=>setConfigTab(st.id)}
+            style={{flex:1,padding:"11px 8px",border:"none",cursor:"pointer",background:"transparent",
+              fontSize:12,fontWeight:configTab===st.id?600:400,
+              color:configTab===st.id?T.t1:T.t4,
+              borderBottom:`2px solid ${configTab===st.id?T.t1:"transparent"}`,
+              transition:"all .12s"}}>
+            {st.label}
+          </button>
+        ))}
+      </div>
 
       {/* Editing indicator */}
       {editingPortfolioId&&(()=>{
         const ep=savedPortfolios.find(p=>p.id===editingPortfolioId);
-        return <div style={{fontSize:9,color:"#fb923c",background:"#fb923c12",border:"1px solid #fb923c30",borderRadius:6,padding:"5px 10px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        return <div style={{fontSize:9,color:"#f59e0b",background:"#f59e0b12",border:"1px solid #f59e0b30",borderRadius:6,padding:"5px 10px",display:"flex",justifyContent:"space-between",alignItems:"center",flexShrink:0,margin:"8px 0 0"}}>
           <span>{t('edit_ind')(ep?.name||"Portfolio")}</span>
-          <button onClick={()=>{setEditingPortfolioId(null);setSaveName("");}} style={{background:"none",border:"none",color:"#fb923c",cursor:"pointer",fontSize:10}}>{t('edit_cancel')}</button>
+          <button onClick={()=>{setEditingPortfolioId(null);setSaveName("");}} style={{background:"none",border:"none",color:"#f59e0b",cursor:"pointer",fontSize:10}}>{t('edit_cancel')}</button>
         </div>;
       })()}
 
-      {isMobile&&mode==="backtest"&&<div>
-        <SL T={T}>{t('cfg_start_date')}</SL>
-        <LocaleDateInput value={btStartDate} min={minBtStartDate} max={new Date().toISOString().split('T')[0]}
-          onChange={e=>setBtStartDate(e.target.value)} T={T} darkMode={darkMode} lang={lang} />
-      </div>}
+      {/* ASSETS TAB */}
+      {configTab==="assets"&&(
+        <div style={{overflowY:"auto",paddingTop:12,display:"flex",flexDirection:"column",gap:12,...(isMobile?{maxHeight:"calc(75vh - 80px)"}:{flex:1,minHeight:0})}}>
 
-      {isMobile&&<div>
-        <SL T={T}>{t('cfg_mode')}</SL>
-        <div style={{display:"flex",gap:5}}>
-          {[{id:"backtest",icon:"◀",lk:"mode_backtest"},{id:"monte_carlo",icon:"⟁",lk:"mode_mc"}].map(m=>(
-            <button key={m.id} className={`mode-btn ${mode===m.id?"active":""}`}
-              onClick={()=>setMode(m.id)}>
-              <div style={{fontSize:13}}>{m.icon}</div><div>{t(m.lk)}</div>
+          <div>
+            <button onClick={()=>setPickerOpen(o=>!o)}
+              style={{display:"flex",alignItems:"center",justifyContent:"space-between",width:"100%",background:"transparent",border:"none",cursor:"pointer",padding:"4px 0",marginBottom:pickerOpen?8:0}}>
+              <span style={{fontFamily:"'Inter',sans-serif",fontSize:9,letterSpacing:2,textTransform:"uppercase",color:T.t4}}>{t('cfg_add_assets')||"Ajouter des actifs"}</span>
+              <span style={{fontSize:9,color:T.t5,transition:"transform .15s",display:"inline-block",transform:pickerOpen?"rotate(90deg)":"rotate(0deg)"}}>▶</span>
             </button>
-          ))}
-        </div>
-      </div>}
-
-      <div>
-        <SL T={T}>{t('cfg_invest')}</SL>
-        <input type="number" min="0" step="500" value={invest} onChange={e=>setInvest(parseFloat(e.target.value)||0)}
-          style={{width:"100%",background:T.bg,border:`1px solid ${T.b2}`,color:T.t1,borderRadius:6,padding:"7px 11px",fontFamily:"'Space Mono'",fontSize:12,outline:"none"}} />
-      </div>
-
-      <div>
-        <button onClick={()=>setPickerOpen(o=>!o)}
-          style={{display:"flex",alignItems:"center",justifyContent:"space-between",width:"100%",background:"transparent",border:"none",cursor:"pointer",padding:"4px 0",marginBottom:pickerOpen?8:0}}>
-          <span style={{fontFamily:"'Space Mono'",fontSize:9,letterSpacing:2,textTransform:"uppercase",color:T.t4}}>{t('cfg_add_assets')||"Ajouter des actifs"}</span>
-          <span style={{fontSize:9,color:T.t5,transition:"transform .15s",display:"inline-block",transform:pickerOpen?"rotate(90deg)":"rotate(0deg)"}}>▶</span>
-        </button>
-        {pickerOpen&&<>
-        <div style={{display:"flex",gap:5,marginBottom:8}}>
-          {[{id:"sector",lk:"cfg_by_sector"},{id:"theme",lk:"cfg_by_theme"}].map(m=>(
-            <button key={m.id} onClick={()=>{setPickerMode(m.id);setActiveSector("all");setActiveTheme("all");}}
-              style={{flex:1,padding:"5px 8px",border:`1px solid ${pickerMode===m.id?"#4ade80":T.b2}`,borderRadius:6,background:pickerMode===m.id?"#4ade8012":"transparent",color:pickerMode===m.id?"#4ade80":T.t4,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,transition:"all .12s"}}>
-              {t(m.lk)}
-            </button>
-          ))}
-        </div>
-        <select
-          value={pickerMode==="sector"?activeSector:activeTheme}
-          onChange={e=>pickerMode==="sector"?setActiveSector(e.target.value):setActiveTheme(e.target.value)}
-          style={{width:"100%",background:T.bg,border:`1px solid ${T.b2}`,color:T.t1,borderRadius:6,padding:"6px 10px",fontFamily:"'Space Mono'",fontSize:10,outline:"none",marginBottom:8,cursor:"pointer"}}>
-          {pickerMode==="sector"
-            ? SECTORS.map(s=><option key={s.id} value={s.id}>{s.icon} {L.sectors?.[s.id]||s.label}</option>)
-            : [<option key="all" value="all">◈ {L.sectors?.all||"Tous"}</option>,...THEMES.map(th=><option key={th.id} value={th.id}>{th.icon} {L.themes?.[th.id]||th.label}</option>)]
-          }
-        </select>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:4,maxHeight:200,overflowY:"auto",paddingRight:2}}>
-          {availablePresets.filter(p=>pickerMode==="sector"
-            ?(activeSector==="all"||p.sector===activeSector)
-            :(activeTheme==="all"?p.themes?.length>0:p.themes?.includes(activeTheme))
-          ).map(p=>{
-            const used=!!assets.find(a=>a.ticker===p.ticker); const tc=TYPE_COLOR[p.type]||"#888";
-            const capStr=p.cap>=1000?`${(p.cap/1000).toFixed(1)}T$`:`${p.cap}B$`;
-            return(
-              <button key={p.ticker}
-                onClick={()=>{ used ? removeAsset(p.ticker) : addAsset(p.ticker); }}
-                onMouseEnter={e=>{ if(used){e.currentTarget.style.borderColor="#f87171";e.currentTarget.style.background="#f8717112";e.currentTarget.querySelector(".added-lbl").textContent="× retirer";}}}
-                onMouseLeave={e=>{ if(used){e.currentTarget.style.borderColor="#4ade8055";e.currentTarget.style.background="#4ade8012";e.currentTarget.querySelector(".added-lbl").textContent="✓ "+t('cfg_added').replace("✓ ","");}}}
-                style={{display:"flex",flexDirection:"column",alignItems:"flex-start",padding:"7px 9px",border:`1px solid ${used?"#4ade8055":tc+"33"}`,borderRadius:7,background:used?"#4ade8012":tc+"08",cursor:"pointer",transition:"border-color .12s, background .12s",opacity:1,textAlign:"left"}}>
-                <div style={{display:"flex",justifyContent:"space-between",width:"100%",marginBottom:2}}>
-                  <span style={{fontFamily:"'Space Mono'",fontSize:10,fontWeight:700,color:used?"#4ade80":T.t1}}>{p.ticker}</span>
-                  <span style={{fontSize:7,padding:"1px 4px",borderRadius:2,background:tc+"22",color:tc,fontWeight:700,textTransform:"uppercase"}}>{p.type}</span>
-                </div>
-                <span style={{fontSize:9,color:T.t4,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",width:"100%"}}>{p.name}</span>
-                <span style={{fontSize:8,color:T.b3,marginTop:2}}>{capStr}</span>
-                {used&&<span className="added-lbl" style={{fontSize:8,color:"#4ade8088",marginTop:1}}>{t('cfg_added')}</span>}
-              </button>
-            );
-          })}
-        </div>
-        </>}
-      </div>
-
-      {pickerOpen&&(()=>{
-        const suggestions = custom.length>0
-          ? availablePresets.filter(p=>p.ticker.startsWith(custom)||p.ticker.includes(custom)||p.name.toUpperCase().includes(custom)).slice(0,8)
-          : [];
-        const doAdd = (ticker)=>{ addAsset(ticker); setCustom(""); setSuggestionIdx(-1); setCustomFocused(false); };
-        return (
-        <div style={{display:"flex",gap:6}}>
-          <div style={{flex:1,position:"relative"}}>
-            <input value={custom}
-              onChange={e=>{ setCustom(e.target.value.toUpperCase()); setSuggestionIdx(-1); }}
-              onFocus={()=>setCustomFocused(true)}
-              onBlur={()=>setTimeout(()=>setCustomFocused(false),150)}
-              onKeyDown={e=>{
-                if(e.key==="ArrowDown"){ e.preventDefault(); setSuggestionIdx(i=>Math.min(i+1,suggestions.length-1)); }
-                else if(e.key==="ArrowUp"){ e.preventDefault(); setSuggestionIdx(i=>Math.max(i-1,-1)); }
-                else if(e.key==="Escape"){ setCustom(""); setSuggestionIdx(-1); }
-                else if(e.key==="Enter"){ if(suggestionIdx>=0&&suggestions[suggestionIdx]) doAdd(suggestions[suggestionIdx].ticker); else doAdd(custom); }
-              }}
-              placeholder={t('cfg_ticker_ph')}
-              style={{width:"100%",background:T.bg,border:`1px solid ${customFocused&&suggestions.length?"#4ade80":T.b2}`,color:T.t1,borderRadius:customFocused&&suggestions.length?"6px 6px 0 0":6,padding:"7px 10px",fontFamily:"'Space Mono'",fontSize:11,outline:"none",transition:"border-color .12s"}}
-            />
-            {customFocused&&suggestions.length>0&&(
-              <div style={{position:"absolute",top:"100%",left:0,right:0,background:T.bg2,border:`1px solid #4ade80`,borderTop:"none",borderRadius:"0 0 6px 6px",zIndex:60,overflow:"hidden",boxShadow:`0 8px 24px ${darkMode?"#0009":"#0002"}`}}>
-                {suggestions.map((p,i)=>{
-                  const tc=TYPE_COLOR[p.type]||"#888"; const used=!!assets.find(a=>a.ticker===p.ticker);
-                  return(
-                    <div key={p.ticker} onMouseDown={()=>{ if(!used) doAdd(p.ticker); }}
-                      style={{display:"flex",alignItems:"center",gap:8,padding:"7px 10px",cursor:used?"default":"pointer",background:i===suggestionIdx?T.b2:"transparent",borderBottom:i<suggestions.length-1?`1px solid ${T.b1}`:"none",transition:"background .08s"}}>
-                      <span style={{fontFamily:"'Space Mono'",fontSize:11,fontWeight:700,color:used?T.t5:T.t1,minWidth:58,flexShrink:0}}>{p.ticker}</span>
-                      <span style={{fontSize:9,color:T.t4,flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.name}</span>
-                      <span style={{fontSize:7,padding:"2px 5px",borderRadius:3,background:tc+"22",color:tc,fontWeight:700,textTransform:"uppercase",flexShrink:0}}>{p.type}</span>
-                      {used&&<span style={{fontSize:8,color:"#4ade8077",flexShrink:0}}>✓</span>}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-          <button onMouseDown={()=>doAdd(custom)} style={{background:T.b2,border:"none",color:"#4ade80",borderRadius:6,padding:"0 12px",cursor:"pointer",fontSize:17,flexShrink:0}}>+</button>
-        </div>
-        );
-      })()}
-
-      {assets.length>0&&<div>
-        <SL mb={6} T={T}>{t('cfg_composition')}</SL>
-        {[
-          [
-            {lk:"opt_equal", icon:"÷", dk:"opt_equal_d", action:()=>setAssets(prev=>reequalize(prev))},
-            {lk:"opt_rp",    icon:"⚖", dk:"opt_rp_d",    action:applyRiskParity},
-            {lk:"opt_ms",    icon:"◎", dk:"opt_ms_d",    action:applyMaxSharpe},
-          ],
-          [
-            {lk:"opt_mv",  icon:"~",  dk:"opt_mv_d",  action:applyMinVol},
-            {lk:"opt_cap", icon:"●",  dk:"opt_cap_d", action:applyMarketCap},
-          ],
-        ].map((row,ri)=>(
-        <div key={ri} style={{display:"grid",gridTemplateColumns:`repeat(${row.length},1fr)`,gap:4,marginBottom:ri===0?4:9}}>
-          {row.map(({lk,icon,dk,action})=>{
-            const isAct=selectedOptim===lk;
-            return(
-            <button key={lk} onClick={()=>{setSelectedOptim(lk);action();}}
-              style={{padding:"7px 4px",border:`1px solid ${isAct?"#4ade80":T.b2}`,borderRadius:7,background:isAct?"#4ade8012":"transparent",color:isAct?"#4ade80":T.t4,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,textAlign:"center",lineHeight:1.5,transition:"all .12s",boxShadow:isAct?"0 0 0 1px #4ade8033":undefined}}
-              onMouseEnter={e=>{if(!isAct){e.currentTarget.style.borderColor="#4ade80";e.currentTarget.style.color="#4ade80";}}}
-              onMouseLeave={e=>{if(!isAct){e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t4;}}}>
-              <div style={{fontSize:14,marginBottom:1}}>{icon}</div>
-              <div style={{fontWeight:700,fontSize:9}}>{t(lk)}</div>
-              <div style={{fontSize:7,color:isAct?"#4ade8088":T.t5,marginTop:1}}>{t(dk)}</div>
-            </button>
-            );
-          })}
-        </div>
-        ))}
-        {assets.map(({ticker,weight})=>{
-          const meta=ASSET_PARAMS[ticker]; const type=meta?.type||"action";
-          const tc=TYPE_COLOR[type]||"#4ade80";
-          return(
-            <div key={ticker} className="arow">
-              <div style={{flex:1,minWidth:0}}>
-                <div style={{fontWeight:700,fontSize:11,color:T.t1}}>{ticker}</div>
-                <div style={{fontSize:9,color:T.t5}}>{meta?.name||"—"}</div>
-              </div>
-              <span className="tag" style={{background:tc+"18",color:tc}}>{type}</span>
-              <input type="number" min="0" max="100" step="0.1" className="w-in"
-                value={weight} onChange={e=>setWeight(ticker,e.target.value)} />
-              <span style={{color:T.t3,fontSize:11}}>%</span>
-              <button onClick={()=>removeAsset(ticker)} style={{background:"none",border:"none",color:T.b2,cursor:"pointer",fontSize:15}} className="del-btn">×</button>
+            {pickerOpen&&<>
+            <div style={{display:"flex",gap:5,marginBottom:8}}>
+              {[{id:"sector",lk:"cfg_by_sector"},{id:"theme",lk:"cfg_by_theme"}].map(m=>(
+                <button key={m.id} onClick={()=>{setPickerMode(m.id);setActiveSector("all");setActiveTheme("all");}}
+                  style={{flex:1,padding:"5px 8px",border:`1px solid ${pickerMode===m.id?T.t1:T.b2}`,borderRadius:6,background:pickerMode===m.id?T.b1:"transparent",color:pickerMode===m.id?T.t1:T.t4,cursor:"pointer",fontFamily:"'Inter',sans-serif",fontSize:9,transition:"all .12s"}}>
+                  {t(m.lk)}
+                </button>
+              ))}
             </div>
-          );
-        })}
-        <div style={{display:"flex",justifyContent:"flex-end",gap:6,alignItems:"center",marginTop:4}}>
-          <span style={{fontSize:9,color:T.t4}}>{t('cfg_total')}</span>
-          <span style={{fontFamily:"'Space Mono'",fontWeight:700,color:weightOk?"#4ade80":"#f87171",fontSize:13}}>{totalW.toFixed(1)}%</span>
-          {!weightOk&&<span style={{fontSize:9,color:"#f87171"}}>≠ 100</span>}
-        </div>
-      </div>}
+            <select
+              value={pickerMode==="sector"?activeSector:activeTheme}
+              onChange={e=>pickerMode==="sector"?setActiveSector(e.target.value):setActiveTheme(e.target.value)}
+              style={{width:"100%",background:T.bg,border:`1px solid ${T.b2}`,color:T.t1,borderRadius:6,padding:"6px 10px",fontFamily:"'Inter',sans-serif",fontSize:10,outline:"none",marginBottom:8,cursor:"pointer"}}>
+              {pickerMode==="sector"
+                ? SECTORS.map(s=><option key={s.id} value={s.id}>{s.icon} {L.sectors?.[s.id]||s.label}</option>)
+                : [<option key="all" value="all">◈ {L.sectors?.all||"Tous"}</option>,...THEMES.map(th=><option key={th.id} value={th.id}>{th.icon} {L.themes?.[th.id]||th.label}</option>)]
+              }
+            </select>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:4,maxHeight:200,overflowY:"auto",paddingRight:2}}>
+              {availablePresets.filter(p=>pickerMode==="sector"
+                ?(activeSector==="all"||p.sector===activeSector)
+                :(activeTheme==="all"?p.themes?.length>0:p.themes?.includes(activeTheme))
+              ).map(p=>{
+                const used=!!assets.find(a=>a.ticker===p.ticker); const tc=TYPE_COLOR[p.type]||"#888";
+                const capStr=p.cap>=1000?`${(p.cap/1000).toFixed(1)}T$`:`${p.cap}B$`;
+                return(
+                  <button key={p.ticker}
+                    onClick={()=>{ used ? removeAsset(p.ticker) : addAsset(p.ticker); }}
+                    onMouseEnter={e=>{ if(used){e.currentTarget.style.background="#ef444408";e.currentTarget.style.borderColor="#ef444440";e.currentTarget.querySelector(".added-lbl").textContent="× retirer";}else{e.currentTarget.style.background=T.b1;} }}
+                    onMouseLeave={e=>{ if(used){e.currentTarget.style.background=T.b1;e.currentTarget.style.borderColor=T.b2;e.currentTarget.querySelector(".added-lbl").textContent="✓ added";}else{e.currentTarget.style.background="transparent";} }}
+                    style={{display:"flex",flexDirection:"column",alignItems:"flex-start",padding:"7px 9px",border:`1px solid ${used?T.b2:"transparent"}`,borderRadius:7,background:used?T.b1:"transparent",cursor:"pointer",transition:"border-color .12s, background .12s",textAlign:"left"}}>
+                    <div style={{display:"flex",justifyContent:"space-between",width:"100%",marginBottom:2}}>
+                      <span style={{fontFamily:"'Inter',sans-serif",fontSize:10,fontWeight:700,color:T.t1}}>{p.ticker}</span>
+                      <span style={{fontSize:7,padding:"1px 4px",borderRadius:2,background:tc+"22",color:tc,fontWeight:700,textTransform:"uppercase"}}>{p.type}</span>
+                    </div>
+                    <span style={{fontSize:9,color:T.t4,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",width:"100%"}}>{p.name}</span>
+                    <span style={{fontSize:8,color:T.t5,marginTop:2}}>{capStr}</span>
+                    {used&&<span className="added-lbl" style={{fontSize:8,color:T.t5,marginTop:1}}>✓ added</span>}
+                  </button>
+                );
+              })}
+            </div>
+            </>}
+          </div>
 
-      {isMobile&&<button className="run" onClick={()=>setPanelOpen(false)} disabled={!weightOk||!assets.length}>
-        {mode==="backtest"?t('btn_run_bt'):t('btn_run_mc')}
-      </button>}
-      {!weightOk&&assets.length>0&&<div style={{fontSize:9,color:"#f87171",textAlign:"center"}}>{t('cfg_weight_err')}</div>}
+          {pickerOpen&&(()=>{
+            const suggestions = custom.length>0
+              ? availablePresets.filter(p=>p.ticker.startsWith(custom)||p.ticker.includes(custom)||p.name.toUpperCase().includes(custom)).slice(0,8)
+              : [];
+            const doAdd = (ticker)=>{ addAsset(ticker); setCustom(""); setSuggestionIdx(-1); setCustomFocused(false); };
+            return (
+            <div style={{display:"flex",gap:6}}>
+              <div style={{flex:1,position:"relative"}}>
+                <input value={custom}
+                  onChange={e=>{ setCustom(e.target.value.toUpperCase()); setSuggestionIdx(-1); }}
+                  onFocus={()=>setCustomFocused(true)}
+                  onBlur={()=>setTimeout(()=>setCustomFocused(false),150)}
+                  onKeyDown={e=>{
+                    if(e.key==="ArrowDown"){ e.preventDefault(); setSuggestionIdx(i=>Math.min(i+1,suggestions.length-1)); }
+                    else if(e.key==="ArrowUp"){ e.preventDefault(); setSuggestionIdx(i=>Math.max(i-1,-1)); }
+                    else if(e.key==="Escape"){ setCustom(""); setSuggestionIdx(-1); }
+                    else if(e.key==="Enter"){ if(suggestionIdx>=0&&suggestions[suggestionIdx]) doAdd(suggestions[suggestionIdx].ticker); else doAdd(custom); }
+                  }}
+                  placeholder={t('cfg_ticker_ph')}
+                  style={{width:"100%",background:T.bg,border:`1px solid ${customFocused&&suggestions.length?T.t1:T.b2}`,color:T.t1,borderRadius:customFocused&&suggestions.length?"6px 6px 0 0":6,padding:"7px 10px",fontFamily:"'Inter',sans-serif",fontSize:11,outline:"none",transition:"border-color .12s"}}
+                />
+                {customFocused&&suggestions.length>0&&(
+                  <div style={{position:"absolute",top:"100%",left:0,right:0,background:T.bg2,border:`1px solid ${T.t1}`,borderTop:"none",borderRadius:"0 0 6px 6px",zIndex:60,overflow:"hidden",boxShadow:`0 8px 24px ${darkMode?"#0009":"#0002"}`}}>
+                    {suggestions.map((p,i)=>{
+                      const tc=TYPE_COLOR[p.type]||"#888"; const used=!!assets.find(a=>a.ticker===p.ticker);
+                      return(
+                        <div key={p.ticker} onMouseDown={()=>{ if(!used) doAdd(p.ticker); }}
+                          style={{display:"flex",alignItems:"center",gap:8,padding:"7px 10px",cursor:used?"default":"pointer",background:i===suggestionIdx?T.b2:"transparent",borderBottom:i<suggestions.length-1?`1px solid ${T.b1}`:"none",transition:"background .08s"}}>
+                          <span style={{fontFamily:"'Inter',sans-serif",fontSize:11,fontWeight:700,color:used?T.t5:T.t1,minWidth:58,flexShrink:0}}>{p.ticker}</span>
+                          <span style={{fontSize:9,color:T.t4,flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.name}</span>
+                          <span style={{fontSize:7,padding:"2px 5px",borderRadius:3,background:tc+"22",color:tc,fontWeight:700,textTransform:"uppercase",flexShrink:0}}>{p.type}</span>
+                          {used&&<span style={{fontSize:8,color:T.t4,flexShrink:0}}>✓</span>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+              <button onMouseDown={()=>doAdd(custom)} style={{background:T.b2,border:"none",color:T.t1,borderRadius:6,padding:"0 12px",cursor:"pointer",fontSize:17,flexShrink:0}}>+</button>
+            </div>
+            );
+          })()}
+
+          {assets.length>0&&<div>
+            <SL mb={6} T={T}>{t('cfg_composition')}</SL>
+            {[
+              [
+                {lk:"opt_equal", icon:"÷", dk:"opt_equal_d", action:()=>setAssets(prev=>reequalize(prev))},
+                {lk:"opt_rp",    icon:"⚖", dk:"opt_rp_d",    action:applyRiskParity},
+                {lk:"opt_ms",    icon:"◎", dk:"opt_ms_d",    action:applyMaxSharpe},
+              ],
+              [
+                {lk:"opt_mv",  icon:"~",  dk:"opt_mv_d",  action:applyMinVol},
+                {lk:"opt_cap", icon:"●",  dk:"opt_cap_d", action:applyMarketCap},
+              ],
+            ].map((row,ri)=>(
+            <div key={ri} style={{display:"grid",gridTemplateColumns:`repeat(${row.length},1fr)`,gap:4,marginBottom:ri===0?4:9}}>
+              {row.map(({lk,icon,dk,action})=>{
+                const isAct=selectedOptim===lk;
+                return(
+                <button key={lk} onClick={()=>{setSelectedOptim(lk);action();}}
+                  style={{padding:"7px 4px",border:"none",borderRadius:7,background:isAct?T.b2:"transparent",color:isAct?T.t1:T.t4,cursor:"pointer",fontFamily:"'Inter',sans-serif",fontSize:9,textAlign:"center",lineHeight:1.5,transition:"all .12s"}}
+                  onMouseEnter={e=>{if(!isAct){e.currentTarget.style.background=T.b1;e.currentTarget.style.color=T.t2;}}}
+                  onMouseLeave={e=>{if(!isAct){e.currentTarget.style.background="transparent";e.currentTarget.style.color=T.t4;}}}>
+                  <div style={{fontSize:13,marginBottom:1}}>{icon}</div>
+                  <div style={{fontWeight:isAct?600:400,fontSize:9}}>{t(lk)}</div>
+                  <div style={{fontSize:7,color:T.t5,marginTop:1}}>{t(dk)}</div>
+                </button>
+                );
+              })}
+            </div>
+            ))}
+            {assets.map(({ticker,weight})=>{
+              const meta=ASSET_PARAMS[ticker]; const type=meta?.type||"action";
+              const tc=TYPE_COLOR[type]||"#22c55e";
+              return(
+                <div key={ticker} className="arow">
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontWeight:700,fontSize:11,color:T.t1}}>{ticker}</div>
+                    <div style={{fontSize:9,color:T.t5}}>{meta?.name||"—"}</div>
+                  </div>
+                  <span className="tag" style={{background:tc+"18",color:tc}}>{type}</span>
+                  <input type="number" min="0" max="100" step="0.1" className="w-in"
+                    value={weight} onChange={e=>setWeight(ticker,e.target.value)} />
+                  <span style={{color:T.t3,fontSize:11}}>%</span>
+                  <button onClick={()=>removeAsset(ticker)} style={{background:"none",border:"none",color:T.b2,cursor:"pointer",fontSize:15}} className="del-btn">×</button>
+                </div>
+              );
+            })}
+            <div style={{display:"flex",justifyContent:"flex-end",gap:6,alignItems:"center",marginTop:4}}>
+              <span style={{fontSize:9,color:T.t4}}>{t('cfg_total')}</span>
+              <span style={{fontFamily:"'Inter',sans-serif",fontWeight:700,color:weightOk?T.t1:"#ef4444",fontSize:13}}>{totalW.toFixed(1)}%</span>
+              {!weightOk&&<span style={{fontSize:9,color:"#ef4444"}}>≠ 100</span>}
+            </div>
+          </div>}
+
+          {isMobile&&<button className="run" onClick={()=>setPanelOpen(false)} disabled={!weightOk||!assets.length}>
+            {mode==="backtest"?t('btn_run_bt'):t('btn_run_mc')}
+          </button>}
+          {!weightOk&&assets.length>0&&<div style={{fontSize:9,color:"#ef4444",textAlign:"center"}}>{t('cfg_weight_err')}</div>}
+        </div>
+      )}
+
+      {/* PARAMS TAB */}
+      {configTab==="params"&&(
+        <div style={{overflowY:"auto",paddingTop:16,display:"flex",flexDirection:"column",gap:16,...(isMobile?{maxHeight:"calc(75vh - 80px)"}:{flex:1,minHeight:0})}}>
+
+          <div>
+            <SL T={T}>{t('cfg_invest')}</SL>
+            <input type="number" min="0" step="500" value={invest} onChange={e=>setInvest(parseFloat(e.target.value)||0)}
+              style={{width:"100%",background:T.bg,border:`1px solid ${T.b2}`,color:T.t1,borderRadius:6,padding:"7px 11px",fontFamily:"'Inter',sans-serif",fontSize:12,outline:"none"}} />
+          </div>
+
+          <div>
+            <SL T={T}>{t('cfg_mode')}</SL>
+            <div style={{display:"flex",background:T.b1,borderRadius:8,padding:3,gap:2}}>
+              {[{id:"backtest",lk:"mode_backtest"},{id:"monte_carlo",lk:"mode_mc"}].map(m=>(
+                <button key={m.id}
+                  onClick={()=>{ setMode(m.id); setBuilderTab("chart"); }}
+                  style={{flex:1,padding:"8px 6px",border:"none",borderRadius:6,cursor:"pointer",fontFamily:"'Inter',sans-serif",fontSize:11,fontWeight:mode===m.id?600:400,
+                    background:mode===m.id?T.bg2:"transparent",
+                    color:mode===m.id?T.t1:T.t4,
+                    boxShadow:mode===m.id?`0 1px 3px ${T.b2_44}`:"none",
+                    transition:"all .15s"}}>
+                  {t(m.lk)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <SL T={T}>{mode==="backtest"?t('period_lbl'):t('horizon_lbl')}</SL>
+            <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
+              {mode==="backtest"
+                ?Object.keys(PERIOD_DAYS).map(p=>(
+                    <button key={p} className={`pill ${period===p?"active":""}`} onClick={()=>setPeriod(p)}>{p}</button>
+                  ))
+                :["6M","1A","3A","5A"].map(h=>(
+                    <button key={h} className={`pill ${horizon===h?"active":""}`} onClick={()=>setHorizon(h)}>{h}</button>
+                  ))
+              }
+            </div>
+          </div>
+
+          {mode==="backtest"&&<div>
+            <SL T={T}>{t('cfg_start_date')}</SL>
+            <input type="date" value={btStartDate} min={minBtStartDate} max={new Date().toISOString().split('T')[0]}
+              onChange={e=>setBtStartDate(e.target.value)}
+              style={{width:"100%",background:T.bg,border:`1px solid ${T.b2}`,color:T.t1,borderRadius:6,padding:"7px 11px",fontFamily:"'Inter',sans-serif",fontSize:12,outline:"none",colorScheme:darkMode?"dark":"light",cursor:"pointer"}} />
+          </div>}
+
+          {mode==="backtest"&&<div>
+            <SL T={T}>Benchmark</SL>
+            <select value={benchmark} onChange={e=>setBenchmark(e.target.value)}
+              style={{width:"100%",background:T.bg,border:`1px solid ${T.b2}`,color:T.t1,borderRadius:6,padding:"8px 11px",fontFamily:"'Inter',sans-serif",fontSize:12,outline:"none",cursor:"pointer",colorScheme:darkMode?"dark":"light"}}>
+              {BENCHMARKS.map(b=><option key={b.ticker} value={b.ticker}>{b.label}</option>)}
+            </select>
+          </div>}
+
+          {isMobile&&<button className="run" onClick={()=>setPanelOpen(false)} disabled={!weightOk||!assets.length}>
+            {mode==="backtest"?t('btn_run_bt'):t('btn_run_mc')}
+          </button>}
+        </div>
+      )}
+
     </div>
   );};
 
   return(
-    <div style={{minHeight:"100vh",background:T.bg,color:T.t1,fontFamily:"'Space Mono','Courier New',monospace"}}>
+    <div className={compact?"compact":""} style={{minHeight:"100vh",background:T.bg,color:T.t1,fontFamily:"'Inter',-apple-system,sans-serif",paddingLeft:isMobile?0:200}}>
       <style>{css}</style>
 
       {/* NOTIFICATION */}
-      {notification&&<div className="notif" style={{background:notification.type==="error"?"#f8717122":"#4ade8022",border:`1px solid ${notification.type==="error"?"#f87171":"#4ade80"}`,color:notification.type==="error"?"#f87171":"#4ade80"}}>{notification.msg}</div>}
+      {notification&&<div className="notif" style={{background:notification.type==="error"?"#ef444414":T.b2,border:`1px solid ${notification.type==="error"?"#ef444440":T.b3}`,color:notification.type==="error"?"#ef4444":T.t1}}>{notification.msg}</div>}
 
       {/* TUTORIAL MODAL */}
       {tutorialOpen&&<TutorialModal lang={lang} setLang={setLang} T={T} discordInfo={discordInfo} onClose={()=>{ setTutorialOpen(false); if(isMobile) setPanelOpen(true); }}/>}
@@ -1803,13 +2032,13 @@ export default function App(){
       {/* SAVE MODAL */}
       {saveModalOpen&&<div className="modal-bg" onClick={()=>setSaveModalOpen(false)}>
         <div className="modal" onClick={e=>e.stopPropagation()}>
-          <div style={{fontFamily:"'Unbounded'",fontSize:14,fontWeight:700,marginBottom:16,color:T.t1}}>{t('save_title')}</div>
+          <div style={{fontFamily:"'Inter',sans-serif",fontSize:14,fontWeight:700,marginBottom:16,color:T.t1}}>{t('save_title')}</div>
           <SL T={T}>{t('save_name_lbl')}</SL>
           <input value={saveName} onChange={e=>setSaveName(e.target.value)}
-            style={{width:"100%",background:T.bg,border:`1px solid ${T.b2}`,color:T.t1,borderRadius:6,padding:"8px 12px",fontFamily:"'Space Mono'",fontSize:12,outline:"none",marginBottom:12}}
+            style={{width:"100%",background:T.bg,border:`1px solid ${T.b2}`,color:T.t1,borderRadius:6,padding:"8px 12px",fontFamily:"'Inter',sans-serif",fontSize:12,outline:"none",marginBottom:12}}
             placeholder={t('save_name_ph')} />
           <div style={{display:"flex",gap:8}}>
-            <button onClick={()=>setSaveModalOpen(false)} style={{flex:1,padding:"10px",border:`1px solid ${T.b2}`,background:"transparent",color:T.t3,borderRadius:6,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:11}}>{t('save_cancel')}</button>
+            <button onClick={()=>setSaveModalOpen(false)} style={{flex:1,padding:"10px",border:`1px solid ${T.b2}`,background:"transparent",color:T.t3,borderRadius:6,cursor:"pointer",fontFamily:"'Inter',sans-serif",fontSize:11}}>{t('save_cancel')}</button>
             <button onClick={savePortfolio} className="run" style={{flex:2,padding:"10px"}}>{editingPortfolioId?t('save_update'):t('save_confirm')}</button>
           </div>
         </div>
@@ -1818,10 +2047,10 @@ export default function App(){
       {/* DELETE CONFIRMATION */}
       {deleteConfirmId&&<div className="modal-bg" onClick={()=>setDeleteConfirmId(null)}>
         <div className="modal" onClick={e=>e.stopPropagation()} style={{maxWidth:340}}>
-          <div style={{fontSize:13,fontWeight:700,color:T.t1,marginBottom:18,fontFamily:"'Unbounded'"}}>{t('del_confirm')}</div>
+          <div style={{fontSize:13,fontWeight:700,color:T.t1,marginBottom:18,fontFamily:"'Inter',sans-serif"}}>{t('del_confirm')}</div>
           <div style={{display:"flex",gap:8}}>
-            <button onClick={()=>setDeleteConfirmId(null)} style={{flex:1,padding:"10px",border:`1px solid ${T.b2}`,background:"transparent",color:T.t3,borderRadius:6,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:11}}>{t('del_confirm_no')}</button>
-            <button onClick={()=>{ deletePortfolio(deleteConfirmId); setDeleteConfirmId(null); }} style={{flex:1,padding:"10px",border:"none",background:"#f8717122",color:"#f87171",borderRadius:6,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:11,fontWeight:700}}>{t('del_confirm_yes')}</button>
+            <button onClick={()=>setDeleteConfirmId(null)} style={{flex:1,padding:"10px",border:`1px solid ${T.b2}`,background:"transparent",color:T.t3,borderRadius:6,cursor:"pointer",fontFamily:"'Inter',sans-serif",fontSize:11}}>{t('del_confirm_no')}</button>
+            <button onClick={()=>{ deletePortfolio(deleteConfirmId); setDeleteConfirmId(null); }} style={{flex:1,padding:"10px",border:"none",background:"#ef444422",color:"#ef4444",borderRadius:6,cursor:"pointer",fontFamily:"'Inter',sans-serif",fontSize:11,fontWeight:700}}>{t('del_confirm_yes')}</button>
           </div>
         </div>
       </div>}
@@ -1829,21 +2058,21 @@ export default function App(){
       {/* CONTACT MODAL */}
       {contactOpen&&<div className="modal-bg" onClick={()=>setContactOpen(false)}>
         <div className="modal" onClick={e=>e.stopPropagation()} style={{maxWidth:360}}>
-          <div style={{fontFamily:"'Unbounded'",fontSize:14,fontWeight:700,marginBottom:20,color:T.t1}}>{t('contact_title')}</div>
+          <div style={{fontFamily:"'Inter',sans-serif",fontSize:14,fontWeight:700,marginBottom:20,color:T.t1}}>{t('contact_title')}</div>
           <div style={{background:T.bg1,border:`1px solid ${T.b2}`,borderRadius:10,padding:"16px"}}>
             <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:14}}>
               {discordInfo?.icon && discordInfo?.id
                 ? <img src={`https://cdn.discordapp.com/icons/${discordInfo.id}/${discordInfo.icon}.webp?size=64`} alt="" style={{width:44,height:44,borderRadius:10,objectFit:"cover",flexShrink:0}}/>
                 : <div style={{width:44,height:44,background:"#5865F2",borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,color:"#fff",flexShrink:0,fontWeight:900}}>D</div>}
               <div>
-                <div style={{fontSize:13,fontWeight:700,color:T.t1,fontFamily:"'Space Mono'"}}>{discordInfo?.name||t('contact_discord_lbl')}</div>
+                <div style={{fontSize:13,fontWeight:700,color:T.t1,fontFamily:"'Inter',sans-serif"}}>{discordInfo?.name||t('contact_discord_lbl')}</div>
                 <div style={{fontSize:9,color:T.t4,letterSpacing:1,textTransform:"uppercase",marginTop:3}}>
                   {discordInfo?.members!=null?`${discordInfo.members.toLocaleString()} membres`:t('contact_discord_sub')}
                 </div>
               </div>
             </div>
             <a href="https://discord.gg/CD29XujPnz" target="_blank" rel="noopener noreferrer"
-              style={{display:"block",background:"#5865F2",color:"#fff",borderRadius:6,padding:"10px",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:11,fontWeight:700,textAlign:"center",textDecoration:"none",transition:"opacity .12s"}}
+              style={{display:"block",background:"#5865F2",color:"#fff",borderRadius:6,padding:"10px",cursor:"pointer",fontFamily:"'Inter',sans-serif",fontSize:11,fontWeight:700,textAlign:"center",textDecoration:"none",transition:"opacity .12s"}}
               onClick={()=>setContactOpen(false)}
               onMouseEnter={e=>{e.currentTarget.style.opacity="0.85";}}
               onMouseLeave={e=>{e.currentTarget.style.opacity="1";}}
@@ -1864,92 +2093,92 @@ export default function App(){
         </div>
       </>}
 
-      {/* HEADER */}
-      <div style={{borderBottom:`1px solid ${T.b1}`,padding:isMobile?"10px 12px":"14px 24px",display:"flex",alignItems:"center",gap:isMobile?5:12}}>
-        <img src={darkMode?"/logo-dark.png":"/logo-light.png"} alt="IndexLab" style={{height:isMobile?26:34,flexShrink:0}}/>
-        {!isMobile&&<span style={{marginLeft:"auto",fontSize:9,color:priceData?"#4ade80":T.b3}}>
-          {priceData ? t('data_real')(priceData.updated, Object.keys(priceData.raw||{}).length) : t('data_sim')}
-        </span>}
-        <div style={{display:"flex",gap:3,marginLeft:isMobile?"auto":0,flexShrink:0}}>
-          {[{code:"en",flag:"🇬🇧"},{code:"es",flag:"🇪🇸"},{code:"fr",flag:"🇫🇷"}].map(({code,flag})=>(
-            <button key={code} onClick={()=>setLang(code)} style={{background:lang===code?T.b2:"transparent",border:`1px solid ${lang===code?T.b3:T.b1}`,borderRadius:5,padding:"2px 5px",cursor:"pointer",fontSize:isXS?12:14,color:T.t1,opacity:lang===code?1:0.45,lineHeight:1}}>{flag}</button>
-          ))}
+      {/* SIDEBAR (desktop) */}
+      {!isMobile&&(
+        <aside className="sidebar">
+          <div className="sidebar-logo">
+            <img src={darkMode?"/logo-dark.png":"/logo-light.png"} alt="IndexLab" style={{height:28}}/>
+          </div>
+          <nav className="sidebar-nav">
+            {TABS.map(tb=>(
+              <button key={tb.id} className={`nav-item ${tab===tb.id?"active":""}`} onClick={()=>setTab(tb.id)}>
+                <span style={{flexShrink:0,display:"flex",alignItems:"center"}}>
+                  {tb.id==="builder"&&<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="8" width="3" height="5" rx="0.5" fill="currentColor"/><rect x="5.5" y="5" width="3" height="8" rx="0.5" fill="currentColor"/><rect x="10" y="1" width="3" height="12" rx="0.5" fill="currentColor"/></svg>}
+                  {tb.id==="compare"&&<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 3.5h12M1 7h12M1 10.5h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><path d="M4 1v12" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeDasharray="2 2" opacity=".5"/><path d="M10 1v12" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeDasharray="2 2" opacity=".5"/></svg>}
+                  {tb.id==="track"&&<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="1.5"/><circle cx="7" cy="7" r="2" fill="currentColor"/></svg>}
+                </span>
+                <span>{tb.id==="builder"?t('tab_builder'):tb.id==="compare"?t('tab_compare'):t('tab_track')}</span>
+                {tb.id==="builder"&&savedPortfolios.length>0&&<span style={{marginLeft:"auto",fontSize:8,color:T.t5,fontWeight:600}}>{savedPortfolios.length}</span>}
+              </button>
+            ))}
+          </nav>
+          <div className="sidebar-bottom">
+            <div style={{padding:"6px 18px 10px",display:"flex",gap:3}}>
+              {[{code:"en",flag:"🇬🇧"},{code:"es",flag:"🇪🇸"},{code:"fr",flag:"🇫🇷"}].map(({code,flag})=>(
+                <button key={code} onClick={()=>setLang(code)} style={{background:lang===code?T.b2:"transparent",border:`1px solid ${lang===code?T.b3:T.b1}`,borderRadius:4,padding:"2px 5px",cursor:"pointer",fontSize:13,color:T.t1,opacity:lang===code?1:0.4,lineHeight:1}}>{flag}</button>
+              ))}
+            </div>
+            <button className="sidebar-btn" onClick={()=>setDarkMode(d=>!d)}>
+              <span style={{fontSize:12,lineHeight:1}}>{darkMode?"☀":"◑"}</span>
+              <span>{darkMode?t('light_mode'):t('dark_mode')}</span>
+            </button>
+            <button className="sidebar-btn" onClick={()=>setCompact(c=>!c)} style={{color:compact?T.t1:undefined,fontWeight:compact?600:undefined}}>
+              <span style={{fontSize:12,lineHeight:1}}>{compact?"▤":"▥"}</span>
+              <span>{compact?"Apple":"Bloomberg"}</span>
+            </button>
+            <button className="sidebar-btn" onClick={()=>setTutorialOpen(true)}>
+              <span style={{fontSize:12,lineHeight:1,fontFamily:"serif"}}>?</span>
+              <span>Tuto</span>
+            </button>
+            <button className="sidebar-btn" onClick={()=>setContactOpen(true)}>
+              <span style={{fontSize:12,lineHeight:1}}>✉</span>
+              <span>Contact</span>
+            </button>
+            <div style={{padding:"8px 18px 2px",fontSize:8,color:priceData?"#22c55e":T.t6,lineHeight:1.5,letterSpacing:.3}}>
+              {priceData ? t('data_real')(priceData.updated, Object.keys(priceData.raw||{}).length) : t('data_sim')}
+            </div>
+          </div>
+        </aside>
+      )}
+
+      {/* MOBILE HEADER */}
+      {isMobile&&(
+        <div className="mobile-header">
+          <img src={darkMode?"/logo-dark.png":"/logo-light.png"} alt="IndexLab" style={{height:26,flexShrink:0}}/>
+          <div style={{display:"flex",gap:3,marginLeft:"auto",flexShrink:0}}>
+            {[{code:"en",flag:"🇬🇧"},{code:"es",flag:"🇪🇸"},{code:"fr",flag:"🇫🇷"}].map(({code,flag})=>(
+              <button key={code} onClick={()=>setLang(code)} style={{background:lang===code?T.b2:"transparent",border:`1px solid ${lang===code?T.b3:T.b1}`,borderRadius:5,padding:"2px 5px",cursor:"pointer",fontSize:isXS?12:14,color:T.t1,opacity:lang===code?1:0.45,lineHeight:1}}>{flag}</button>
+            ))}
+          </div>
+          <button onClick={()=>setDarkMode(d=>!d)} style={{background:"transparent",border:`1px solid ${T.b2}`,color:T.t3,borderRadius:6,padding:"5px 7px",cursor:"pointer",fontFamily:"'Inter',sans-serif",fontSize:13,transition:"all .12s",flexShrink:0}}>{darkMode?"☀":"◑"}</button>
+          <button onClick={()=>setTutorialOpen(true)} style={{background:"transparent",border:`1px solid ${T.b2}`,color:T.t3,borderRadius:6,padding:"5px 7px",cursor:"pointer",fontFamily:"'Inter',sans-serif",fontSize:13,transition:"all .12s",flexShrink:0}}>?</button>
+          <button onClick={()=>setContactOpen(true)} style={{background:"transparent",border:`1px solid ${T.b2}`,color:T.t3,borderRadius:6,padding:"5px 7px",cursor:"pointer",fontFamily:"'Inter',sans-serif",fontSize:13,transition:"all .12s",flexShrink:0}}>✉</button>
         </div>
-        <button
-          onClick={()=>setDarkMode(d=>!d)}
-          style={{background:"transparent",border:`1px solid ${T.b2}`,color:T.t3,borderRadius:6,padding:isMobile?"5px 7px":"4px 10px",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:isMobile?13:10,transition:"all .12s",whiteSpace:"nowrap",flexShrink:0}}
-          onMouseEnter={e=>{e.currentTarget.style.borderColor="#4ade80";e.currentTarget.style.color="#4ade80";}}
-          onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t3;}}
-        >{isMobile?(darkMode?"☀":"◑"):(darkMode?t('light_mode'):t('dark_mode'))}</button>
-        <button
-          onClick={()=>setTutorialOpen(true)}
-          style={{background:"transparent",border:`1px solid ${T.b2}`,color:T.t3,borderRadius:6,padding:isMobile?"5px 7px":"4px 10px",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:isMobile?13:10,transition:"all .12s",whiteSpace:"nowrap",flexShrink:0}}
-          onMouseEnter={e=>{e.currentTarget.style.borderColor="#4ade80";e.currentTarget.style.color="#4ade80";}}
-          onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t3;}}>
-          {isMobile?"?":"? Tuto"}</button>
-        <button
-          onClick={()=>setContactOpen(true)}
-          style={{background:"transparent",border:`1px solid ${T.b2}`,color:T.t3,borderRadius:6,padding:isMobile?"5px 7px":"4px 10px",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:isMobile?13:10,transition:"all .12s",whiteSpace:"nowrap",flexShrink:0}}
-          onMouseEnter={e=>{e.currentTarget.style.borderColor="#4ade80";e.currentTarget.style.color="#4ade80";}}
-          onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t3;}}>
-          {isMobile?"✉":"✉ Contact"}</button>
-      </div>
+      )}
 
-      {/* TABS */}
-      <div style={{borderBottom:`1px solid ${T.b1}`,padding:isMobile?"0 10px":"0 24px",display:"flex",gap:0}}>
-        {TABS.map(tb=><button key={tb.id} className={`tab-btn ${tab===tb.id?"active":""}`} onClick={()=>setTab(tb.id)}>{tb.id==="builder"?t('tab_builder'):tb.id==="compare"?t('tab_compare'):t('tab_track')}</button>)}
-        {savedPortfolios.length>0&&<span style={{marginLeft:"auto",alignSelf:"center",fontSize:9,color:"#4ade80",fontFamily:"'Space Mono'"}}>{t('saved_count')(savedPortfolios.length)}</span>}
-      </div>
-
-      <div style={{display:"flex",maxWidth:1200,margin:"0 auto",padding:isMobile?"0 12px":"0 20px"}}>
+      <div style={{display:"flex",maxWidth:1280,margin:"0 auto",padding:isMobile?"0 16px 80px":"0 28px",alignItems:"flex-start"}}>
 
         {/* LEFT PANEL (desktop only) */}
         {!isMobile&&tab==="builder"&&(
-          <div style={{width:260,flexShrink:0,paddingTop:16,paddingRight:14,borderRight:`1px solid ${T.b1}`}}>
+          <div style={{width:300,flexShrink:0,paddingTop:20,paddingRight:24,borderRight:`1px solid ${T.b1}`,background:T.bg2,marginLeft:-28,paddingLeft:28,position:"sticky",top:0,height:"100vh",overflow:"hidden",display:"flex",flexDirection:"column"}}>
             {ConfigPanel()}
           </div>
         )}
 
         {/* MAIN CONTENT */}
-        <div style={{flex:1,paddingTop:16,minWidth:0,paddingLeft:isMobile?0:16}}>
+        <div style={{flex:1,paddingTop:20,minWidth:0,paddingLeft:isMobile?0:28}}>
 
           {/* ═══════════════ BUILDER TAB ═══════════════ */}
           {tab==="builder"&&<>
 
             {/* ── DESKTOP TOP BAR ── */}
-            {!isMobile&&(<>
-              {/* Row 1 : Mode · Date · Période · Save */}
-              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8,paddingBottom:8,borderBottom:`1px solid ${T.b1}`}}>
-                <div style={{display:"flex",gap:4,flexShrink:0}}>
-                  {[{id:"backtest",icon:"◀",lk:"mode_backtest"},{id:"monte_carlo",icon:"⟁",lk:"mode_mc"}].map(m=>(
-                    <button key={m.id} className={`mode-btn ${mode===m.id?"active":""}`}
-                      onClick={()=>{ setMode(m.id); setBuilderTab("chart"); }}
-                      style={{padding:"5px 10px",fontSize:9}}>
-                      <div style={{fontSize:11}}>{m.icon}</div><div>{t(m.lk)}</div>
-                    </button>
-                  ))}
-                </div>
-                <div style={{width:1,height:28,background:T.b2,flexShrink:0}}/>
-                {mode==="backtest"&&<>
-                  <span style={{fontSize:9,color:T.t4,letterSpacing:1,textTransform:"uppercase",whiteSpace:"nowrap",flexShrink:0}}>{t('cfg_start_date')}</span>
-                  <LocaleDateInput value={btStartDate} min={minBtStartDate} max={new Date().toISOString().split('T')[0]}
-                    onChange={e=>setBtStartDate(e.target.value)} T={T} darkMode={darkMode} lang={lang}/>
-                  <div style={{width:1,height:28,background:T.b2,flexShrink:0}}/>
-                </>}
-                <span style={{fontSize:9,color:T.t4,letterSpacing:1,textTransform:"uppercase",whiteSpace:"nowrap",flexShrink:0}}>
-                  {mode==="backtest"?t('period_lbl'):t('horizon_lbl')}
+            {!isMobile&&(
+              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:16,paddingBottom:12,borderBottom:`1px solid ${T.b1}`}}>
+                <span style={{fontSize:11,color:T.t4,fontWeight:500}}>
+                  {mode==="backtest"?t('mode_backtest'):t('mode_mc')} · {mode==="backtest"?period:horizon}
                 </span>
-                <div style={{display:"flex",gap:4}}>
-                  {mode==="backtest"
-                    ?Object.keys(PERIOD_DAYS).map(p=>(
-                        <button key={p} className={`pill ${period===p?"active":""}`} onClick={()=>setPeriod(p)}>{p}</button>
-                      ))
-                    :["6M","1A","3A","5A"].map(h=>(
-                        <button key={h} className={`pill ${horizon===h?"active":""}`} onClick={()=>setHorizon(h)}>{h}</button>
-                      ))
-                  }
-                </div>
-                <button className="save-btn" style={{marginLeft:"auto",display:"flex",alignItems:"center",gap:6,padding:"5px 14px",flexShrink:0}}
+                <div style={{flex:1}}/>
+                <button className="save-btn" style={{display:"flex",alignItems:"center",gap:6,padding:"5px 14px",flexShrink:0}}
                   disabled={!weightOk||!assets.length}
                   onClick={()=>{
                     const auto=`Portfolio #${savedPortfolios.length+1} · ${new Date().toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit"})}`;
@@ -1959,56 +2188,16 @@ export default function App(){
                   <span style={{fontSize:10}}>{editingPortfolioId?t('save_update').replace(" ✓",""):t('save_confirm').replace(" ✓","")}</span>
                 </button>
                 {chartData.length>0&&metrics&&<button onClick={builderShare}
-                  style={{display:"flex",alignItems:"center",gap:5,background:"transparent",border:`1px solid ${T.b2}`,color:T.t3,borderRadius:6,padding:"5px 10px",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:10,flexShrink:0,transition:"all .12s"}}
-                  onMouseEnter={e=>{e.currentTarget.style.borderColor="#4ade80";e.currentTarget.style.color="#4ade80";}}
+                  style={{display:"flex",alignItems:"center",gap:5,background:"transparent",border:`1px solid ${T.b2}`,color:T.t3,borderRadius:6,padding:"5px 10px",cursor:"pointer",fontFamily:"'Inter',sans-serif",fontSize:10,flexShrink:0,transition:"all .12s"}}
+                  onMouseEnter={e=>{e.currentTarget.style.borderColor=T.t1;e.currentTarget.style.color=T.t1;}}
                   onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t3;}}>
                   <ShareIcon/><span>Share</span>
                 </button>}
               </div>
-              {/* Row 2 : Benchmark (backtest only) */}
-              {mode==="backtest"&&(
-                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14,paddingBottom:14,borderBottom:`1px solid ${T.b1}`}}>
-                  <span style={{fontSize:9,color:T.t4,letterSpacing:1,textTransform:"uppercase",whiteSpace:"nowrap",flexShrink:0}}>Benchmark</span>
-                  <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
-                    {BENCHMARKS.map(b=>(
-                      <button key={b.ticker} className={`pill ${benchmark===b.ticker?"active":""}`} onClick={()=>setBenchmark(b.ticker)}>{b.label}</button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </>)}
+            )}
 
             {/* ── MOBILE: bouton configuration (uniquement onglet builder) ── */}
-            {isMobile&&<button onClick={()=>setPanelOpen(true)} style={{width:"100%",marginBottom:10,background:"#4ade8018",border:"1px solid #4ade8066",color:"#4ade80",borderRadius:7,padding:"9px",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:11,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>⚙ {t('drawer_title')}</button>}
-
-            {/* ── MOBILE: période + save compacts ── */}
-            {isMobile&&(
-              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10,flexWrap:"wrap"}}>
-                <span style={{fontSize:9,color:T.t4,letterSpacing:2,textTransform:"uppercase",whiteSpace:"nowrap"}}>
-                  {mode==="backtest"?t('period_lbl'):t('horizon_lbl')}
-                </span>
-                <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
-                  {mode==="backtest"
-                    ?Object.keys(PERIOD_DAYS).map(p=>(
-                        <button key={p} className={`pill ${period===p?"active":""}`} onClick={()=>setPeriod(p)}>{p}</button>
-                      ))
-                    :["6M","1A","3A","5A"].map(h=>(
-                        <button key={h} className={`pill ${horizon===h?"active":""}`} onClick={()=>setHorizon(h)}>{h}</button>
-                      ))
-                  }
-                </div>
-              </div>
-            )}
-            {isMobile&&mode==="backtest"&&(
-              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12,flexWrap:"wrap"}}>
-                <span style={{fontSize:9,color:T.t4,letterSpacing:2,textTransform:"uppercase",whiteSpace:"nowrap"}}>Benchmark</span>
-                <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
-                  {BENCHMARKS.map(b=>(
-                    <button key={b.ticker} className={`pill ${benchmark===b.ticker?"active":""}`} onClick={()=>setBenchmark(b.ticker)}>{b.label}</button>
-                  ))}
-                </div>
-              </div>
-            )}
+            {isMobile&&<button onClick={()=>setPanelOpen(true)} style={{width:"100%",marginBottom:10,background:T.b1,border:`1px solid ${T.b2}`,color:T.t2,borderRadius:7,padding:"9px",cursor:"pointer",fontFamily:"'Inter',sans-serif",fontSize:11,fontWeight:600,display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>⚙ {t('drawer_title')}</button>}
 
             {/* ── MOBILE: bouton sauvegarde portfolio ── */}
             {isMobile&&<div style={{marginBottom:12,display:"flex",gap:8}}>
@@ -2023,7 +2212,7 @@ export default function App(){
               </button>
               {chartData.length>0&&metrics&&<button onClick={builderShare}
                 style={{display:"flex",alignItems:"center",gap:5,background:"transparent",border:`1px solid ${T.b2}`,color:T.t3,borderRadius:6,padding:"9px 14px",cursor:"pointer",flexShrink:0}}
-                onMouseEnter={e=>{e.currentTarget.style.borderColor="#4ade80";e.currentTarget.style.color="#4ade80";}}
+                onMouseEnter={e=>{e.currentTarget.style.borderColor=T.t1;e.currentTarget.style.color=T.t1;}}
                 onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t3;}}>
                 <ShareIcon/>
               </button>}
@@ -2038,7 +2227,7 @@ export default function App(){
                   {id:"attribution",label:"⬡  "+t('ch_attribution')},
                 ].map(tb=>(
                   <button key={tb.id} onClick={()=>setBuilderTab(tb.id)}
-                    style={{padding:"9px 18px",border:"none",borderBottom:`2px solid ${builderTab===tb.id?"#4ade80":"transparent"}`,background:"transparent",color:builderTab===tb.id?"#4ade80":T.t4,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:10,transition:"all .15s",whiteSpace:"nowrap"}}>
+                    style={{padding:"10px 20px",border:"none",borderBottom:`2px solid ${builderTab===tb.id?T.t1:"transparent"}`,background:"transparent",color:builderTab===tb.id?T.t1:T.t4,cursor:"pointer",fontFamily:"'Inter',sans-serif",fontSize:11,fontWeight:builderTab===tb.id?600:400,transition:"all .15s",whiteSpace:"nowrap"}}>
                     {tb.label}
                   </button>
                 ))}
@@ -2050,45 +2239,45 @@ export default function App(){
               {/* KPIs + Chart */}
               {(isMobile||builderTab==="chart"||isCapturing)&&<>
               {/* KPIs top row */}
-              <div style={{display:"grid",gridTemplateColumns:(isMobile||isCapturing)?"repeat(2,1fr)":"repeat(4,1fr)",gap:8,marginBottom:14}}>
+              <div className="kpi-grid">
                 {[
-                  {l:t('kpi_perf'),  mk:"perf",   v:`${parseFloat(metrics?.totalReturn||0)>=0?"+":""}${metrics?.totalReturn||"—"}%`,c:parseFloat(metrics?.totalReturn||0)>=0?"#4ade80":"#f87171",s:invest>0?`→ ${(invest*(1+parseFloat(metrics?.totalReturn||0)/100)).toFixed(0)} €`:period},
-                  {l:t('kpi_sharpe'),mk:"sharpe",  v:metrics?.sharpe||"—",c:parseFloat(metrics?.sharpe||0)>1?"#4ade80":parseFloat(metrics?.sharpe||0)>0?"#fb923c":"#f87171",s:t('kpi_sharpe_sub')},
-                  {l:t('kpi_maxdd'), mk:"maxdd",   v:`${metrics?.maxDD||"—"}%`,c:"#f87171",s:t('kpi_maxdd_sub')},
-                  {l:t('kpi_alpha'), mk:"alpha",   v:`${parseFloat(metrics?.alpha||0)>=0?"+":""}${metrics?.alpha||"—"}%`,c:parseFloat(metrics?.alpha||0)>=0?"#4ade80":"#f87171",s:t('kpi_alpha_sub')(benchmarkLabel)},
+                  {l:t('kpi_perf'),  mk:"perf",   v:`${parseFloat(metrics?.totalReturn||0)>=0?"+":""}${metrics?.totalReturn||"—"}%`,c:parseFloat(metrics?.totalReturn||0)>=0?"#22c55e":"#ef4444",s:invest>0?`→ ${(invest*(1+parseFloat(metrics?.totalReturn||0)/100)).toFixed(0)} €`:period},
+                  {l:t('kpi_sharpe'),mk:"sharpe",  v:metrics?.sharpe||"—",c:parseFloat(metrics?.sharpe||0)>1?"#22c55e":parseFloat(metrics?.sharpe||0)>0?T.t2:"#ef4444",s:t('kpi_sharpe_sub')},
+                  {l:t('kpi_maxdd'), mk:"maxdd",   v:`${metrics?.maxDD||"—"}%`,c:"#ef4444",s:t('kpi_maxdd_sub')},
+                  {l:t('kpi_alpha'), mk:"alpha",   v:`${parseFloat(metrics?.alpha||0)>=0?"+":""}${metrics?.alpha||"—"}%`,c:parseFloat(metrics?.alpha||0)>=0?"#22c55e":"#ef4444",s:t('kpi_alpha_sub')(benchmarkLabel)},
                 ].map(({l,v,c,s,mk})=>(
-                  <div key={l} className="card" style={{minWidth:0,overflow:'hidden'}}>
-                    <div style={{fontSize:8,color:T.t4,letterSpacing:2,textTransform:"uppercase",marginBottom:3,display:"flex",alignItems:"center",gap:5}}>{l}<InfoBubble info={mi(mk)} T={T}/></div>
-                    <div style={{fontFamily:"'Unbounded'",fontSize:isMobile?17:20,color:c,fontWeight:700}}>{v}</div>
-                    <div style={{fontSize:8,color:T.t5,marginTop:2}}>{s}</div>
+                  <div key={l} className="kpi-cell">
+                    <div className="kpi-lbl" style={{display:"flex",alignItems:"center",gap:4}}>{l}<InfoBubble info={mi(mk)} T={T}/></div>
+                    <div className="kpi-val" style={{color:c}}>{v}</div>
+                    <div style={{fontSize:9,color:T.t5,marginTop:2}}>{s}</div>
                   </div>
                 ))}
               </div>
 
               {/* Chart */}
-              <div className="card" style={{marginBottom:12}}>
-                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
-                  <div style={{fontSize:8,color:T.t4,letterSpacing:3,textTransform:"uppercase"}}>{t('ch_perf_vs_sp')(benchmarkLabel)}</div>
-                  {priceData?.bdays&&btStartIdx!==null&&btEndIdx!==null&&<div style={{fontSize:9,color:T.t4,fontFamily:"'Space Mono'"}}>{priceData.bdays[btStartIdx]} → {priceData.bdays[btEndIdx]}</div>}
+              <div className="card">
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}}>
+                  <div style={{fontSize:9,color:T.t4,letterSpacing:2,textTransform:"uppercase",fontWeight:500}}>{t('ch_perf_vs_sp')(benchmarkLabel)}</div>
+                  {priceData?.bdays&&btStartIdx!==null&&btEndIdx!==null&&<div style={{fontSize:9,color:T.t4,fontFamily:"'Inter',sans-serif"}}>{priceData.bdays[btStartIdx]} → {priceData.bdays[btEndIdx]}</div>}
                 </div>
                 <ResponsiveContainer width="100%" height={CH}>
-                  <LineChart data={chartData}>
+                  <ComposedChart data={chartData}>
                     <defs>
                       <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor={isPos?"#4ade80":"#f87171"} stopOpacity={0.15}/>
-                        <stop offset="100%" stopColor={isPos?"#4ade80":"#f87171"} stopOpacity={0}/>
+                        <stop offset="0%" stopColor={isPos?"#22c55e":"#ef4444"} stopOpacity={0.12}/>
+                        <stop offset="100%" stopColor={isPos?"#22c55e":"#ef4444"} stopOpacity={0}/>
                       </linearGradient>
                     </defs>
                     <XAxis dataKey="date" tick={{fill:T.t4,fontSize:9}} axisLine={false} tickLine={false} interval="preserveStartEnd" minTickGap={48} tickFormatter={d=>d&&d.length>=10?`${d.slice(8)} ${moisArr[parseInt(d.slice(5,7))-1]}`:d}/>
-                    <YAxis tick={{fill:T.t4,fontSize:9}} axisLine={false} tickLine={false} tickFormatter={v=>`${v>0?"+":""}${v.toFixed(0)}%`} width={42}/>
+                    <YAxis tick={{fill:T.t4,fontSize:9}} axisLine={false} tickLine={false} tickFormatter={v=>`${v>0?"+":""}${v.toFixed(0)}%`} width={44}/>
                     <Tooltip content={<ChartTooltip invest={invest} T={T} mois={moisArr}/>}/>
                     <ReferenceLine y={0} stroke={T.b2} strokeDasharray="4 3"/>
                     <Line type="monotone" dataKey="bench" stroke={BENCH_COLOR} strokeWidth={1.5} dot={false} name={benchmarkLabel} strokeDasharray="4 2"/>
-                    <Line type="monotone" dataKey="value" stroke={isPos?"#4ade80":"#f87171"} strokeWidth={2.5} dot={false} name={t('my_index')} activeDot={{r:4}}/>
-                  </LineChart>
+                    <Area type="monotone" dataKey="value" stroke={isPos?"#22c55e":"#ef4444"} strokeWidth={2.5} fill="url(#g1)" dot={false} name={t('my_index')} activeDot={{r:4}}/>
+                  </ComposedChart>
                 </ResponsiveContainer>
                 <div style={{display:"flex",gap:14,marginTop:8}}>
-                  {[{c:isPos?"#4ade80":"#f87171",l:t('my_index')},{c:T.b2,l:benchmarkLabel,dash:true}].map(({c,l,dash})=>(
+                  {[{c:isPos?"#22c55e":"#ef4444",l:t('my_index')},{c:T.b2,l:benchmarkLabel,dash:true}].map(({c,l,dash})=>(
                     <div key={l} style={{display:"flex",alignItems:"center",gap:5}}>
                       <div style={{width:16,height:2,background:c,borderRadius:1,borderTop:dash?"1px dashed":"none"}}/>
                       <span style={{fontSize:9,color:T.t4}}>{l}</span>
@@ -2097,12 +2286,55 @@ export default function App(){
                 </div>
               </div>
 
+              {/* Drawdown chart */}
+              {!isCapturing&&drawdownData.length>1&&(
+                <div style={{marginTop:12,paddingTop:12,borderTop:`1px solid ${T.b1}`}}>
+                  <div style={{fontSize:9,color:T.t4,letterSpacing:2,textTransform:"uppercase",fontWeight:500,marginBottom:10}}>{t('stat_drawdown')}</div>
+                  <ResponsiveContainer width="100%" height={DDH}>
+                    <AreaChart data={drawdownData} margin={{top:0,right:0,left:0,bottom:0}}>
+                      <defs>
+                        <linearGradient id="gDD" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#ef4444" stopOpacity={0.12}/>
+                          <stop offset="100%" stopColor="#ef4444" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <XAxis dataKey="date" hide/>
+                      <YAxis tick={{fill:T.t4,fontSize:8}} axisLine={false} tickLine={false} width={44} domain={["dataMin",0]} tickFormatter={v=>`${v.toFixed(0)}%`}/>
+                      <ReferenceLine y={0} stroke={T.b2}/>
+                      <Area type="monotone" dataKey="dd" stroke="#ef4444" strokeWidth={1.5} fill="url(#gDD)" dot={false}/>
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+
+              {/* Best/Worst stats row */}
+              {!isCapturing&&periodStats&&(
+                <div style={{display:"flex",marginTop:12,paddingTop:12,borderTop:`1px solid ${T.b1}`}}>
+                  {[
+                    {lk:"stat_best_month",  v:periodStats.bestM.ret,  sub:periodStats.bestM.ym,  c:"#22c55e"},
+                    {lk:"stat_worst_month", v:periodStats.worstM.ret, sub:periodStats.worstM.ym, c:"#ef4444"},
+                    ...(!isMobile&&periodStats.bestY?[{lk:"stat_best_year",  v:periodStats.bestY.ret,  sub:periodStats.bestY.y,  c:"#22c55e"}]:[]),
+                    ...(!isMobile&&periodStats.worstY?[{lk:"stat_worst_year", v:periodStats.worstY.ret, sub:periodStats.worstY.y, c:"#ef4444"}]:[]),
+                  ].map(({lk,v,sub,c},i,arr)=>{
+                    const label=sub.length===7?`${moisArr[parseInt(sub.slice(5,7))-1]} ${sub.slice(2,4)}`:sub;
+                    return(
+                      <div key={lk} style={{flex:1,paddingLeft:i>0?20:0,paddingRight:i<arr.length-1?20:0,borderRight:i<arr.length-1?`1px solid ${T.b1}`:"none"}}>
+                        <div style={{fontSize:isMobile?9:10,color:T.t4,marginBottom:4}}>{t(lk)}</div>
+                        <div style={{fontSize:isMobile?17:20,fontWeight:600,color:c,fontVariantNumeric:"tabular-nums",lineHeight:1}}>{v>=0?"+":""}{v.toFixed(1)}%</div>
+                        <div style={{fontSize:isMobile?8:9,color:T.t5,marginTop:3}}>{label}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
               </>}
 
               {/* Attribution panel */}
-              {!isCapturing&&(isMobile||builderTab==="attribution")&&<div className="card" style={{marginBottom:12}}>
-                <div style={{fontSize:8,color:T.t4,letterSpacing:3,textTransform:"uppercase",marginBottom:14}}>{t('ch_attribution')}</div>
+              {!isCapturing&&(isMobile||builderTab==="attribution")&&<div className="card" style={!isMobile?{display:"flex",flexDirection:"column",minHeight:"calc(100vh - 160px)"}:{}}>
+                <div style={{fontSize:8,color:T.t4,letterSpacing:3,textTransform:"uppercase",marginBottom:14,flexShrink:0}}>{t('ch_attribution')}</div>
 
+                <div style={{...(!isMobile?{display:"flex",flexDirection:"column",flex:1,justifyContent:"space-between"}:{})}}>
                 <div style={{marginBottom:18}}>
                   <div style={{fontSize:9,color:T.t2,marginBottom:10}}>{t('ch_contrib_rend')}</div>
                   {[...assetPerfs].sort((a,b)=>b.contribution-a.contribution).map(({ticker,weight,perf,contribution})=>{
@@ -2113,23 +2345,23 @@ export default function App(){
                     const role = contribution === Math.max(...assetPerfs.map(a=>a.contribution)) ? t('role_engine') :
                                  contribution === Math.min(...assetPerfs.map(a=>a.contribution)) ? t('role_drag') : null;
                     return(
-                      <div key={ticker} style={{marginBottom:10}}>
-                        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4,flexWrap:"wrap",gap:4}}>
+                      <div key={ticker} style={{marginBottom:16}}>
+                        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6,flexWrap:"wrap",gap:4}}>
                           <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
-                            <span style={{fontFamily:"'Space Mono'",fontSize:11,fontWeight:700,color:T.t1}}>{ticker}</span>
+                            <span style={{fontFamily:"'Inter',sans-serif",fontSize:11,fontWeight:700,color:T.t1}}>{ticker}</span>
                             <span className="tag" style={{background:tc+"18",color:tc}}>{type}</span>
                             {!isMobile&&<span style={{fontSize:9,color:T.t5}}>{weight}% du portefeuille</span>}
-                            {role&&<span style={{fontSize:9,color:isPos?"#4ade80":"#f87171",background:isPos?"#4ade8010":"#f8717110",padding:"1px 6px",borderRadius:3}}>{role}</span>}
+                            {role&&<span style={{fontSize:9,color:isPos?"#22c55e":"#ef4444",background:isPos?"#22c55e10":"#ef444410",padding:"1px 6px",borderRadius:3}}>{role}</span>}
                           </div>
                           <div style={{display:"flex",gap:8,alignItems:"center"}}>
                             {!isMobile&&<span style={{fontSize:9,color:T.t4}}>{parseFloat(perf)>=0?"+":""}{perf}% {t('attr_alone')}</span>}
-                            <span style={{fontFamily:"'Space Mono'",fontSize:12,fontWeight:700,color:isPos?"#4ade80":"#f87171",minWidth:55,textAlign:"right"}}>
+                            <span style={{fontFamily:"'Inter',sans-serif",fontSize:12,fontWeight:700,color:isPos?"#22c55e":"#ef4444",minWidth:55,textAlign:"right"}}>
                               {contribution>=0?"+":""}{contribution.toFixed(2)}%
                             </span>
                           </div>
                         </div>
-                        <div style={{height:6,background:T.b1,borderRadius:4,overflow:"hidden"}}>
-                          <div style={{height:"100%",width:`${barW}%`,background:isPos?`linear-gradient(90deg,${tc}88,${tc})`:"linear-gradient(90deg,#f8717188,#f87171)",borderRadius:4,transition:"width .4s ease"}}/>
+                        <div style={{height:8,background:T.b1,borderRadius:4,overflow:"hidden"}}>
+                          <div style={{height:"100%",width:`${barW}%`,background:isPos?`linear-gradient(90deg,${tc}88,${tc})`:"linear-gradient(90deg,#ef444488,#ef4444)",borderRadius:4,transition:"width .4s ease"}}/>
                         </div>
                       </div>
                     );
@@ -2145,9 +2377,9 @@ export default function App(){
                       const nominalWeight = parseFloat(perf?.weight||0);
                       const diff = riskContrib - nominalWeight;
                       return(
-                        <div key={ticker} style={{flex:"1 1 120px",background:T.b1,borderRadius:8,padding:"9px 11px",border:`1px solid ${Math.abs(diff)>10?"#f8717133":T.b1}`}}>
+                        <div key={ticker} style={{flex:"1 1 120px",background:T.b1,borderRadius:8,padding:"9px 11px",border:`1px solid ${Math.abs(diff)>10?"#ef444433":T.b1}`}}>
                           <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
-                            <span style={{fontSize:11,fontWeight:700,fontFamily:"'Space Mono'",color:T.t1}}>{ticker}</span>
+                            <span style={{fontSize:11,fontWeight:700,fontFamily:"'Inter',sans-serif",color:T.t1}}>{ticker}</span>
                             <span className="tag" style={{background:tc+"18",color:tc}}>{type}</span>
                           </div>
                           <div style={{marginBottom:5}}>
@@ -2155,17 +2387,17 @@ export default function App(){
                               <span>Poids</span><span>{nominalWeight}%</span>
                             </div>
                             <div style={{height:4,background:T.bg2,borderRadius:2,overflow:"hidden",marginBottom:4}}>
-                              <div style={{height:"100%",width:`${nominalWeight}%`,background:"#38bdf8",borderRadius:2}}/>
+                              <div style={{height:"100%",width:`${nominalWeight}%`,background:T.b3,borderRadius:2}}/>
                             </div>
                             <div style={{display:"flex",justifyContent:"space-between",fontSize:8,color:T.t4,marginBottom:2}}>
-                              <span>Risque</span><span style={{color:Math.abs(diff)>10?"#f87171":T.t2}}>{riskContrib.toFixed(1)}%</span>
+                              <span>Risque</span><span style={{color:Math.abs(diff)>10?"#ef4444":T.t2}}>{riskContrib.toFixed(1)}%</span>
                             </div>
                             <div style={{height:4,background:T.bg2,borderRadius:2,overflow:"hidden"}}>
-                              <div style={{height:"100%",width:`${Math.min(riskContrib,100)}%`,background:riskContrib>nominalWeight?"#f87171":"#4ade80",borderRadius:2}}/>
+                              <div style={{height:"100%",width:`${Math.min(riskContrib,100)}%`,background:riskContrib>nominalWeight?"#ef4444":"#22c55e",borderRadius:2}}/>
                             </div>
                           </div>
                           {Math.abs(diff)>10&&(
-                            <div style={{fontSize:8,color:diff>0?"#f87171":"#4ade80",marginTop:3,lineHeight:1.4}}>
+                            <div style={{fontSize:8,color:diff>0?"#ef4444":"#22c55e",marginTop:3,lineHeight:1.4}}>
                               {diff>0?t('rc_excess')(diff.toFixed(0)):t('rc_under')(Math.abs(diff).toFixed(0))}
                             </div>
                           )}
@@ -2175,40 +2407,41 @@ export default function App(){
                   </div>
                   <div style={{fontSize:8,color:T.b3,lineHeight:1.6}}>{t('attr_rc_legend')}</div>
                 </div>
+                </div>
               </div>}
 
               {/* Metrics — 4 colonnes desktop, liste mobile (hors capture) */}
               {!isCapturing&&(isMobile||builderTab==="metrics")&&(
                 isMobile
-                  ? <div className="card" style={{marginBottom:12}}><MetricsPanel m={metrics} days={days}/></div>
-                  : <MetricsPanel m={metrics} layout="cols" days={days}/>
+                  ? <div className="card"><MetricsPanel m={metrics} days={days} monthlyData={monthlyReturns}/></div>
+                  : <MetricsPanel m={metrics} layout="cols" days={days} monthlyData={monthlyReturns}/>
               )}
             </div>)}
 
             {/* MONTE CARLO */}
             {mode==="monte_carlo"&&(!mcData.length?<Empty T={T} label={t('empty_launch')}/>:<>
-              <div style={{display:"grid",gridTemplateColumns:isMobile?"repeat(3,1fr)":"repeat(3,1fr)",gap:8,marginBottom:14}}>
+              <div style={{display:"flex",marginBottom:20,paddingBottom:20,borderBottom:`1px solid ${T.b1}`}}>
                 {[
-                  {l:t('mc_opt'), mk:"mc_opt",  v:lastMC?.p90,   c:"#4ade80"},
-                  {l:t('mc_med'), mk:"mc_med",  v:lastMC?.median,c:"#22d3ee"},
-                  {l:t('mc_pess'),mk:"mc_pess", v:lastMC?.p10,   c:"#f87171"},
-                ].map(({l,v,c,mk})=>(
-                  <div key={l} className="card">
-                    <div style={{fontSize:8,color:T.t4,letterSpacing:1,textTransform:"uppercase",marginBottom:3,display:"flex",alignItems:"center",gap:5}}>{l}<InfoBubble info={mi(mk)} T={T}/></div>
-                    <div style={{fontFamily:"'Unbounded'",fontSize:isMobile?16:19,color:c,fontWeight:700}}>
+                  {l:t('mc_opt'), mk:"mc_opt",  v:lastMC?.p90,   c:"#22c55e"},
+                  {l:t('mc_med'), mk:"mc_med",  v:lastMC?.median,c:T.t1},
+                  {l:t('mc_pess'),mk:"mc_pess", v:lastMC?.p10,   c:"#ef4444"},
+                ].map(({l,v,c,mk},i)=>(
+                  <div key={l} style={{flex:1,paddingRight:24,paddingLeft:i>0?24:0,borderRight:i<2?`1px solid ${T.b1}`:"none"}}>
+                    <div style={{fontSize:10,color:T.t4,letterSpacing:.4,textTransform:"uppercase",marginBottom:8,display:"flex",alignItems:"center",gap:5}}>{l}<InfoBubble info={mi(mk)} T={T}/></div>
+                    <div style={{fontFamily:"'Inter',sans-serif",fontSize:24,color:c,fontWeight:600,letterSpacing:"-.5px",fontVariantNumeric:"tabular-nums",lineHeight:1}}>
                       {v!=null?`${v>=0?"+":""}${v.toFixed(1)}%`:"—"}
                     </div>
-                    {invest>0&&v!=null&&<div style={{fontSize:9,color:T.t4,marginTop:2}}>→ {(invest*(1+v/100)).toFixed(0)} €</div>}
+                    {invest>0&&v!=null&&<div style={{fontSize:9,color:T.t5,marginTop:4}}>→ {(invest*(1+v/100)).toFixed(0)} €</div>}
                   </div>
                 ))}
               </div>
               <div className="card">
-                <div style={{fontSize:8,color:T.t4,letterSpacing:3,textTransform:"uppercase",marginBottom:10}}>{t('ch_mc')(horizon)}</div>
+                <div style={{fontSize:9,color:T.t4,letterSpacing:2,textTransform:"uppercase",fontWeight:500,marginBottom:12}}>{t('ch_mc')(horizon)}</div>
                 <ResponsiveContainer width="100%" height={CH}>
                   <ComposedChart data={mcData}>
                     <defs><linearGradient id="mcg" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#4ade80" stopOpacity={0.1}/>
-                      <stop offset="100%" stopColor="#4ade80" stopOpacity={0.01}/>
+                      <stop offset="0%" stopColor="#22c55e" stopOpacity={0.08}/>
+                      <stop offset="100%" stopColor="#ef4444" stopOpacity={0.04}/>
                     </linearGradient></defs>
                     <XAxis dataKey="date" tick={{fill:T.t4,fontSize:9}} axisLine={false} tickLine={false} interval="preserveStartEnd" minTickGap={48}/>
                     <YAxis tick={{fill:T.t4,fontSize:9}} axisLine={false} tickLine={false} tickFormatter={v=>`${v>0?"+":""}${v.toFixed(0)}%`} width={44}/>
@@ -2216,9 +2449,9 @@ export default function App(){
                     <ReferenceLine y={0} stroke={T.b2} strokeDasharray="4 3"/>
                     <Area type="monotone" dataKey="p90" stroke="none" fill="url(#mcg)" fillOpacity={1}/>
                     <Area type="monotone" dataKey="p10" stroke="none" fill={T.bg2} fillOpacity={1}/>
-                    <Line type="monotone" dataKey="p90" stroke="#4ade8044" strokeWidth={1} dot={false} strokeDasharray="3 3" name={t('mc_opt')}/>
-                    <Line type="monotone" dataKey="p10" stroke="#f8717144" strokeWidth={1} dot={false} strokeDasharray="3 3" name={t('mc_pess')}/>
-                    <Line type="monotone" dataKey="median" stroke="#4ade80" strokeWidth={2.5} dot={false} activeDot={{r:4}} name={t('mc_med')}/>
+                    <Line type="monotone" dataKey="p10" stroke="#ef444466" strokeWidth={1} dot={false} strokeDasharray="3 3" name={t('mc_pess')}/>
+                    <Line type="monotone" dataKey="p90" stroke="#22c55e66" strokeWidth={1} dot={false} strokeDasharray="3 3" name={t('mc_opt')}/>
+                    <Line type="monotone" dataKey="median" stroke={T.t1} strokeWidth={2} dot={false} activeDot={{r:4}} name={t('mc_med')}/>
                   </ComposedChart>
                 </ResponsiveContainer>
               </div>
@@ -2243,16 +2476,16 @@ export default function App(){
                   {savedPortfolios.map(p=>{
                     const sel=selectedCompare.includes(p.id);
                     return(
-                    <div key={p.id} style={{display:"flex",alignItems:"center",gap:10,padding:"7px 10px",borderRadius:7,border:`1px solid ${sel?"#4ade80":T.b1}`,background:sel?"#4ade8010":"transparent",cursor:"pointer",transition:"all .12s"}}
-                      onMouseEnter={e=>{if(!sel){e.currentTarget.style.borderColor="#4ade8044";e.currentTarget.style.background=T.bg2;}}}
-                      onMouseLeave={e=>{if(!sel){e.currentTarget.style.borderColor=T.b1;e.currentTarget.style.background="transparent";}}}
+                    <div key={p.id} style={{display:"flex",alignItems:"center",gap:10,padding:"7px 10px",borderRadius:7,border:`1px solid ${sel?T.b3:T.b1}`,background:sel?T.b1:"transparent",cursor:"pointer",transition:"all .12s"}}
+                      onMouseEnter={e=>{if(!sel){e.currentTarget.style.background=T.b1;}}}
+                      onMouseLeave={e=>{if(!sel){e.currentTarget.style.background="transparent";}}}
                       onClick={()=>toggleCompare(p.id)}>
                       <div style={{width:8,height:8,borderRadius:"50%",background:p.color,flexShrink:0}}/>
                       <div style={{flex:1,minWidth:0}}>
-                        <span style={{fontSize:11,fontWeight:700,color:sel?"#4ade80":T.t1,marginRight:8}}>{p.name}</span>
+                        <span style={{fontSize:11,fontWeight:sel?700:400,color:T.t1,marginRight:8}}>{p.name}</span>
                         <span style={{fontSize:9,color:T.t5}}>{p.assets.map(a=>`${a.ticker} ${a.weight}%`).join(" · ")}</span>
                       </div>
-                      <button onClick={e=>{e.stopPropagation();loadPortfolio(p);}} style={{background:"none",border:`1px solid ${T.b3}`,color:T.t4,cursor:"pointer",fontSize:9,padding:"2px 6px",borderRadius:4,fontFamily:"'Space Mono'",flexShrink:0,transition:"all .12s"}} onMouseEnter={e=>{e.currentTarget.style.color="#fb923c";e.currentTarget.style.borderColor="#fb923c";}} onMouseLeave={e=>{e.currentTarget.style.color=T.t4;e.currentTarget.style.borderColor=T.b3;}}>✎</button>
+                      <button onClick={e=>{e.stopPropagation();loadPortfolio(p);}} style={{background:"none",border:`1px solid ${T.b3}`,color:T.t4,cursor:"pointer",fontSize:9,padding:"2px 6px",borderRadius:4,fontFamily:"'Inter',sans-serif",flexShrink:0,transition:"all .12s"}} onMouseEnter={e=>{e.currentTarget.style.color=T.t1;e.currentTarget.style.borderColor=T.t2;}} onMouseLeave={e=>{e.currentTarget.style.color=T.t4;e.currentTarget.style.borderColor=T.b3;}}>✎</button>
                       <button className="del-btn" onClick={e=>{e.stopPropagation();setDeleteConfirmId(p.id);}}>×</button>
                     </div>
                     );
@@ -2282,10 +2515,10 @@ export default function App(){
                   <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
                     <div style={{fontSize:8,color:T.t4,letterSpacing:3,textTransform:"uppercase"}}>{t('cmp_chart')}</div>
                     <div style={{display:"flex",alignItems:"center",gap:10}}>
-                      {compareData.compareStartDate&&compareData.compareEndDate&&<div style={{fontSize:9,color:T.t4,fontFamily:"'Space Mono'"}}>{compareData.compareStartDate} → {compareData.compareEndDate}</div>}
+                      {compareData.compareStartDate&&compareData.compareEndDate&&<div style={{fontSize:9,color:T.t4,fontFamily:"'Inter',sans-serif"}}>{compareData.compareStartDate} → {compareData.compareEndDate}</div>}
                       <button onClick={()=>captureAndShare(compareShareRef)}
-                        style={{display:"flex",alignItems:"center",gap:5,background:"transparent",border:`1px solid ${T.b2}`,color:T.t3,borderRadius:6,padding:"3px 9px",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:10,transition:"all .12s"}}
-                        onMouseEnter={e=>{e.currentTarget.style.borderColor="#4ade80";e.currentTarget.style.color="#4ade80";}}
+                        style={{display:"flex",alignItems:"center",gap:5,background:"transparent",border:`1px solid ${T.b2}`,color:T.t3,borderRadius:6,padding:"3px 9px",cursor:"pointer",fontFamily:"'Inter',sans-serif",fontSize:10,transition:"all .12s"}}
+                        onMouseEnter={e=>{e.currentTarget.style.borderColor=T.t1;e.currentTarget.style.color=T.t1;}}
                         onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t3;}}>
                         <ShareIcon/><span>Share</span>
                       </button>
@@ -2322,7 +2555,7 @@ export default function App(){
                 <div className="card">
                   <div style={{fontSize:8,color:T.t4,letterSpacing:3,textTransform:"uppercase",marginBottom:12}}>{t('cmp_table')}</div>
                   <div style={{overflowX:"auto"}}>
-                    <table style={{width:"100%",borderCollapse:"collapse",fontFamily:"'Space Mono'",fontSize:10}}>
+                    <table style={{width:"100%",borderCollapse:"collapse",fontFamily:"'Inter',sans-serif",fontSize:10}}>
                       <thead>
                         <tr style={{borderBottom:`1px solid ${T.b2}`}}>
                           <td style={{padding:"6px 8px",color:T.t4,fontSize:8,textTransform:"uppercase",letterSpacing:1}}>{t('cmp_table_hdr')}</td>
@@ -2394,7 +2627,7 @@ export default function App(){
                   return (
                   <div key={item.id} onClick={()=>setTrackModalId(item.id)}
                     style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",borderRadius:9,border:`1px solid ${T.b1}`,background:T.bg2,cursor:"pointer",transition:"all .12s"}}
-                    onMouseEnter={e=>{e.currentTarget.style.borderColor="#4ade8055";e.currentTarget.style.background=T.bg;}}
+                    onMouseEnter={e=>{e.currentTarget.style.borderColor=T.b3;e.currentTarget.style.background=T.bg;}}
                     onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b1;e.currentTarget.style.background=T.bg2;}}>
                     <div style={{width:11,height:11,borderRadius:"50%",background:item.color,flexShrink:0}}/>
                     <div style={{flex:1,minWidth:0}}>
@@ -2462,7 +2695,7 @@ export default function App(){
             const alpha=item.actualFinal!=null&&refFinal!=null?parseFloat((item.actualFinal-refFinal).toFixed(2)):null;
             const refM=refRaw?computeMetrics(refRaw.map(v=>100+v),refRaw.map(v=>100+v)):null;
             const chartData=(item.chartData||[]).map((pt,j)=>({...pt,ref:refRaw?refRaw[item.idxs?.[j]??j]:null}));
-            const actualColor=(!item.error&&item.actualFinal>=0)?"#4ade80":"#f87171";
+            const actualColor=(!item.error&&item.actualFinal>=0)?"#22c55e":"#ef4444";
             const fmtPct=(v,always)=>`${v>=0&&always?"+":""}${v>=0?"+":""}${v.toFixed(2)}%`;
 
             return (
@@ -2485,12 +2718,12 @@ export default function App(){
                     <div style={{position:"absolute",top:0,left:0,bottom:0,width:3,background:item.color,borderRadius:"14px 0 0 14px"}}/>
                     <div style={{display:"flex",alignItems:"flex-start",gap:14,paddingLeft:8}}>
                       <div style={{flex:1}}>
-                        <div style={{fontFamily:"'Unbounded'",fontSize:16,fontWeight:700,color:T.t1,lineHeight:1.2,marginBottom:8}}>{item.name}</div>
+                        <div style={{fontFamily:"'Inter',sans-serif",fontSize:16,fontWeight:700,color:T.t1,lineHeight:1.2,marginBottom:8}}>{item.name}</div>
                         <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
-                          {item.error==='no_data'&&<span style={{fontSize:8,padding:"2px 9px",borderRadius:20,background:"#fb923c18",border:"1px solid #fb923c44",color:"#fb923c",letterSpacing:1,textTransform:"uppercase"}}>📡 offline</span>}
+                          {item.error==='no_data'&&<span style={{fontSize:8,padding:"2px 9px",borderRadius:20,background:"#f59e0b18",border:"1px solid #f59e0b44",color:"#f59e0b",letterSpacing:1,textTransform:"uppercase"}}>📡 offline</span>}
                           {item.error==='too_short'&&<span style={{fontSize:8,padding:"2px 9px",borderRadius:20,background:T.bg,border:`1px solid ${T.b2}`,color:T.t4,letterSpacing:1,textTransform:"uppercase"}}>⏳ {t('trk_too_short')(item.trackDays||0)}</span>}
-                          {item.error==='missing_assets'&&<span style={{fontSize:8,padding:"2px 9px",borderRadius:20,background:"#fb923c18",border:"1px solid #fb923c44",color:"#fb923c",letterSpacing:1,textTransform:"uppercase"}}>⚠ données partielles</span>}
-                          {!item.error&&<span style={{fontSize:8,padding:"2px 9px",borderRadius:20,background:"#4ade8015",border:"1px solid #4ade8045",color:"#4ade80",letterSpacing:1,textTransform:"uppercase"}}>● live</span>}
+                          {item.error==='missing_assets'&&<span style={{fontSize:8,padding:"2px 9px",borderRadius:20,background:"#f59e0b18",border:"1px solid #f59e0b44",color:"#f59e0b",letterSpacing:1,textTransform:"uppercase"}}>⚠ données partielles</span>}
+                          {!item.error&&<span style={{fontSize:8,padding:"2px 9px",borderRadius:20,background:"#22c55e15",border:"1px solid #22c55e45",color:"#22c55e",letterSpacing:1,textTransform:"uppercase"}}>● live</span>}
                           <span style={{fontSize:9,color:T.t4}}>
                             {t('trk_since')(item.startDate||new Date(item.savedAt||Date.now()).toISOString().split('T')[0])}
                             {item.trackDays>0?` · ${t('trk_days')(item.trackDays)}`:""}
@@ -2499,14 +2732,14 @@ export default function App(){
                       </div>
                       <div style={{display:"flex",gap:6,alignItems:"center",flexShrink:0}}>
                         {!item.error&&item.chartData?.length>1&&<button onClick={()=>captureAndShare(trackShareRef)}
-                          style={{display:"flex",alignItems:"center",gap:5,background:"transparent",border:`1px solid ${T.b2}`,color:T.t3,borderRadius:6,padding:"4px 10px",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:10,transition:"all .12s"}}
-                          onMouseEnter={e=>{e.currentTarget.style.borderColor="#4ade80";e.currentTarget.style.color="#4ade80";}}
+                          style={{display:"flex",alignItems:"center",gap:5,background:"transparent",border:`1px solid ${T.b2}`,color:T.t3,borderRadius:6,padding:"4px 10px",cursor:"pointer",fontFamily:"'Inter',sans-serif",fontSize:10,transition:"all .12s"}}
+                          onMouseEnter={e=>{e.currentTarget.style.borderColor="#22c55e";e.currentTarget.style.color="#22c55e";}}
                           onMouseLeave={e=>{e.currentTarget.style.borderColor=T.b2;e.currentTarget.style.color=T.t3;}}>
                           <ShareIcon/><span>Share</span>
                         </button>}
                         <button onClick={()=>setTrackModalId(null)}
                           style={{background:"none",border:"none",color:T.t4,fontSize:18,cursor:"pointer",lineHeight:1,padding:"2px 6px",transition:"color .12s"}}
-                          onMouseEnter={e=>e.currentTarget.style.color="#f87171"}
+                          onMouseEnter={e=>e.currentTarget.style.color="#ef4444"}
                           onMouseLeave={e=>e.currentTarget.style.color=T.t4}>×</button>
                       </div>
                     </div>
@@ -2530,10 +2763,10 @@ export default function App(){
                             if(si>=0&&si<arr.length&&arr[si]&&arr[arr.length-1]) ret=(arr[arr.length-1]/arr[si]-1)*100;
                           }
                           return(
-                            <div key={a.ticker} style={{background:T.bg,border:`1px solid ${T.b1}`,borderRadius:6,padding:"5px 10px",fontSize:9,fontFamily:"'Space Mono'",display:"flex",gap:7,alignItems:"center"}}>
+                            <div key={a.ticker} style={{background:T.bg,border:`1px solid ${T.b1}`,borderRadius:6,padding:"5px 10px",fontSize:9,fontFamily:"'Inter',sans-serif",display:"flex",gap:7,alignItems:"center"}}>
                               <span style={{color:T.t1,fontWeight:700}}>{a.ticker}</span>
                               <span style={{color:T.t5,borderRight:`1px solid ${T.b1}`,paddingRight:7}}>{a.weight}%</span>
-                              {ret!=null?<span style={{color:ret>=0?"#4ade80":"#f87171",fontSize:8}}>{ret>=0?"↑":"↓"}{ret>=0?"+":""}{ret.toFixed(1)}%</span>:<span style={{color:T.t4,fontSize:8}}>—</span>}
+                              {ret!=null?<span style={{color:ret>=0?"#22c55e":"#ef4444",fontSize:8}}>{ret>=0?"↑":"↓"}{ret>=0?"+":""}{ret.toFixed(1)}%</span>:<span style={{color:T.t4,fontSize:8}}>—</span>}
                             </div>
                           );
                         })}
@@ -2545,7 +2778,7 @@ export default function App(){
                       <div style={{display:"flex",gap:4}}>
                         {[{k:"bench",l:"Benchmark"},{k:"port",l:t('tab_track')||"Portfolio"}].map(({k,l})=>(
                           <button key={k} onClick={()=>setTrackRefType(k)}
-                            style={{padding:"4px 10px",border:`1px solid ${trackRefType===k?"#4ade80":T.b2}`,borderRadius:6,background:trackRefType===k?"#4ade8012":"transparent",color:trackRefType===k?"#4ade80":T.t4,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,transition:"all .12s"}}>
+                            style={{padding:"4px 10px",border:`1px solid ${trackRefType===k?T.t2:T.b2}`,borderRadius:6,background:trackRefType===k?T.b1:"transparent",color:trackRefType===k?T.t1:T.t4,cursor:"pointer",fontFamily:"'Inter',sans-serif",fontSize:9,fontWeight:trackRefType===k?600:400,transition:"all .12s"}}>
                             {l}
                           </button>
                         ))}
@@ -2564,7 +2797,7 @@ export default function App(){
                       ):(
                         <select value={trackRefPortId||savedPortfolios.find(p=>p.id!==item.id)?.id||""}
                           onChange={e=>setTrackRefPortId(e.target.value)}
-                          style={{background:T.bg,border:`1px solid ${T.b2}`,color:T.t1,borderRadius:6,padding:"4px 8px",fontFamily:"'Space Mono'",fontSize:9,outline:"none",cursor:"pointer"}}>
+                          style={{background:T.bg,border:`1px solid ${T.b2}`,color:T.t1,borderRadius:6,padding:"4px 8px",fontFamily:"'Inter',sans-serif",fontSize:9,outline:"none",cursor:"pointer"}}>
                           {savedPortfolios.filter(p=>p.id!==item.id).map(p=>(
                             <option key={p.id} value={p.id}>{p.name}</option>
                           ))}
@@ -2575,9 +2808,9 @@ export default function App(){
                     {/* KPIs */}
                     <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:20}}>
                       {[
-                        {l:item.name,            v:item.error?null:item.actualFinal, c:!item.error?(item.actualFinal>=0?"#4ade80":"#f87171"):T.t5, bc:!item.error?(item.actualFinal>=0?"#4ade8035":"#f8717135"):T.b1, dot:item.color,  mk:null},
-                        {l:refName||"Référence", v:refFinal,                        c:refFinal!=null?(refFinal>=0?"#4ade80":"#f87171"):T.t5,      bc:refFinal!=null?(refFinal>=0?"#4ade8035":"#f8717135"):T.b1,   dot:refColor,    mk:null},
-                        {l:"Alpha",              v:alpha,                            c:alpha!=null?(alpha>=0?"#4ade80":"#f87171"):T.t5,            bc:alpha!=null?(alpha>=0?"#4ade8035":"#f8717135"):T.b1,         dot:null,        mk:"alpha"},
+                        {l:item.name,            v:item.error?null:item.actualFinal, c:!item.error?(item.actualFinal>=0?"#22c55e":"#ef4444"):T.t5, bc:!item.error?(item.actualFinal>=0?"#22c55e35":"#ef444435"):T.b1, dot:item.color,  mk:null},
+                        {l:refName||"Référence", v:refFinal,                        c:refFinal!=null?(refFinal>=0?"#22c55e":"#ef4444"):T.t5,      bc:refFinal!=null?(refFinal>=0?"#22c55e35":"#ef444435"):T.b1,   dot:refColor,    mk:null},
+                        {l:"Alpha",              v:alpha,                            c:alpha!=null?(alpha>=0?"#22c55e":"#ef4444"):T.t5,            bc:alpha!=null?(alpha>=0?"#22c55e35":"#ef444435"):T.b1,         dot:null,        mk:"alpha"},
                       ].map(({l,v,c,bc,dot,mk})=>(
                         <div key={l} style={{background:T.bg,border:`1px solid ${bc}`,borderRadius:9,padding:"13px 14px"}}>
                           <div style={{fontSize:7,color:T.t5,letterSpacing:2,textTransform:"uppercase",marginBottom:7,display:"flex",alignItems:"center",gap:5}}>
@@ -2585,7 +2818,7 @@ export default function App(){
                             <span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flex:1}}>{l}</span>
                             {mk&&<InfoBubble info={mi(mk)} T={T}/>}
                           </div>
-                          <div style={{fontFamily:"'Unbounded'",fontSize:isMobile?17:20,color:c,fontWeight:700,lineHeight:1}}>
+                          <div style={{fontFamily:"'Inter',sans-serif",fontSize:isMobile?17:20,color:c,fontWeight:700,lineHeight:1}}>
                             {v==null?"—":`${v>=0?"+":""}${v.toFixed(2)}%`}
                           </div>
                         </div>
@@ -2605,7 +2838,7 @@ export default function App(){
                             <span style={{fontSize:8,color:T.t4}}>{refName}</span>
                           </div>}
                         </div>
-                        {chartData.length>1&&<div style={{fontSize:9,color:T.t4,fontFamily:"'Space Mono'",flexShrink:0}}>
+                        {chartData.length>1&&<div style={{fontSize:9,color:T.t4,fontFamily:"'Inter',sans-serif",flexShrink:0}}>
                           {chartData[0].date} → {chartData[chartData.length-1].date}
                         </div>}
                       </div>
@@ -2625,7 +2858,7 @@ export default function App(){
                             </defs>
                             <XAxis dataKey="date" tick={{fill:T.t4,fontSize:9}} axisLine={false} tickLine={false} interval="preserveStartEnd" minTickGap={48} tickFormatter={d=>d&&d.length>=10?d.slice(5).replace('-','/'):d}/>
                             <YAxis tick={{fill:T.t4,fontSize:9}} axisLine={false} tickLine={false} tickFormatter={v=>`${v>0?"+":""}${v.toFixed(0)}%`} width={44}/>
-                            <Tooltip contentStyle={{background:T.bg2,border:`1px solid ${T.b2}`,borderRadius:7,fontSize:10,fontFamily:"'Space Mono'",boxShadow:"0 8px 24px #0006"}}
+                            <Tooltip contentStyle={{background:T.bg2,border:`1px solid ${T.b2}`,borderRadius:7,fontSize:10,fontFamily:"'Inter',sans-serif",boxShadow:`0 4px 16px ${T.b2_44}`}}
                               labelFormatter={d=>d&&d.length>=10?`${d.slice(8)}/${d.slice(5,7)}/${d.slice(0,4)}`:d||''}
                               formatter={(v,name)=>[`${v>=0?"+":""}${v.toFixed(2)}%`,name==="actual"?item.name:refName]}/>
                             <ReferenceLine y={0} stroke={T.b2} strokeDasharray="2 2"/>
@@ -2650,7 +2883,7 @@ export default function App(){
                         {item.name} vs {refName}
                       </div>
                       <div style={{overflowX:"auto"}}>
-                      <table style={{width:"100%",borderCollapse:"collapse",fontSize:10,fontFamily:"'Space Mono'"}}>
+                      <table style={{width:"100%",borderCollapse:"collapse",fontSize:10,fontFamily:"'Inter',sans-serif"}}>
                         <thead>
                           <tr style={{borderBottom:`1px solid ${T.b2}`}}>
                             <td style={{padding:"6px 8px",color:T.t4,fontSize:8,textTransform:"uppercase",letterSpacing:1}}>{t('cmp_table_hdr')}</td>
@@ -2675,7 +2908,7 @@ export default function App(){
                                 </td>
                                 <td style={{padding:"5px 8px",textAlign:"right",fontSize:9,color:refColor,fontWeight:refIsBest?700:400,background:refIsBest?refColor+"18":"transparent"}}>{fmt(refM[k])}</td>
                                 <td style={{padding:"5px 8px",textAlign:"right",fontSize:9,color:item.color,fontWeight:portIsBest?700:400,background:portIsBest?item.color+"18":"transparent"}}>{fmt(item.actualM[k])}</td>
-                                <td style={{padding:"5px 8px",textAlign:"right",fontSize:9,fontWeight:700,color:deltaGood?"#4ade80":"#f87171"}}>{d>=0?"+":""}{k==="sharpe"||k==="alpha"?d.toFixed(3):`${d.toFixed(2)}%`}</td>
+                                <td style={{padding:"5px 8px",textAlign:"right",fontSize:9,fontWeight:700,color:deltaGood?"#22c55e":"#ef4444"}}>{d>=0?"+":""}{k==="sharpe"||k==="alpha"?d.toFixed(3):`${d.toFixed(2)}%`}</td>
                               </tr>
                             );
                           })}
@@ -2695,6 +2928,22 @@ export default function App(){
 
         </div>
       </div>
+
+      {/* MOBILE BOTTOM NAV */}
+      {isMobile&&(
+        <nav className="bottom-nav">
+          {TABS.map(tb=>(
+            <button key={tb.id} className={`bottom-nav-item ${tab===tb.id?"active":""}`} onClick={()=>setTab(tb.id)}>
+              <span style={{display:"flex",alignItems:"center",justifyContent:"center"}}>
+                {tb.id==="builder"&&<svg width="18" height="18" viewBox="0 0 14 14" fill="none"><rect x="1" y="8" width="3" height="5" rx="0.5" fill="currentColor"/><rect x="5.5" y="5" width="3" height="8" rx="0.5" fill="currentColor"/><rect x="10" y="1" width="3" height="12" rx="0.5" fill="currentColor"/></svg>}
+                {tb.id==="compare"&&<svg width="18" height="18" viewBox="0 0 14 14" fill="none"><path d="M1 3.5h12M1 7h12M1 10.5h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><path d="M4 1v12M10 1v12" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeDasharray="2 2" opacity=".5"/></svg>}
+                {tb.id==="track"&&<svg width="18" height="18" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="1.5"/><circle cx="7" cy="7" r="2" fill="currentColor"/></svg>}
+              </span>
+              <span>{tb.id==="builder"?t('tab_builder'):tb.id==="compare"?t('tab_compare'):t('tab_track')}</span>
+            </button>
+          ))}
+        </nav>
+      )}
     </div>
   );
 }

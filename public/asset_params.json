@@ -1,0 +1,6676 @@
+{
+  "AAPL": {
+    "name": "Apple",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "ia"
+    ],
+    "cap": 3200,
+    "mu": 0.2185,
+    "sigma": 0.2738
+  },
+  "MSFT": {
+    "name": "Microsoft",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "ia",
+      "cloud"
+    ],
+    "cap": 3100,
+    "mu": 0.1447,
+    "sigma": 0.2656
+  },
+  "NVDA": {
+    "name": "Nvidia",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "ia",
+      "semi"
+    ],
+    "cap": 2200,
+    "mu": 0.6466,
+    "sigma": 0.5163
+  },
+  "GOOGL": {
+    "name": "Alphabet",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "ia",
+      "cloud"
+    ],
+    "cap": 2100,
+    "mu": 0.2773,
+    "sigma": 0.3122
+  },
+  "META": {
+    "name": "Meta",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "ia",
+      "media"
+    ],
+    "cap": 1400,
+    "mu": 0.2192,
+    "sigma": 0.439
+  },
+  "AMZN": {
+    "name": "Amazon",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "cloud",
+      "conso"
+    ],
+    "cap": 2000,
+    "mu": 0.1457,
+    "sigma": 0.3541
+  },
+  "ORCL": {
+    "name": "Oracle",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "cloud"
+    ],
+    "cap": 420,
+    "mu": 0.2957,
+    "sigma": 0.4184
+  },
+  "CRM": {
+    "name": "Salesforce",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "cloud"
+    ],
+    "cap": 290,
+    "mu": 0.0317,
+    "sigma": 0.3699
+  },
+  "AMD": {
+    "name": "AMD",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "ia",
+      "semi"
+    ],
+    "cap": 240,
+    "mu": 0.5093,
+    "sigma": 0.553
+  },
+  "INTC": {
+    "name": "Intel",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "semi"
+    ],
+    "cap": 95,
+    "mu": 0.2608,
+    "sigma": 0.5164
+  },
+  "NFLX": {
+    "name": "Netflix",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "media"
+    ],
+    "cap": 350,
+    "mu": 0.1941,
+    "sigma": 0.4295
+  },
+  "ADBE": {
+    "name": "Adobe",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "cloud",
+      "ia"
+    ],
+    "cap": 230,
+    "mu": -0.0695,
+    "sigma": 0.3623
+  },
+  "NOW": {
+    "name": "ServiceNow",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "cloud"
+    ],
+    "cap": 200,
+    "mu": 0.1268,
+    "sigma": 0.4325
+  },
+  "SNOW": {
+    "name": "Snowflake",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "cloud",
+      "ia"
+    ],
+    "cap": 55,
+    "mu": 0.1899,
+    "sigma": 0.6175
+  },
+  "PLTR": {
+    "name": "Palantir",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "ia"
+    ],
+    "cap": 80,
+    "mu": 0.5792,
+    "sigma": 0.6528
+  },
+  "UBER": {
+    "name": "Uber",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "auto"
+    ],
+    "cap": 170,
+    "mu": 0.168,
+    "sigma": 0.4472
+  },
+  "ABNB": {
+    "name": "Airbnb",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 80,
+    "mu": 0.0927,
+    "sigma": 0.4385
+  },
+  "AVGO": {
+    "name": "Broadcom",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "semi",
+      "ia"
+    ],
+    "cap": 800,
+    "mu": 0.5367,
+    "sigma": 0.4316
+  },
+  "QCOM": {
+    "name": "Qualcomm",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "semi"
+    ],
+    "cap": 170,
+    "mu": 0.2019,
+    "sigma": 0.4072
+  },
+  "AMAT": {
+    "name": "Applied Materials",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "semi"
+    ],
+    "cap": 190,
+    "mu": 0.3463,
+    "sigma": 0.4364
+  },
+  "TXN": {
+    "name": "Texas Instruments",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "semi"
+    ],
+    "cap": 160,
+    "mu": 0.162,
+    "sigma": 0.3223
+  },
+  "TSM": {
+    "name": "Taiwan Semi.",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "semi",
+      "asie"
+    ],
+    "cap": 720,
+    "mu": 0.3442,
+    "sigma": 0.3728
+  },
+  "SPOT": {
+    "name": "Spotify",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "media"
+    ],
+    "cap": 100,
+    "mu": 0.2629,
+    "sigma": 0.4746
+  },
+  "INTU": {
+    "name": "Intuit",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "cloud",
+      "fintech"
+    ],
+    "cap": 180,
+    "mu": -0.0015,
+    "sigma": 0.3736
+  },
+  "NET": {
+    "name": "Cloudflare",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "cloud",
+      "cyber"
+    ],
+    "cap": 65,
+    "mu": 0.4632,
+    "sigma": 0.6824
+  },
+  "ZS": {
+    "name": "Zscaler",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "cyber",
+      "cloud"
+    ],
+    "cap": 25,
+    "mu": 0.1038,
+    "sigma": 0.562
+  },
+  "CSCO": {
+    "name": "Cisco",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "telecom"
+    ],
+    "cap": 230,
+    "mu": 0.2235,
+    "sigma": 0.2473
+  },
+  "ACN": {
+    "name": "Accenture",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "cloud"
+    ],
+    "cap": 210,
+    "mu": -0.038,
+    "sigma": 0.2849
+  },
+  "IBM": {
+    "name": "IBM",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "cloud",
+      "ia"
+    ],
+    "cap": 160,
+    "mu": 0.2196,
+    "sigma": 0.2705
+  },
+  "CRWD": {
+    "name": "CrowdStrike",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "cyber",
+      "ia"
+    ],
+    "cap": 85,
+    "mu": 0.3564,
+    "sigma": 0.5069
+  },
+  "PANW": {
+    "name": "Palo Alto Netw.",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "cyber"
+    ],
+    "cap": 120,
+    "mu": 0.3863,
+    "sigma": 0.415
+  },
+  "FTNT": {
+    "name": "Fortinet",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "cyber"
+    ],
+    "cap": 55,
+    "mu": 0.341,
+    "sigma": 0.4375
+  },
+  "RBLX": {
+    "name": "Roblox",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "gaming",
+      "tech",
+      "ia"
+    ],
+    "cap": 22,
+    "mu": 0.0871,
+    "sigma": 0.6914
+  },
+  "JPM": {
+    "name": "JPMorgan",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance",
+      "banque"
+    ],
+    "cap": 680,
+    "mu": 0.1839,
+    "sigma": 0.2437
+  },
+  "GS": {
+    "name": "Goldman Sachs",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance",
+      "banque"
+    ],
+    "cap": 180,
+    "mu": 0.2706,
+    "sigma": 0.2797
+  },
+  "BRK-B": {
+    "name": "Berkshire B",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance",
+      "value"
+    ],
+    "cap": 1000,
+    "mu": 0.1186,
+    "sigma": 0.1708
+  },
+  "V": {
+    "name": "Visa",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance",
+      "paiement"
+    ],
+    "cap": 580,
+    "mu": 0.1019,
+    "sigma": 0.2272
+  },
+  "MA": {
+    "name": "Mastercard",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance",
+      "paiement"
+    ],
+    "cap": 490,
+    "mu": 0.0897,
+    "sigma": 0.2394
+  },
+  "PYPL": {
+    "name": "PayPal",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance",
+      "paiement"
+    ],
+    "cap": 65,
+    "mu": -0.2724,
+    "sigma": 0.4196
+  },
+  "COIN": {
+    "name": "Coinbase",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance",
+      "fintech",
+      "crypto"
+    ],
+    "cap": 55,
+    "mu": 0.2849,
+    "sigma": 0.8568
+  },
+  "BAC": {
+    "name": "Bank of America",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance",
+      "banque"
+    ],
+    "cap": 340,
+    "mu": 0.1077,
+    "sigma": 0.268
+  },
+  "WFC": {
+    "name": "Wells Fargo",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance",
+      "banque"
+    ],
+    "cap": 225,
+    "mu": 0.1835,
+    "sigma": 0.3015
+  },
+  "MS": {
+    "name": "Morgan Stanley",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance",
+      "banque"
+    ],
+    "cap": 195,
+    "mu": 0.2446,
+    "sigma": 0.2863
+  },
+  "C": {
+    "name": "Citigroup",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance",
+      "banque"
+    ],
+    "cap": 145,
+    "mu": 0.1823,
+    "sigma": 0.2908
+  },
+  "AXP": {
+    "name": "American Express",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance",
+      "paiement"
+    ],
+    "cap": 175,
+    "mu": 0.1893,
+    "sigma": 0.2939
+  },
+  "SCHW": {
+    "name": "Charles Schwab",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 135,
+    "mu": 0.1055,
+    "sigma": 0.3217
+  },
+  "BLK": {
+    "name": "BlackRock",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 135,
+    "mu": 0.0868,
+    "sigma": 0.2667
+  },
+  "SPGI": {
+    "name": "S&P Global",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 155,
+    "mu": 0.0612,
+    "sigma": 0.2439
+  },
+  "ICE": {
+    "name": "Intercontinental",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 100,
+    "mu": 0.08,
+    "sigma": 0.2103
+  },
+  "CME": {
+    "name": "CME Group",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 80,
+    "mu": 0.0955,
+    "sigma": 0.2002
+  },
+  "AFL": {
+    "name": "Aflac",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance",
+      "assurance"
+    ],
+    "cap": 60,
+    "mu": 0.1923,
+    "sigma": 0.2084
+  },
+  "JNJ": {
+    "name": "Johnson & J.",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante",
+      "pharma"
+    ],
+    "cap": 380,
+    "mu": 0.1042,
+    "sigma": 0.1684
+  },
+  "PFE": {
+    "name": "Pfizer",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante",
+      "pharma"
+    ],
+    "cap": 140,
+    "mu": -0.0014,
+    "sigma": 0.2542
+  },
+  "UNH": {
+    "name": "UnitedHealth",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante",
+      "assurance"
+    ],
+    "cap": 450,
+    "mu": 0.0637,
+    "sigma": 0.3175
+  },
+  "LLY": {
+    "name": "Eli Lilly",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante",
+      "pharma",
+      "biotech"
+    ],
+    "cap": 750,
+    "mu": 0.4073,
+    "sigma": 0.3273
+  },
+  "MRNA": {
+    "name": "Moderna",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante",
+      "biotech"
+    ],
+    "cap": 45,
+    "mu": -0.0281,
+    "sigma": 0.6636
+  },
+  "ISRG": {
+    "name": "Intuitive Surg.",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante",
+      "medtech"
+    ],
+    "cap": 190,
+    "mu": 0.1375,
+    "sigma": 0.3307
+  },
+  "ABBV": {
+    "name": "AbbVie",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante",
+      "pharma",
+      "biotech"
+    ],
+    "cap": 275,
+    "mu": 0.198,
+    "sigma": 0.2285
+  },
+  "MRK": {
+    "name": "Merck",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante",
+      "pharma"
+    ],
+    "cap": 240,
+    "mu": 0.1535,
+    "sigma": 0.2368
+  },
+  "AMGN": {
+    "name": "Amgen",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante",
+      "biotech"
+    ],
+    "cap": 150,
+    "mu": 0.1284,
+    "sigma": 0.2386
+  },
+  "BMY": {
+    "name": "Bristol-Myers",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante",
+      "pharma",
+      "biotech"
+    ],
+    "cap": 130,
+    "mu": 0.0365,
+    "sigma": 0.2395
+  },
+  "GILD": {
+    "name": "Gilead Sciences",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante",
+      "biotech"
+    ],
+    "cap": 115,
+    "mu": 0.1953,
+    "sigma": 0.2397
+  },
+  "MDT": {
+    "name": "Medtronic",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante",
+      "medtech"
+    ],
+    "cap": 100,
+    "mu": -0.0353,
+    "sigma": 0.2188
+  },
+  "REGN": {
+    "name": "Regeneron",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante",
+      "biotech"
+    ],
+    "cap": 90,
+    "mu": 0.0965,
+    "sigma": 0.3067
+  },
+  "VRTX": {
+    "name": "Vertex Pharma.",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante",
+      "biotech",
+      "pharma"
+    ],
+    "cap": 115,
+    "mu": 0.1917,
+    "sigma": 0.2884
+  },
+  "CVS": {
+    "name": "CVS Health",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 85,
+    "mu": 0.0915,
+    "sigma": 0.2987
+  },
+  "ELV": {
+    "name": "Elevance Health",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante",
+      "assurance"
+    ],
+    "cap": 95,
+    "mu": 0.0668,
+    "sigma": 0.2883
+  },
+  "SYK": {
+    "name": "Stryker",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante",
+      "medtech"
+    ],
+    "cap": 145,
+    "mu": 0.0738,
+    "sigma": 0.2409
+  },
+  "BSX": {
+    "name": "Boston Scientific",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante",
+      "medtech"
+    ],
+    "cap": 125,
+    "mu": 0.0587,
+    "sigma": 0.2566
+  },
+  "XOM": {
+    "name": "ExxonMobil",
+    "type": "action",
+    "sector": "Énergie",
+    "themes": [
+      "energie",
+      "petrole"
+    ],
+    "cap": 490,
+    "mu": 0.2564,
+    "sigma": 0.2671
+  },
+  "CVX": {
+    "name": "Chevron",
+    "type": "action",
+    "sector": "Énergie",
+    "themes": [
+      "energie",
+      "petrole"
+    ],
+    "cap": 270,
+    "mu": 0.1868,
+    "sigma": 0.2508
+  },
+  "ENPH": {
+    "name": "Enphase Energy",
+    "type": "action",
+    "sector": "Énergie",
+    "themes": [
+      "energie",
+      "solaire"
+    ],
+    "cap": 15,
+    "mu": 0.0593,
+    "sigma": 0.6988
+  },
+  "NEE": {
+    "name": "NextEra Energy",
+    "type": "action",
+    "sector": "Énergie",
+    "themes": [
+      "energie",
+      "solaire"
+    ],
+    "cap": 130,
+    "mu": 0.0929,
+    "sigma": 0.2681
+  },
+  "CCJ": {
+    "name": "Cameco",
+    "type": "action",
+    "sector": "Énergie",
+    "themes": [
+      "energie",
+      "nucleaire"
+    ],
+    "cap": 22,
+    "mu": 0.461,
+    "sigma": 0.4981
+  },
+  "SLB": {
+    "name": "SLB",
+    "type": "action",
+    "sector": "Énergie",
+    "themes": [
+      "energie",
+      "petrole"
+    ],
+    "cap": 65,
+    "mu": 0.2034,
+    "sigma": 0.3776
+  },
+  "EOG": {
+    "name": "EOG Resources",
+    "type": "action",
+    "sector": "Énergie",
+    "themes": [
+      "energie",
+      "petrole"
+    ],
+    "cap": 75,
+    "mu": 0.2115,
+    "sigma": 0.3291
+  },
+  "MPC": {
+    "name": "Marathon Petro.",
+    "type": "action",
+    "sector": "Énergie",
+    "themes": [
+      "energie",
+      "petrole"
+    ],
+    "cap": 65,
+    "mu": 0.3698,
+    "sigma": 0.3294
+  },
+  "VLO": {
+    "name": "Valero Energy",
+    "type": "action",
+    "sector": "Énergie",
+    "themes": [
+      "energie",
+      "petrole"
+    ],
+    "cap": 55,
+    "mu": 0.3372,
+    "sigma": 0.3684
+  },
+  "HAL": {
+    "name": "Halliburton",
+    "type": "action",
+    "sector": "Énergie",
+    "themes": [
+      "energie",
+      "petrole"
+    ],
+    "cap": 30,
+    "mu": 0.2105,
+    "sigma": 0.4013
+  },
+  "TSLA": {
+    "name": "Tesla",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso",
+      "ve",
+      "ia"
+    ],
+    "cap": 800,
+    "mu": 0.3035,
+    "sigma": 0.5878
+  },
+  "NKE": {
+    "name": "Nike",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso",
+      "luxe"
+    ],
+    "cap": 90,
+    "mu": -0.1453,
+    "sigma": 0.3569
+  },
+  "MC.PA": {
+    "name": "LVMH",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso",
+      "luxe",
+      "europe"
+    ],
+    "cap": 320,
+    "mu": 0.0071,
+    "sigma": 0.2976
+  },
+  "TTWO": {
+    "name": "Take-Two Interac.",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "gaming",
+      "conso",
+      "media"
+    ],
+    "cap": 25,
+    "mu": 0.0816,
+    "sigma": 0.3227
+  },
+  "SBUX": {
+    "name": "Starbucks",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 100,
+    "mu": 0.0391,
+    "sigma": 0.3151
+  },
+  "MCD": {
+    "name": "McDonald's",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 220,
+    "mu": 0.0763,
+    "sigma": 0.1722
+  },
+  "DIS": {
+    "name": "Disney",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso",
+      "media",
+      "gaming"
+    ],
+    "cap": 200,
+    "mu": -0.0639,
+    "sigma": 0.2922
+  },
+  "COST": {
+    "name": "Costco",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 390,
+    "mu": 0.2221,
+    "sigma": 0.2267
+  },
+  "HD": {
+    "name": "Home Depot",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 380,
+    "mu": 0.052,
+    "sigma": 0.2396
+  },
+  "LOW": {
+    "name": "Lowe's",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 150,
+    "mu": 0.0728,
+    "sigma": 0.2606
+  },
+  "TJX": {
+    "name": "TJX Companies",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 140,
+    "mu": 0.2156,
+    "sigma": 0.2224
+  },
+  "BKNG": {
+    "name": "Booking Holdings",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 175,
+    "mu": 0.1693,
+    "sigma": 0.3212
+  },
+  "LULU": {
+    "name": "Lululemon",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso",
+      "luxe"
+    ],
+    "cap": 45,
+    "mu": -0.1143,
+    "sigma": 0.4207
+  },
+  "F": {
+    "name": "Ford Motor",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso",
+      "auto",
+      "ve"
+    ],
+    "cap": 50,
+    "mu": 0.165,
+    "sigma": 0.3967
+  },
+  "PG": {
+    "name": "Procter & Gamble",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge",
+      "value"
+    ],
+    "cap": 350,
+    "mu": 0.0533,
+    "sigma": 0.1778
+  },
+  "KO": {
+    "name": "Coca-Cola",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge",
+      "value"
+    ],
+    "cap": 270,
+    "mu": 0.1168,
+    "sigma": 0.1606
+  },
+  "WMT": {
+    "name": "Walmart",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge",
+      "value"
+    ],
+    "cap": 720,
+    "mu": 0.2202,
+    "sigma": 0.216
+  },
+  "MDLZ": {
+    "name": "Mondelez",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge"
+    ],
+    "cap": 80,
+    "mu": 0.0394,
+    "sigma": 0.194
+  },
+  "BA": {
+    "name": "Boeing",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie",
+      "defense"
+    ],
+    "cap": 110,
+    "mu": 0.047,
+    "sigma": 0.3643
+  },
+  "CAT": {
+    "name": "Caterpillar",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 190,
+    "mu": 0.3297,
+    "sigma": 0.3057
+  },
+  "LMT": {
+    "name": "Lockheed Martin",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie",
+      "defense"
+    ],
+    "cap": 120,
+    "mu": 0.1144,
+    "sigma": 0.2282
+  },
+  "LHX": {
+    "name": "L3Harris Techn.",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie",
+      "defense",
+      "space"
+    ],
+    "cap": 40,
+    "mu": 0.1194,
+    "sigma": 0.2384
+  },
+  "RTX": {
+    "name": "RTX Corp.",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie",
+      "defense"
+    ],
+    "cap": 165,
+    "mu": 0.1976,
+    "sigma": 0.2379
+  },
+  "GE": {
+    "name": "GE Aerospace",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 190,
+    "mu": 0.3739,
+    "sigma": 0.3108
+  },
+  "HON": {
+    "name": "Honeywell",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 145,
+    "mu": 0.0461,
+    "sigma": 0.217
+  },
+  "DE": {
+    "name": "John Deere",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 120,
+    "mu": 0.1526,
+    "sigma": 0.2929
+  },
+  "UPS": {
+    "name": "UPS",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie",
+      "logistique"
+    ],
+    "cap": 130,
+    "mu": -0.0493,
+    "sigma": 0.2829
+  },
+  "NOC": {
+    "name": "Northrop Grumman",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie",
+      "defense",
+      "space"
+    ],
+    "cap": 75,
+    "mu": 0.1247,
+    "sigma": 0.2522
+  },
+  "PLD": {
+    "name": "Prologis",
+    "type": "action",
+    "sector": "Immobilier",
+    "themes": [
+      "immo",
+      "logistique"
+    ],
+    "cap": 95,
+    "mu": 0.1046,
+    "sigma": 0.2686
+  },
+  "AMT": {
+    "name": "American Tower",
+    "type": "action",
+    "sector": "Immobilier",
+    "themes": [
+      "immo",
+      "telecom"
+    ],
+    "cap": 85,
+    "mu": 0.0121,
+    "sigma": 0.263
+  },
+  "EQIX": {
+    "name": "Equinix",
+    "type": "action",
+    "sector": "Immobilier",
+    "themes": [
+      "immo",
+      "cloud"
+    ],
+    "cap": 75,
+    "mu": 0.1378,
+    "sigma": 0.2763
+  },
+  "O": {
+    "name": "Realty Income",
+    "type": "action",
+    "sector": "Immobilier",
+    "themes": [
+      "immo",
+      "refuge"
+    ],
+    "cap": 55,
+    "mu": 0.0531,
+    "sigma": 0.1886
+  },
+  "PSA": {
+    "name": "Public Storage",
+    "type": "action",
+    "sector": "Immobilier",
+    "themes": [
+      "immo"
+    ],
+    "cap": 55,
+    "mu": 0.0926,
+    "sigma": 0.2375
+  },
+  "LIN": {
+    "name": "Linde",
+    "type": "action",
+    "sector": "Matériaux",
+    "themes": [
+      "materiaux",
+      "industrie"
+    ],
+    "cap": 200,
+    "mu": 0.1398,
+    "sigma": 0.207
+  },
+  "NEM": {
+    "name": "Newmont",
+    "type": "action",
+    "sector": "Matériaux",
+    "themes": [
+      "materiaux",
+      "or",
+      "refuge"
+    ],
+    "cap": 50,
+    "mu": 0.1612,
+    "sigma": 0.3771
+  },
+  "FCX": {
+    "name": "Freeport-McMoRan",
+    "type": "action",
+    "sector": "Matériaux",
+    "themes": [
+      "materiaux"
+    ],
+    "cap": 60,
+    "mu": 0.1991,
+    "sigma": 0.4495
+  },
+  "APD": {
+    "name": "Air Products",
+    "type": "action",
+    "sector": "Matériaux",
+    "themes": [
+      "materiaux",
+      "industrie"
+    ],
+    "cap": 55,
+    "mu": 0.047,
+    "sigma": 0.2591
+  },
+  "ECL": {
+    "name": "Ecolab",
+    "type": "action",
+    "sector": "Matériaux",
+    "themes": [
+      "materiaux",
+      "eau"
+    ],
+    "cap": 55,
+    "mu": 0.0752,
+    "sigma": 0.2373
+  },
+  "DOW": {
+    "name": "Dow Inc.",
+    "type": "action",
+    "sector": "Matériaux",
+    "themes": [
+      "materiaux"
+    ],
+    "cap": 40,
+    "mu": -0.0303,
+    "sigma": 0.3345
+  },
+  "NUE": {
+    "name": "Nucor",
+    "type": "action",
+    "sector": "Matériaux",
+    "themes": [
+      "materiaux"
+    ],
+    "cap": 40,
+    "mu": 0.2664,
+    "sigma": 0.3786
+  },
+  "DUK": {
+    "name": "Duke Energy",
+    "type": "action",
+    "sector": "Utilities",
+    "themes": [
+      "energie",
+      "nucleaire"
+    ],
+    "cap": 80,
+    "mu": 0.093,
+    "sigma": 0.1777
+  },
+  "SO": {
+    "name": "Southern Company",
+    "type": "action",
+    "sector": "Utilities",
+    "themes": [
+      "energie",
+      "nucleaire"
+    ],
+    "cap": 75,
+    "mu": 0.1265,
+    "sigma": 0.1859
+  },
+  "CEG": {
+    "name": "Constellation E.",
+    "type": "action",
+    "sector": "Utilities",
+    "themes": [
+      "energie",
+      "nucleaire"
+    ],
+    "cap": 65,
+    "mu": 0.5439,
+    "sigma": 0.4954
+  },
+  "XYL": {
+    "name": "Xylem",
+    "type": "action",
+    "sector": "Utilities",
+    "themes": [
+      "eau",
+      "industrie"
+    ],
+    "cap": 20,
+    "mu": 0.0357,
+    "sigma": 0.2594
+  },
+  "AWK": {
+    "name": "American Water",
+    "type": "action",
+    "sector": "Utilities",
+    "themes": [
+      "eau",
+      "refuge"
+    ],
+    "cap": 25,
+    "mu": 0.0033,
+    "sigma": 0.2282
+  },
+  "AEP": {
+    "name": "American El. Pow.",
+    "type": "action",
+    "sector": "Utilities",
+    "themes": [
+      "energie",
+      "nucleaire"
+    ],
+    "cap": 55,
+    "mu": 0.1357,
+    "sigma": 0.1998
+  },
+  "VZ": {
+    "name": "Verizon",
+    "type": "action",
+    "sector": "Télécom",
+    "themes": [
+      "telecom"
+    ],
+    "cap": 160,
+    "mu": 0.0396,
+    "sigma": 0.2154
+  },
+  "TMUS": {
+    "name": "T-Mobile US",
+    "type": "action",
+    "sector": "Télécom",
+    "themes": [
+      "telecom"
+    ],
+    "cap": 250,
+    "mu": 0.0886,
+    "sigma": 0.2381
+  },
+  "T": {
+    "name": "AT&T",
+    "type": "action",
+    "sector": "Télécom",
+    "themes": [
+      "telecom"
+    ],
+    "cap": 175,
+    "mu": 0.0934,
+    "sigma": 0.2392
+  },
+  "ASML": {
+    "name": "ASML Holding",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "semi",
+      "europe"
+    ],
+    "cap": 350,
+    "mu": 0.2794,
+    "sigma": 0.42
+  },
+  "SAP": {
+    "name": "SAP",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "cloud",
+      "europe"
+    ],
+    "cap": 250,
+    "mu": 0.111,
+    "sigma": 0.2858
+  },
+  "NVO": {
+    "name": "Novo Nordisk",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante",
+      "pharma",
+      "europe"
+    ],
+    "cap": 370,
+    "mu": 0.1057,
+    "sigma": 0.3813
+  },
+  "AIR.PA": {
+    "name": "Airbus",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie",
+      "defense",
+      "europe"
+    ],
+    "cap": 145,
+    "mu": 0.1757,
+    "sigma": 0.2883
+  },
+  "TTE.PA": {
+    "name": "TotalEnergies",
+    "type": "action",
+    "sector": "Énergie",
+    "themes": [
+      "energie",
+      "petrole",
+      "europe"
+    ],
+    "cap": 155,
+    "mu": 0.2207,
+    "sigma": 0.2431
+  },
+  "RMS.PA": {
+    "name": "Hermès",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso",
+      "luxe",
+      "europe"
+    ],
+    "cap": 210,
+    "mu": 0.126,
+    "sigma": 0.2867
+  },
+  "AZN": {
+    "name": "AstraZeneca",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante",
+      "pharma",
+      "europe"
+    ],
+    "cap": 240,
+    "mu": 0.1457,
+    "sigma": 0.2399
+  },
+  "SHEL": {
+    "name": "Shell",
+    "type": "action",
+    "sector": "Énergie",
+    "themes": [
+      "energie",
+      "petrole",
+      "europe"
+    ],
+    "cap": 220,
+    "mu": 0.2191,
+    "sigma": 0.2523
+  },
+  "OR.PA": {
+    "name": "L'Oréal",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso",
+      "luxe",
+      "europe"
+    ],
+    "cap": 200,
+    "mu": 0.0513,
+    "sigma": 0.2446
+  },
+  "BNP.PA": {
+    "name": "BNP Paribas",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance",
+      "banque",
+      "europe"
+    ],
+    "cap": 90,
+    "mu": 0.2119,
+    "sigma": 0.2836
+  },
+  "SIE.DE": {
+    "name": "Siemens",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie",
+      "europe"
+    ],
+    "cap": 130,
+    "mu": 0.2055,
+    "sigma": 0.3011
+  },
+  "VOW.DE": {
+    "name": "Volkswagen",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso",
+      "auto",
+      "ve",
+      "europe"
+    ],
+    "cap": 60,
+    "mu": -0.0996,
+    "sigma": 0.3193
+  },
+  "INGA.AS": {
+    "name": "ING Group",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance",
+      "banque",
+      "europe"
+    ],
+    "cap": 70,
+    "mu": 0.2782,
+    "sigma": 0.2781
+  },
+  "NSRGY": {
+    "name": "Nestlé",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge",
+      "europe"
+    ],
+    "cap": 250,
+    "mu": 0.0004,
+    "sigma": 0.1983
+  },
+  "TM": {
+    "name": "Toyota",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso",
+      "auto",
+      "ve",
+      "asie"
+    ],
+    "cap": 250,
+    "mu": 0.0749,
+    "sigma": 0.2692
+  },
+  "SONY": {
+    "name": "Sony",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "gaming",
+      "media",
+      "asie"
+    ],
+    "cap": 120,
+    "mu": 0.0711,
+    "sigma": 0.2889
+  },
+  "BABA": {
+    "name": "Alibaba",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "cloud",
+      "asie",
+      "emergent"
+    ],
+    "cap": 210,
+    "mu": 0.0277,
+    "sigma": 0.5121
+  },
+  "SE": {
+    "name": "Sea Limited",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech",
+      "gaming",
+      "asie",
+      "emergent"
+    ],
+    "cap": 45,
+    "mu": -0.0101,
+    "sigma": 0.6398
+  },
+  "BYDDY": {
+    "name": "BYD",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso",
+      "auto",
+      "ve",
+      "asie"
+    ],
+    "cap": 100,
+    "mu": 0.1977,
+    "sigma": 0.4598
+  },
+  "9984.T": {
+    "name": "SoftBank",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance",
+      "tech",
+      "asie"
+    ],
+    "cap": 75,
+    "mu": 0.4027,
+    "sigma": 0.5229
+  },
+  "BTC-USD": {
+    "name": "Bitcoin",
+    "type": "crypto",
+    "sector": "Crypto",
+    "themes": [
+      "crypto",
+      "store"
+    ],
+    "cap": 1900,
+    "mu": 0.163,
+    "sigma": 0.4491
+  },
+  "ETH-USD": {
+    "name": "Ethereum",
+    "type": "crypto",
+    "sector": "Crypto",
+    "themes": [
+      "crypto",
+      "defi"
+    ],
+    "cap": 390,
+    "mu": 0.1072,
+    "sigma": 0.5981
+  },
+  "SOL-USD": {
+    "name": "Solana",
+    "type": "crypto",
+    "sector": "Crypto",
+    "themes": [
+      "crypto",
+      "defi"
+    ],
+    "cap": 85,
+    "mu": 0.4406,
+    "sigma": 0.8314
+  },
+  "BNB-USD": {
+    "name": "BNB",
+    "type": "crypto",
+    "sector": "Crypto",
+    "themes": [
+      "crypto",
+      "defi"
+    ],
+    "cap": 90,
+    "mu": 0.2023,
+    "sigma": 0.5133
+  },
+  "XRP-USD": {
+    "name": "XRP",
+    "type": "crypto",
+    "sector": "Crypto",
+    "themes": [
+      "crypto",
+      "paiement"
+    ],
+    "cap": 130,
+    "mu": 0.2616,
+    "sigma": 0.7261
+  },
+  "DOGE-USD": {
+    "name": "Dogecoin",
+    "type": "crypto",
+    "sector": "Crypto",
+    "themes": [
+      "crypto"
+    ],
+    "cap": 25,
+    "mu": 0.1018,
+    "sigma": 0.7882
+  },
+  "ADA-USD": {
+    "name": "Cardano",
+    "type": "crypto",
+    "sector": "Crypto",
+    "themes": [
+      "crypto",
+      "defi"
+    ],
+    "cap": 18,
+    "mu": -0.0454,
+    "sigma": 0.7474
+  },
+  "AVAX-USD": {
+    "name": "Avalanche",
+    "type": "crypto",
+    "sector": "Crypto",
+    "themes": [
+      "crypto",
+      "defi"
+    ],
+    "cap": 15,
+    "mu": 0.2083,
+    "sigma": 0.8431
+  },
+  "LINK-USD": {
+    "name": "Chainlink",
+    "type": "crypto",
+    "sector": "Crypto",
+    "themes": [
+      "crypto",
+      "defi"
+    ],
+    "cap": 10,
+    "mu": 0.1158,
+    "sigma": 0.7623
+  },
+  "DOT-USD": {
+    "name": "Polkadot",
+    "type": "crypto",
+    "sector": "Crypto",
+    "themes": [
+      "crypto",
+      "defi"
+    ],
+    "cap": 12,
+    "mu": -0.1694,
+    "sigma": 0.7343
+  },
+  "MATIC-USD": {
+    "name": "Polygon",
+    "type": "crypto",
+    "sector": "Crypto",
+    "themes": [
+      "crypto",
+      "defi"
+    ],
+    "cap": 10,
+    "mu": -0.0251,
+    "sigma": 0.8374
+  },
+  "UNI-USD": {
+    "name": "Uniswap",
+    "type": "crypto",
+    "sector": "Crypto",
+    "themes": [
+      "crypto",
+      "defi"
+    ],
+    "cap": 8,
+    "mu": NaN,
+    "sigma": NaN
+  },
+  "FIL-USD": {
+    "name": "Filecoin",
+    "type": "crypto",
+    "sector": "Crypto",
+    "themes": [
+      "crypto"
+    ],
+    "cap": 5,
+    "mu": -0.2565,
+    "sigma": 0.8854
+  },
+  "ATOM-USD": {
+    "name": "Cosmos",
+    "type": "crypto",
+    "sector": "Crypto",
+    "themes": [
+      "crypto",
+      "defi"
+    ],
+    "cap": 5,
+    "mu": 0.0061,
+    "sigma": 0.7827
+  },
+  "SPY": {
+    "name": "S&P 500 ETF",
+    "type": "etf",
+    "sector": "ETF",
+    "themes": [
+      "etf",
+      "marche"
+    ],
+    "cap": 550,
+    "mu": 0.1408,
+    "sigma": 0.1703
+  },
+  "QQQ": {
+    "name": "Nasdaq 100 ETF",
+    "type": "etf",
+    "sector": "ETF",
+    "themes": [
+      "etf",
+      "tech"
+    ],
+    "cap": 260,
+    "mu": 0.1809,
+    "sigma": 0.2241
+  },
+  "GLD": {
+    "name": "Gold ETF",
+    "type": "etf",
+    "sector": "ETF",
+    "themes": [
+      "etf",
+      "or",
+      "refuge"
+    ],
+    "cap": 75,
+    "mu": 0.1778,
+    "sigma": 0.1804
+  },
+  "ARKK": {
+    "name": "ARK Innovation",
+    "type": "etf",
+    "sector": "ETF",
+    "themes": [
+      "etf",
+      "ia",
+      "tech"
+    ],
+    "cap": 8,
+    "mu": 0.0345,
+    "sigma": 0.4625
+  },
+  "XLF": {
+    "name": "Finance ETF",
+    "type": "etf",
+    "sector": "ETF",
+    "themes": [
+      "etf",
+      "finance"
+    ],
+    "cap": 45,
+    "mu": 0.0996,
+    "sigma": 0.186
+  },
+  "XLE": {
+    "name": "Énergie ETF",
+    "type": "etf",
+    "sector": "ETF",
+    "themes": [
+      "etf",
+      "energie"
+    ],
+    "cap": 30,
+    "mu": 0.2272,
+    "sigma": 0.2601
+  },
+  "ICLN": {
+    "name": "Clean Energy ETF",
+    "type": "etf",
+    "sector": "ETF",
+    "themes": [
+      "etf",
+      "energie",
+      "solaire"
+    ],
+    "cap": 2,
+    "mu": 0.0393,
+    "sigma": 0.2734
+  },
+  "VWO": {
+    "name": "Marchés émergents",
+    "type": "etf",
+    "sector": "ETF",
+    "themes": [
+      "etf",
+      "marche"
+    ],
+    "cap": 80,
+    "mu": 0.0668,
+    "sigma": 0.1742
+  },
+  "IWM": {
+    "name": "Russell 2000 ETF",
+    "type": "etf",
+    "sector": "ETF",
+    "themes": [
+      "etf",
+      "marche"
+    ],
+    "cap": 45,
+    "mu": 0.0856,
+    "sigma": 0.2253
+  },
+  "EFA": {
+    "name": "MSCI EAFE ETF",
+    "type": "etf",
+    "sector": "ETF",
+    "themes": [
+      "etf",
+      "europe",
+      "asie"
+    ],
+    "cap": 100,
+    "mu": 0.0922,
+    "sigma": 0.1646
+  },
+  "EEM": {
+    "name": "Émergents ETF",
+    "type": "etf",
+    "sector": "ETF",
+    "themes": [
+      "etf",
+      "emergent"
+    ],
+    "cap": 45,
+    "mu": 0.0788,
+    "sigma": 0.1911
+  },
+  "TLT": {
+    "name": "Treasury 20+ ETF",
+    "type": "etf",
+    "sector": "ETF",
+    "themes": [
+      "etf",
+      "obligations",
+      "refuge"
+    ],
+    "cap": 30,
+    "mu": -0.0503,
+    "sigma": 0.1581
+  },
+  "LQD": {
+    "name": "Corp Bond ETF",
+    "type": "etf",
+    "sector": "ETF",
+    "themes": [
+      "etf",
+      "obligations"
+    ],
+    "cap": 30,
+    "mu": 0.0036,
+    "sigma": 0.0863
+  },
+  "HYG": {
+    "name": "High Yield ETF",
+    "type": "etf",
+    "sector": "ETF",
+    "themes": [
+      "etf",
+      "obligations"
+    ],
+    "cap": 15,
+    "mu": 0.0399,
+    "sigma": 0.075
+  },
+  "SOXX": {
+    "name": "Semiconducteurs ETF",
+    "type": "etf",
+    "sector": "ETF",
+    "themes": [
+      "etf",
+      "semi",
+      "tech"
+    ],
+    "cap": 25,
+    "mu": 0.3409,
+    "sigma": 0.363
+  },
+  "GDX": {
+    "name": "Gold Miners ETF",
+    "type": "etf",
+    "sector": "ETF",
+    "themes": [
+      "etf",
+      "or",
+      "refuge"
+    ],
+    "cap": 15,
+    "mu": 0.2189,
+    "sigma": 0.3651
+  },
+  "SCHD": {
+    "name": "Schwab Dividend",
+    "type": "etf",
+    "sector": "ETF",
+    "themes": [
+      "etf",
+      "marche",
+      "refuge"
+    ],
+    "cap": 60,
+    "mu": 0.0914,
+    "sigma": 0.1433
+  },
+  "JEPI": {
+    "name": "JPM Equity Prem.",
+    "type": "etf",
+    "sector": "ETF",
+    "themes": [
+      "etf",
+      "marche"
+    ],
+    "cap": 35,
+    "mu": 0.0772,
+    "sigma": 0.1102
+  },
+  "IAU": {
+    "name": "Gold Trust ETF",
+    "type": "etf",
+    "sector": "ETF",
+    "themes": [
+      "etf",
+      "or",
+      "refuge"
+    ],
+    "cap": 30,
+    "mu": 0.1792,
+    "sigma": 0.1798
+  },
+  "SLV": {
+    "name": "Silver ETF",
+    "type": "etf",
+    "sector": "ETF",
+    "themes": [
+      "etf",
+      "materiaux",
+      "refuge"
+    ],
+    "cap": 12,
+    "mu": 0.2417,
+    "sigma": 0.3623
+  },
+  "MCHI": {
+    "name": "MSCI China ETF",
+    "type": "etf",
+    "sector": "ETF",
+    "themes": [
+      "etf",
+      "asie",
+      "emergent"
+    ],
+    "cap": 5,
+    "mu": -0.0076,
+    "sigma": 0.3065
+  },
+  "EWJ": {
+    "name": "MSCI Japan ETF",
+    "type": "etf",
+    "sector": "ETF",
+    "themes": [
+      "etf",
+      "asie"
+    ],
+    "cap": 15,
+    "mu": 0.0975,
+    "sigma": 0.1824
+  },
+  "EWZ": {
+    "name": "MSCI Brazil ETF",
+    "type": "etf",
+    "sector": "ETF",
+    "themes": [
+      "etf",
+      "emergent"
+    ],
+    "cap": 5,
+    "mu": 0.0969,
+    "sigma": 0.2769
+  },
+  "QQQM": {
+    "name": "Nasdaq 100 Mini",
+    "type": "etf",
+    "sector": "ETF",
+    "themes": [
+      "etf",
+      "tech"
+    ],
+    "cap": 30,
+    "mu": 0.1814,
+    "sigma": 0.2227
+  },
+  "XLK": {
+    "name": "Tech Sector ETF",
+    "type": "etf",
+    "sector": "ETF",
+    "themes": [
+      "etf",
+      "tech"
+    ],
+    "cap": 70,
+    "mu": 0.2295,
+    "sigma": 0.25
+  },
+  "XLV": {
+    "name": "Health Care ETF",
+    "type": "etf",
+    "sector": "ETF",
+    "themes": [
+      "etf",
+      "sante"
+    ],
+    "cap": 40,
+    "mu": 0.0681,
+    "sigma": 0.1472
+  },
+  "XLRE": {
+    "name": "Real Estate ETF",
+    "type": "etf",
+    "sector": "ETF",
+    "themes": [
+      "etf",
+      "immo"
+    ],
+    "cap": 10,
+    "mu": 0.0597,
+    "sigma": 0.1904
+  },
+  "XLP": {
+    "name": "Cons. Staples ETF",
+    "type": "etf",
+    "sector": "ETF",
+    "themes": [
+      "etf",
+      "conso",
+      "refuge"
+    ],
+    "cap": 15,
+    "mu": 0.0666,
+    "sigma": 0.1327
+  },
+  "IVV": {
+    "name": "S&P 500 iShares",
+    "type": "etf",
+    "sector": "ETF",
+    "themes": [
+      "etf",
+      "marche"
+    ],
+    "cap": 550,
+    "mu": 0.1411,
+    "sigma": 0.1686
+  },
+  "VTI": {
+    "name": "Vanguard Total Mkt",
+    "type": "etf",
+    "sector": "ETF",
+    "themes": [
+      "etf",
+      "marche"
+    ],
+    "cap": 450,
+    "mu": 0.1318,
+    "sigma": 0.1738
+  },
+  "EWG": {
+    "name": "MSCI Germany ETF",
+    "type": "etf",
+    "sector": "ETF",
+    "themes": [
+      "etf",
+      "europe"
+    ],
+    "cap": 7,
+    "mu": 0.0769,
+    "sigma": 0.2043
+  },
+  "IEMG": {
+    "name": "Core Émergents ETF",
+    "type": "etf",
+    "sector": "ETF",
+    "themes": [
+      "etf",
+      "emergent"
+    ],
+    "cap": 80,
+    "mu": 0.0839,
+    "sigma": 0.1858
+  },
+  "^GSPC": {
+    "name": "S&P 500",
+    "type": "indice",
+    "sector": "Indices",
+    "themes": [
+      "indice",
+      "marche"
+    ],
+    "cap": 99000,
+    "mu": 0.1269,
+    "sigma": 0.1688
+  },
+  "^FCHI": {
+    "name": "CAC 40",
+    "type": "indice",
+    "sector": "Indices",
+    "themes": [
+      "indice",
+      "europe"
+    ],
+    "cap": 3000,
+    "mu": 0.062,
+    "sigma": 0.1636
+  },
+  "^GDAXI": {
+    "name": "DAX",
+    "type": "indice",
+    "sector": "Indices",
+    "themes": [
+      "indice",
+      "europe"
+    ],
+    "cap": 2500,
+    "mu": 0.1069,
+    "sigma": 0.1698
+  },
+  "^N225": {
+    "name": "Nikkei 225",
+    "type": "indice",
+    "sector": "Indices",
+    "themes": [
+      "indice",
+      "asie"
+    ],
+    "cap": 6000,
+    "mu": 0.1996,
+    "sigma": 0.2228
+  },
+  "^FTSE": {
+    "name": "FTSE 100",
+    "type": "indice",
+    "sector": "Indices",
+    "themes": [
+      "indice",
+      "europe"
+    ],
+    "cap": 2800,
+    "mu": 0.0845,
+    "sigma": 0.1261
+  },
+  "MMM": {
+    "name": "3M",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.0554,
+    "sigma": 0.282
+  },
+  "AOS": {
+    "name": "A. O. Smith",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.0167,
+    "sigma": 0.2702
+  },
+  "ABT": {
+    "name": "Abbott Laboratories",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": -0.0065,
+    "sigma": 0.224
+  },
+  "AES": {
+    "name": "AES Corporation",
+    "type": "action",
+    "sector": "Utilities",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": -0.0018,
+    "sigma": 0.377
+  },
+  "A": {
+    "name": "Agilent Technologies",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": 0.0543,
+    "sigma": 0.2985
+  },
+  "AKAM": {
+    "name": "Akamai Technologies",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.1194,
+    "sigma": 0.3631
+  },
+  "ALB": {
+    "name": "Albemarle Corporation",
+    "type": "action",
+    "sector": "Matériaux",
+    "themes": [
+      "materiaux"
+    ],
+    "cap": 0,
+    "mu": 0.1547,
+    "sigma": 0.543
+  },
+  "ARE": {
+    "name": "Alexandria Real Estate Equities",
+    "type": "action",
+    "sector": "Immobilier",
+    "themes": [
+      "immo"
+    ],
+    "cap": 0,
+    "mu": -0.1502,
+    "sigma": 0.3289
+  },
+  "ALGN": {
+    "name": "Align Technology",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": -0.1285,
+    "sigma": 0.494
+  },
+  "ALLE": {
+    "name": "Allegion",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.034,
+    "sigma": 0.2593
+  },
+  "LNT": {
+    "name": "Alliant Energy",
+    "type": "action",
+    "sector": "Utilities",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.0971,
+    "sigma": 0.1968
+  },
+  "ALL": {
+    "name": "Allstate",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.1525,
+    "sigma": 0.2533
+  },
+  "GOOG": {
+    "name": "Alphabet Inc. (Class C)",
+    "type": "action",
+    "sector": "Télécom",
+    "themes": [
+      "media"
+    ],
+    "cap": 0,
+    "mu": 0.2714,
+    "sigma": 0.3104
+  },
+  "MO": {
+    "name": "Altria",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge"
+    ],
+    "cap": 0,
+    "mu": 0.1709,
+    "sigma": 0.2058
+  },
+  "AMCR": {
+    "name": "Amcor",
+    "type": "action",
+    "sector": "Matériaux",
+    "themes": [
+      "materiaux"
+    ],
+    "cap": 0,
+    "mu": -0.0135,
+    "sigma": 0.2493
+  },
+  "AEE": {
+    "name": "Ameren",
+    "type": "action",
+    "sector": "Utilities",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.0985,
+    "sigma": 0.1922
+  },
+  "AIG": {
+    "name": "American International Group",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.1327,
+    "sigma": 0.2656
+  },
+  "AMP": {
+    "name": "Ameriprise Financial",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.1688,
+    "sigma": 0.2774
+  },
+  "AME": {
+    "name": "Ametek",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.1349,
+    "sigma": 0.2158
+  },
+  "APH": {
+    "name": "Amphenol",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.3391,
+    "sigma": 0.304
+  },
+  "ADI": {
+    "name": "Analog Devices",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.2519,
+    "sigma": 0.3293
+  },
+  "AON": {
+    "name": "Aon plc",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.0857,
+    "sigma": 0.2303
+  },
+  "APA": {
+    "name": "APA Corporation",
+    "type": "action",
+    "sector": "Énergie",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.2597,
+    "sigma": 0.4864
+  },
+  "APO": {
+    "name": "Apollo Global Management",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.2486,
+    "sigma": 0.3695
+  },
+  "APP": {
+    "name": "AppLovin",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.705,
+    "sigma": 0.7762
+  },
+  "APTV": {
+    "name": "Aptiv",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": -0.0641,
+    "sigma": 0.3989
+  },
+  "ACGL": {
+    "name": "Arch Capital Group",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.2049,
+    "sigma": 0.2453
+  },
+  "ADM": {
+    "name": "Archer Daniels Midland",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge"
+    ],
+    "cap": 0,
+    "mu": 0.1078,
+    "sigma": 0.2815
+  },
+  "ARES": {
+    "name": "Ares Management",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.268,
+    "sigma": 0.3721
+  },
+  "ANET": {
+    "name": "Arista Networks",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.5083,
+    "sigma": 0.4704
+  },
+  "AJG": {
+    "name": "Arthur J. Gallagher & Co.",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.1169,
+    "sigma": 0.2287
+  },
+  "AIZ": {
+    "name": "Assurant",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.1442,
+    "sigma": 0.2502
+  },
+  "ATO": {
+    "name": "Atmos Energy",
+    "type": "action",
+    "sector": "Utilities",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.1511,
+    "sigma": 0.1852
+  },
+  "ADSK": {
+    "name": "Autodesk",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.017,
+    "sigma": 0.3499
+  },
+  "ADP": {
+    "name": "Automatic Data Processing",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.0781,
+    "sigma": 0.2199
+  },
+  "AZO": {
+    "name": "AutoZone",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": 0.1827,
+    "sigma": 0.2437
+  },
+  "AVB": {
+    "name": "AvalonBay Communities",
+    "type": "action",
+    "sector": "Immobilier",
+    "themes": [
+      "immo"
+    ],
+    "cap": 0,
+    "mu": 0.0447,
+    "sigma": 0.2215
+  },
+  "AVY": {
+    "name": "Avery Dennison",
+    "type": "action",
+    "sector": "Matériaux",
+    "themes": [
+      "materiaux"
+    ],
+    "cap": 0,
+    "mu": -0.0202,
+    "sigma": 0.2453
+  },
+  "AXON": {
+    "name": "Axon Enterprise",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.3757,
+    "sigma": 0.4788
+  },
+  "BKR": {
+    "name": "Baker Hughes",
+    "type": "action",
+    "sector": "Énergie",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.2672,
+    "sigma": 0.3505
+  },
+  "BALL": {
+    "name": "Ball Corporation",
+    "type": "action",
+    "sector": "Matériaux",
+    "themes": [
+      "materiaux"
+    ],
+    "cap": 0,
+    "mu": -0.0396,
+    "sigma": 0.3035
+  },
+  "BAX": {
+    "name": "Baxter International",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": -0.21,
+    "sigma": 0.3361
+  },
+  "BDX": {
+    "name": "Becton Dickinson",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": 0.0017,
+    "sigma": 0.2321
+  },
+  "BBY": {
+    "name": "Best Buy",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": 0.021,
+    "sigma": 0.3762
+  },
+  "TECH": {
+    "name": "Bio-Techne",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": -0.0617,
+    "sigma": 0.3852
+  },
+  "BIIB": {
+    "name": "Biogen",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": -0.0037,
+    "sigma": 0.3832
+  },
+  "BX": {
+    "name": "Blackstone Inc.",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.1575,
+    "sigma": 0.3919
+  },
+  "XYZ": {
+    "name": "Block, Inc.",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": -0.0466,
+    "sigma": 0.5981
+  },
+  "BNY": {
+    "name": "BNY Mellon",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.2597,
+    "sigma": 0.2452
+  },
+  "BR": {
+    "name": "Broadridge Financial Solutions",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.0338,
+    "sigma": 0.2335
+  },
+  "BRO": {
+    "name": "Brown & Brown",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.062,
+    "sigma": 0.2472
+  },
+  "BF-B": {
+    "name": "Brown–Forman",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge"
+    ],
+    "cap": 0,
+    "mu": -0.1562,
+    "sigma": 0.2983
+  },
+  "BLDR": {
+    "name": "Builders FirstSource",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.2023,
+    "sigma": 0.4508
+  },
+  "BG": {
+    "name": "Bunge Global",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge"
+    ],
+    "cap": 0,
+    "mu": 0.1444,
+    "sigma": 0.2921
+  },
+  "BXP": {
+    "name": "BXP, Inc.",
+    "type": "action",
+    "sector": "Immobilier",
+    "themes": [
+      "immo"
+    ],
+    "cap": 0,
+    "mu": -0.017,
+    "sigma": 0.3277
+  },
+  "CHRW": {
+    "name": "C.H. Robinson",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.2016,
+    "sigma": 0.3222
+  },
+  "CDNS": {
+    "name": "Cadence Design Systems",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.2823,
+    "sigma": 0.3602
+  },
+  "CPT": {
+    "name": "Camden Property Trust",
+    "type": "action",
+    "sector": "Immobilier",
+    "themes": [
+      "immo"
+    ],
+    "cap": 0,
+    "mu": 0.0395,
+    "sigma": 0.2265
+  },
+  "CPB": {
+    "name": "Campbell's Company (The)",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge"
+    ],
+    "cap": 0,
+    "mu": -0.0944,
+    "sigma": 0.2404
+  },
+  "COF": {
+    "name": "Capital One",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.1036,
+    "sigma": 0.3526
+  },
+  "CAH": {
+    "name": "Cardinal Health",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": 0.312,
+    "sigma": 0.2518
+  },
+  "CCL": {
+    "name": "Carnival Corporation",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": 0.1516,
+    "sigma": 0.5525
+  },
+  "CARR": {
+    "name": "Carrier Global",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.1466,
+    "sigma": 0.3164
+  },
+  "CVNA": {
+    "name": "Carvana",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": 0.6488,
+    "sigma": 1.1077
+  },
+  "CASY": {
+    "name": "Casey's",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge"
+    ],
+    "cap": 0,
+    "mu": 0.2869,
+    "sigma": 0.2631
+  },
+  "CBOE": {
+    "name": "Cboe Global Markets",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.2272,
+    "sigma": 0.231
+  },
+  "CBRE": {
+    "name": "CBRE Group",
+    "type": "action",
+    "sector": "Immobilier",
+    "themes": [
+      "immo"
+    ],
+    "cap": 0,
+    "mu": 0.123,
+    "sigma": 0.3017
+  },
+  "CDW": {
+    "name": "CDW Corporation",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.0145,
+    "sigma": 0.3085
+  },
+  "COR": {
+    "name": "Cencora",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": 0.21,
+    "sigma": 0.2231
+  },
+  "CNC": {
+    "name": "Centene Corporation",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": 0.0498,
+    "sigma": 0.3932
+  },
+  "CNP": {
+    "name": "CenterPoint Energy",
+    "type": "action",
+    "sector": "Utilities",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.151,
+    "sigma": 0.1964
+  },
+  "CF": {
+    "name": "CF Industries",
+    "type": "action",
+    "sector": "Matériaux",
+    "themes": [
+      "materiaux"
+    ],
+    "cap": 0,
+    "mu": 0.2455,
+    "sigma": 0.3811
+  },
+  "CRL": {
+    "name": "Charles River Laboratories",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": -0.0276,
+    "sigma": 0.4261
+  },
+  "CHTR": {
+    "name": "Charter Communications",
+    "type": "action",
+    "sector": "Télécom",
+    "themes": [
+      "media"
+    ],
+    "cap": 0,
+    "mu": -0.2551,
+    "sigma": 0.3889
+  },
+  "CMG": {
+    "name": "Chipotle Mexican Grill",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": 0.0739,
+    "sigma": 0.3345
+  },
+  "CB": {
+    "name": "Chubb Limited",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.1684,
+    "sigma": 0.203
+  },
+  "CHD": {
+    "name": "Church & Dwight",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge"
+    ],
+    "cap": 0,
+    "mu": 0.0539,
+    "sigma": 0.2058
+  },
+  "CIEN": {
+    "name": "Ciena",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.5581,
+    "sigma": 0.4838
+  },
+  "CI": {
+    "name": "Cigna",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": 0.0799,
+    "sigma": 0.2834
+  },
+  "CINF": {
+    "name": "Cincinnati Financial",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.1199,
+    "sigma": 0.2561
+  },
+  "CTAS": {
+    "name": "Cintas",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.1755,
+    "sigma": 0.2238
+  },
+  "CFG": {
+    "name": "Citizens Financial Group",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.1511,
+    "sigma": 0.3396
+  },
+  "CLX": {
+    "name": "Clorox",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge"
+    ],
+    "cap": 0,
+    "mu": -0.0599,
+    "sigma": 0.2595
+  },
+  "CMS": {
+    "name": "CMS Energy",
+    "type": "action",
+    "sector": "Utilities",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.073,
+    "sigma": 0.1894
+  },
+  "CTSH": {
+    "name": "Cognizant",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": -0.0035,
+    "sigma": 0.2734
+  },
+  "COHR": {
+    "name": "Coherent Corp.",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.5347,
+    "sigma": 0.611
+  },
+  "CL": {
+    "name": "Colgate-Palmolive",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge"
+    ],
+    "cap": 0,
+    "mu": 0.0508,
+    "sigma": 0.1868
+  },
+  "CMCSA": {
+    "name": "Comcast",
+    "type": "action",
+    "sector": "Télécom",
+    "themes": [
+      "media"
+    ],
+    "cap": 0,
+    "mu": -0.0896,
+    "sigma": 0.2668
+  },
+  "FIX": {
+    "name": "Comfort Systems USA",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.7271,
+    "sigma": 0.4437
+  },
+  "CAG": {
+    "name": "Conagra Brands",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge"
+    ],
+    "cap": 0,
+    "mu": -0.1368,
+    "sigma": 0.2329
+  },
+  "COP": {
+    "name": "ConocoPhillips",
+    "type": "action",
+    "sector": "Énergie",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.236,
+    "sigma": 0.3269
+  },
+  "ED": {
+    "name": "Consolidated Edison",
+    "type": "action",
+    "sector": "Utilities",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.113,
+    "sigma": 0.1871
+  },
+  "STZ": {
+    "name": "Constellation Brands",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge"
+    ],
+    "cap": 0,
+    "mu": -0.0552,
+    "sigma": 0.2441
+  },
+  "COO": {
+    "name": "Cooper Companies (The)",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": -0.0338,
+    "sigma": 0.2902
+  },
+  "CPRT": {
+    "name": "Copart",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.0268,
+    "sigma": 0.2588
+  },
+  "GLW": {
+    "name": "Corning Inc.",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.367,
+    "sigma": 0.3537
+  },
+  "CPAY": {
+    "name": "Corpay",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.1001,
+    "sigma": 0.3229
+  },
+  "CTVA": {
+    "name": "Corteva",
+    "type": "action",
+    "sector": "Matériaux",
+    "themes": [
+      "materiaux"
+    ],
+    "cap": 0,
+    "mu": 0.1531,
+    "sigma": 0.2683
+  },
+  "CSGP": {
+    "name": "CoStar Group",
+    "type": "action",
+    "sector": "Immobilier",
+    "themes": [
+      "immo"
+    ],
+    "cap": 0,
+    "mu": -0.1219,
+    "sigma": 0.3452
+  },
+  "CRH": {
+    "name": "CRH plc",
+    "type": "action",
+    "sector": "Matériaux",
+    "themes": [
+      "materiaux"
+    ],
+    "cap": 0,
+    "mu": 0.2151,
+    "sigma": 0.3066
+  },
+  "CCI": {
+    "name": "Crown Castle",
+    "type": "action",
+    "sector": "Immobilier",
+    "themes": [
+      "immo"
+    ],
+    "cap": 0,
+    "mu": -0.0531,
+    "sigma": 0.2656
+  },
+  "CSX": {
+    "name": "CSX Corporation",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.1112,
+    "sigma": 0.234
+  },
+  "CMI": {
+    "name": "Cummins",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.2489,
+    "sigma": 0.2794
+  },
+  "DHR": {
+    "name": "Danaher Corporation",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": 0.0039,
+    "sigma": 0.2798
+  },
+  "DRI": {
+    "name": "Darden Restaurants",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": 0.1371,
+    "sigma": 0.2727
+  },
+  "DDOG": {
+    "name": "Datadog",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.3557,
+    "sigma": 0.5806
+  },
+  "DVA": {
+    "name": "DaVita",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": 0.1609,
+    "sigma": 0.3713
+  },
+  "DECK": {
+    "name": "Deckers Brands",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": 0.2261,
+    "sigma": 0.4386
+  },
+  "DELL": {
+    "name": "Dell Technologies",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.5518,
+    "sigma": 0.506
+  },
+  "DAL": {
+    "name": "Delta Air Lines",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.1965,
+    "sigma": 0.4063
+  },
+  "DVN": {
+    "name": "Devon Energy",
+    "type": "action",
+    "sector": "Énergie",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.2426,
+    "sigma": 0.4136
+  },
+  "DXCM": {
+    "name": "Dexcom",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": 0.0758,
+    "sigma": 0.4676
+  },
+  "FANG": {
+    "name": "Diamondback Energy",
+    "type": "action",
+    "sector": "Énergie",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.297,
+    "sigma": 0.3807
+  },
+  "DLR": {
+    "name": "Digital Realty",
+    "type": "action",
+    "sector": "Immobilier",
+    "themes": [
+      "immo"
+    ],
+    "cap": 0,
+    "mu": 0.1167,
+    "sigma": 0.2847
+  },
+  "DG": {
+    "name": "Dollar General",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge"
+    ],
+    "cap": 0,
+    "mu": -0.0444,
+    "sigma": 0.3589
+  },
+  "DLTR": {
+    "name": "Dollar Tree",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge"
+    ],
+    "cap": 0,
+    "mu": 0.0849,
+    "sigma": 0.4036
+  },
+  "D": {
+    "name": "Dominion Energy",
+    "type": "action",
+    "sector": "Utilities",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.0438,
+    "sigma": 0.2277
+  },
+  "DPZ": {
+    "name": "Domino's",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": -0.0016,
+    "sigma": 0.2958
+  },
+  "DASH": {
+    "name": "DoorDash",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": 0.1693,
+    "sigma": 0.542
+  },
+  "DOV": {
+    "name": "Dover Corporation",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.1157,
+    "sigma": 0.2472
+  },
+  "DHI": {
+    "name": "D. R. Horton",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": 0.1654,
+    "sigma": 0.3524
+  },
+  "DTE": {
+    "name": "DTE Energy",
+    "type": "action",
+    "sector": "Utilities",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.0875,
+    "sigma": 0.1878
+  },
+  "DD": {
+    "name": "DuPont",
+    "type": "action",
+    "sector": "Matériaux",
+    "themes": [
+      "materiaux"
+    ],
+    "cap": 0,
+    "mu": 0.1189,
+    "sigma": 0.2987
+  },
+  "ETN": {
+    "name": "Eaton Corporation",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.2632,
+    "sigma": 0.2993
+  },
+  "EBAY": {
+    "name": "eBay Inc.",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": 0.1879,
+    "sigma": 0.3263
+  },
+  "SATS": {
+    "name": "EchoStar",
+    "type": "action",
+    "sector": "Télécom",
+    "themes": [
+      "media"
+    ],
+    "cap": 0,
+    "mu": 0.5183,
+    "sigma": 0.6891
+  },
+  "EIX": {
+    "name": "Edison International",
+    "type": "action",
+    "sector": "Utilities",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.1251,
+    "sigma": 0.254
+  },
+  "EW": {
+    "name": "Edwards Lifesciences",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": 0.0352,
+    "sigma": 0.3254
+  },
+  "EA": {
+    "name": "Electronic Arts",
+    "type": "action",
+    "sector": "Télécom",
+    "themes": [
+      "media"
+    ],
+    "cap": 0,
+    "mu": 0.1051,
+    "sigma": 0.2377
+  },
+  "EME": {
+    "name": "Emcor",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.4371,
+    "sigma": 0.332
+  },
+  "EMR": {
+    "name": "Emerson Electric",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.1336,
+    "sigma": 0.2717
+  },
+  "ETR": {
+    "name": "Entergy",
+    "type": "action",
+    "sector": "Utilities",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.2061,
+    "sigma": 0.2249
+  },
+  "EQT": {
+    "name": "EQT Corporation",
+    "type": "action",
+    "sector": "Énergie",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.2888,
+    "sigma": 0.4276
+  },
+  "EFX": {
+    "name": "Equifax",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": -0.0014,
+    "sigma": 0.3317
+  },
+  "EQR": {
+    "name": "Equity Residential",
+    "type": "action",
+    "sector": "Immobilier",
+    "themes": [
+      "immo"
+    ],
+    "cap": 0,
+    "mu": 0.0416,
+    "sigma": 0.2242
+  },
+  "ERIE": {
+    "name": "Erie Indemnity",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.09,
+    "sigma": 0.2929
+  },
+  "ESS": {
+    "name": "Essex Property Trust",
+    "type": "action",
+    "sector": "Immobilier",
+    "themes": [
+      "immo"
+    ],
+    "cap": 0,
+    "mu": 0.059,
+    "sigma": 0.2368
+  },
+  "EL": {
+    "name": "Estée Lauder Companies (The)",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge"
+    ],
+    "cap": 0,
+    "mu": -0.1456,
+    "sigma": 0.4316
+  },
+  "EG": {
+    "name": "Everest Group",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.1002,
+    "sigma": 0.258
+  },
+  "EVRG": {
+    "name": "Evergy",
+    "type": "action",
+    "sector": "Utilities",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.1143,
+    "sigma": 0.1891
+  },
+  "ES": {
+    "name": "Eversource Energy",
+    "type": "action",
+    "sector": "Utilities",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.0353,
+    "sigma": 0.2384
+  },
+  "EXC": {
+    "name": "Exelon",
+    "type": "action",
+    "sector": "Utilities",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.1227,
+    "sigma": 0.2062
+  },
+  "EXE": {
+    "name": "Expand Energy",
+    "type": "action",
+    "sector": "Énergie",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.2279,
+    "sigma": 0.3511
+  },
+  "EXPE": {
+    "name": "Expedia Group",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": 0.1643,
+    "sigma": 0.4561
+  },
+  "EXPD": {
+    "name": "Expeditors International",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.0995,
+    "sigma": 0.2671
+  },
+  "EXR": {
+    "name": "Extra Space Storage",
+    "type": "action",
+    "sector": "Immobilier",
+    "themes": [
+      "immo"
+    ],
+    "cap": 0,
+    "mu": 0.0764,
+    "sigma": 0.2813
+  },
+  "FFIV": {
+    "name": "F5, Inc.",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.1948,
+    "sigma": 0.2998
+  },
+  "FDS": {
+    "name": "FactSet",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": -0.001,
+    "sigma": 0.2758
+  },
+  "FICO": {
+    "name": "Fair Isaac",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.2447,
+    "sigma": 0.4053
+  },
+  "FAST": {
+    "name": "Fastenal",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.1671,
+    "sigma": 0.2421
+  },
+  "FRT": {
+    "name": "Federal Realty Investment Trust",
+    "type": "action",
+    "sector": "Immobilier",
+    "themes": [
+      "immo"
+    ],
+    "cap": 0,
+    "mu": 0.0849,
+    "sigma": 0.2332
+  },
+  "FDX": {
+    "name": "FedEx",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.1284,
+    "sigma": 0.3259
+  },
+  "FIS": {
+    "name": "Fidelity National Information Services",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": -0.179,
+    "sigma": 0.3331
+  },
+  "FITB": {
+    "name": "Fifth Third Bancorp",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.1314,
+    "sigma": 0.3184
+  },
+  "FSLR": {
+    "name": "First Solar",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.403,
+    "sigma": 0.5372
+  },
+  "FE": {
+    "name": "FirstEnergy",
+    "type": "action",
+    "sector": "Utilities",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.0998,
+    "sigma": 0.1936
+  },
+  "FISV": {
+    "name": "Fiserv",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": -0.078,
+    "sigma": 0.3549
+  },
+  "FTV": {
+    "name": "Fortive",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.0598,
+    "sigma": 0.2495
+  },
+  "FOXA": {
+    "name": "Fox Corporation (Class A)",
+    "type": "action",
+    "sector": "Télécom",
+    "themes": [
+      "media"
+    ],
+    "cap": 0,
+    "mu": 0.1648,
+    "sigma": 0.2693
+  },
+  "FOX": {
+    "name": "Fox Corporation (Class B)",
+    "type": "action",
+    "sector": "Télécom",
+    "themes": [
+      "media"
+    ],
+    "cap": 0,
+    "mu": 0.1482,
+    "sigma": 0.2628
+  },
+  "BEN": {
+    "name": "Franklin Resources",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.087,
+    "sigma": 0.3205
+  },
+  "GRMN": {
+    "name": "Garmin",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": 0.1713,
+    "sigma": 0.3027
+  },
+  "IT": {
+    "name": "Gartner",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": -0.0074,
+    "sigma": 0.3466
+  },
+  "GEHC": {
+    "name": "GE HealthCare",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": 0.0773,
+    "sigma": 0.3265
+  },
+  "GEV": {
+    "name": "GE Vernova",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 1.0434,
+    "sigma": 0.5276
+  },
+  "GEN": {
+    "name": "Gen Digital",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.0612,
+    "sigma": 0.3123
+  },
+  "GNRC": {
+    "name": "Generac",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.1016,
+    "sigma": 0.5193
+  },
+  "GD": {
+    "name": "General Dynamics",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.1622,
+    "sigma": 0.2033
+  },
+  "GIS": {
+    "name": "General Mills",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge"
+    ],
+    "cap": 0,
+    "mu": -0.0687,
+    "sigma": 0.2107
+  },
+  "GM": {
+    "name": "General Motors",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": 0.149,
+    "sigma": 0.366
+  },
+  "GPC": {
+    "name": "Genuine Parts Company",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": 0.0087,
+    "sigma": 0.2684
+  },
+  "GPN": {
+    "name": "Global Payments",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": -0.1393,
+    "sigma": 0.3639
+  },
+  "GL": {
+    "name": "Globe Life",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.1708,
+    "sigma": 0.3567
+  },
+  "GDDY": {
+    "name": "GoDaddy",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.0645,
+    "sigma": 0.3267
+  },
+  "HIG": {
+    "name": "Hartford (The)",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.1859,
+    "sigma": 0.2192
+  },
+  "HAS": {
+    "name": "Hasbro",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": 0.0711,
+    "sigma": 0.3276
+  },
+  "HCA": {
+    "name": "HCA Healthcare",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": 0.1712,
+    "sigma": 0.2975
+  },
+  "DOC": {
+    "name": "Healthpeak Properties",
+    "type": "action",
+    "sector": "Immobilier",
+    "themes": [
+      "immo"
+    ],
+    "cap": 0,
+    "mu": -0.0161,
+    "sigma": 0.2623
+  },
+  "HSIC": {
+    "name": "Henry Schein",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": 0.0318,
+    "sigma": 0.2539
+  },
+  "HSY": {
+    "name": "Hershey Company (The)",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge"
+    ],
+    "cap": 0,
+    "mu": 0.0616,
+    "sigma": 0.2257
+  },
+  "HPE": {
+    "name": "Hewlett Packard Enterprise",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.324,
+    "sigma": 0.3893
+  },
+  "HLT": {
+    "name": "Hilton Worldwide",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": 0.2428,
+    "sigma": 0.2702
+  },
+  "HRL": {
+    "name": "Hormel Foods",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge"
+    ],
+    "cap": 0,
+    "mu": -0.0849,
+    "sigma": 0.2401
+  },
+  "HST": {
+    "name": "Host Hotels & Resorts",
+    "type": "action",
+    "sector": "Immobilier",
+    "themes": [
+      "immo"
+    ],
+    "cap": 0,
+    "mu": 0.1597,
+    "sigma": 0.3032
+  },
+  "HWM": {
+    "name": "Howmet Aerospace",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.4529,
+    "sigma": 0.3197
+  },
+  "HPQ": {
+    "name": "HP Inc.",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.0534,
+    "sigma": 0.3591
+  },
+  "HUBB": {
+    "name": "Hubbell Incorporated",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.2435,
+    "sigma": 0.2908
+  },
+  "HUM": {
+    "name": "Humana",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": 0.0346,
+    "sigma": 0.3736
+  },
+  "HBAN": {
+    "name": "Huntington Bancshares",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.1051,
+    "sigma": 0.3146
+  },
+  "HII": {
+    "name": "Huntington Ingalls Industries",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.1337,
+    "sigma": 0.3103
+  },
+  "IEX": {
+    "name": "IDEX Corporation",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.0365,
+    "sigma": 0.2393
+  },
+  "IDXX": {
+    "name": "Idexx Laboratories",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": 0.0648,
+    "sigma": 0.3515
+  },
+  "ITW": {
+    "name": "Illinois Tool Works",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.0624,
+    "sigma": 0.2101
+  },
+  "INCY": {
+    "name": "Incyte",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": 0.085,
+    "sigma": 0.2931
+  },
+  "IR": {
+    "name": "Ingersoll Rand",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.121,
+    "sigma": 0.299
+  },
+  "PODD": {
+    "name": "Insulet Corporation",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": -0.0137,
+    "sigma": 0.4254
+  },
+  "IBKR": {
+    "name": "Interactive Brokers",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.3876,
+    "sigma": 0.3435
+  },
+  "IFF": {
+    "name": "International Flavors & Fragrances",
+    "type": "action",
+    "sector": "Matériaux",
+    "themes": [
+      "materiaux"
+    ],
+    "cap": 0,
+    "mu": -0.0549,
+    "sigma": 0.3158
+  },
+  "IP": {
+    "name": "International Paper",
+    "type": "action",
+    "sector": "Matériaux",
+    "themes": [
+      "materiaux"
+    ],
+    "cap": 0,
+    "mu": -0.0206,
+    "sigma": 0.3226
+  },
+  "IVZ": {
+    "name": "Invesco",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.1116,
+    "sigma": 0.3668
+  },
+  "INVH": {
+    "name": "Invitation Homes",
+    "type": "action",
+    "sector": "Immobilier",
+    "themes": [
+      "immo"
+    ],
+    "cap": 0,
+    "mu": 0.0214,
+    "sigma": 0.2314
+  },
+  "IQV": {
+    "name": "IQVIA",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": -0.0004,
+    "sigma": 0.3337
+  },
+  "IRM": {
+    "name": "Iron Mountain",
+    "type": "action",
+    "sector": "Immobilier",
+    "themes": [
+      "immo"
+    ],
+    "cap": 0,
+    "mu": 0.2932,
+    "sigma": 0.2959
+  },
+  "JBHT": {
+    "name": "J.B. Hunt",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.1615,
+    "sigma": 0.3195
+  },
+  "JBL": {
+    "name": "Jabil",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.4437,
+    "sigma": 0.3764
+  },
+  "JKHY": {
+    "name": "Jack Henry & Associates",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.0041,
+    "sigma": 0.2354
+  },
+  "J": {
+    "name": "Jacobs Solutions",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.0544,
+    "sigma": 0.2593
+  },
+  "JCI": {
+    "name": "Johnson Controls",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.2176,
+    "sigma": 0.2821
+  },
+  "KVUE": {
+    "name": "Kenvue",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge"
+    ],
+    "cap": 0,
+    "mu": -0.0553,
+    "sigma": 0.2869
+  },
+  "KDP": {
+    "name": "Keurig Dr Pepper",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge"
+    ],
+    "cap": 0,
+    "mu": 0.0105,
+    "sigma": 0.2106
+  },
+  "KEY": {
+    "name": "KeyCorp",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.1119,
+    "sigma": 0.3793
+  },
+  "KEYS": {
+    "name": "Keysight Technologies",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.2226,
+    "sigma": 0.3267
+  },
+  "KMB": {
+    "name": "Kimberly-Clark",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge"
+    ],
+    "cap": 0,
+    "mu": 0.0029,
+    "sigma": 0.201
+  },
+  "KIM": {
+    "name": "Kimco Realty",
+    "type": "action",
+    "sector": "Immobilier",
+    "themes": [
+      "immo"
+    ],
+    "cap": 0,
+    "mu": 0.1109,
+    "sigma": 0.2588
+  },
+  "KMI": {
+    "name": "Kinder Morgan",
+    "type": "action",
+    "sector": "Énergie",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.1843,
+    "sigma": 0.2252
+  },
+  "KKR": {
+    "name": "KKR & Co.",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.1895,
+    "sigma": 0.391
+  },
+  "KLAC": {
+    "name": "KLA Corporation",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.4634,
+    "sigma": 0.4314
+  },
+  "KHC": {
+    "name": "Kraft Heinz",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge"
+    ],
+    "cap": 0,
+    "mu": -0.0591,
+    "sigma": 0.2229
+  },
+  "KR": {
+    "name": "Kroger",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge"
+    ],
+    "cap": 0,
+    "mu": 0.1669,
+    "sigma": 0.2678
+  },
+  "LH": {
+    "name": "Labcorp",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": 0.0631,
+    "sigma": 0.2333
+  },
+  "LRCX": {
+    "name": "Lam Research",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.4284,
+    "sigma": 0.4601
+  },
+  "LVS": {
+    "name": "Las Vegas Sands",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": 0.0664,
+    "sigma": 0.4072
+  },
+  "LDOS": {
+    "name": "Leidos",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.0866,
+    "sigma": 0.2663
+  },
+  "LEN": {
+    "name": "Lennar",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": 0.071,
+    "sigma": 0.3439
+  },
+  "LII": {
+    "name": "Lennox International",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.1417,
+    "sigma": 0.3193
+  },
+  "LYV": {
+    "name": "Live Nation Entertainment",
+    "type": "action",
+    "sector": "Télécom",
+    "themes": [
+      "media"
+    ],
+    "cap": 0,
+    "mu": 0.1724,
+    "sigma": 0.3506
+  },
+  "L": {
+    "name": "Loews Corporation",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.1441,
+    "sigma": 0.1959
+  },
+  "LITE": {
+    "name": "Lumentum",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.652,
+    "sigma": 0.5956
+  },
+  "LYB": {
+    "name": "LyondellBasell",
+    "type": "action",
+    "sector": "Matériaux",
+    "themes": [
+      "materiaux"
+    ],
+    "cap": 0,
+    "mu": 0.0151,
+    "sigma": 0.3281
+  },
+  "MTB": {
+    "name": "M&T Bank",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.1429,
+    "sigma": 0.3033
+  },
+  "MAR": {
+    "name": "Marriott International",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": 0.2522,
+    "sigma": 0.2877
+  },
+  "MRSH": {
+    "name": "Marsh McLennan",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.0739,
+    "sigma": 0.201
+  },
+  "MLM": {
+    "name": "Martin Marietta Materials",
+    "type": "action",
+    "sector": "Matériaux",
+    "themes": [
+      "materiaux"
+    ],
+    "cap": 0,
+    "mu": 0.1316,
+    "sigma": 0.2649
+  },
+  "MAS": {
+    "name": "Masco",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.0903,
+    "sigma": 0.2981
+  },
+  "MKC": {
+    "name": "McCormick & Company",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge"
+    ],
+    "cap": 0,
+    "mu": -0.0788,
+    "sigma": 0.2422
+  },
+  "MCK": {
+    "name": "McKesson Corporation",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": 0.3056,
+    "sigma": 0.2414
+  },
+  "MET": {
+    "name": "MetLife",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.1147,
+    "sigma": 0.2568
+  },
+  "MTD": {
+    "name": "Mettler Toledo",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": 0.0307,
+    "sigma": 0.3205
+  },
+  "MGM": {
+    "name": "MGM Resorts",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": 0.1068,
+    "sigma": 0.4034
+  },
+  "MCHP": {
+    "name": "Microchip Technology",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.1439,
+    "sigma": 0.4391
+  },
+  "MU": {
+    "name": "Micron Technology",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.6103,
+    "sigma": 0.526
+  },
+  "MAA": {
+    "name": "Mid-America Apartment Communities",
+    "type": "action",
+    "sector": "Immobilier",
+    "themes": [
+      "immo"
+    ],
+    "cap": 0,
+    "mu": 0.0314,
+    "sigma": 0.2213
+  },
+  "TAP": {
+    "name": "Molson Coors Beverage Company",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge"
+    ],
+    "cap": 0,
+    "mu": -0.013,
+    "sigma": 0.2559
+  },
+  "MPWR": {
+    "name": "Monolithic Power Systems",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.4478,
+    "sigma": 0.5319
+  },
+  "MNST": {
+    "name": "Monster Beverage",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge"
+    ],
+    "cap": 0,
+    "mu": 0.1601,
+    "sigma": 0.2451
+  },
+  "MCO": {
+    "name": "Moody's Corporation",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.1042,
+    "sigma": 0.2622
+  },
+  "MOS": {
+    "name": "Mosaic Company (The)",
+    "type": "action",
+    "sector": "Matériaux",
+    "themes": [
+      "materiaux"
+    ],
+    "cap": 0,
+    "mu": 0.0172,
+    "sigma": 0.4165
+  },
+  "MSI": {
+    "name": "Motorola Solutions",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.1789,
+    "sigma": 0.23
+  },
+  "MSCI": {
+    "name": "MSCI Inc.",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.115,
+    "sigma": 0.3062
+  },
+  "NDAQ": {
+    "name": "Nasdaq, Inc.",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.1345,
+    "sigma": 0.239
+  },
+  "NTAP": {
+    "name": "NetApp",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.2288,
+    "sigma": 0.3379
+  },
+  "NWSA": {
+    "name": "News Corp (Class A)",
+    "type": "action",
+    "sector": "Télécom",
+    "themes": [
+      "media"
+    ],
+    "cap": 0,
+    "mu": 0.0491,
+    "sigma": 0.2716
+  },
+  "NWS": {
+    "name": "News Corp (Class B)",
+    "type": "action",
+    "sector": "Télécom",
+    "themes": [
+      "media"
+    ],
+    "cap": 0,
+    "mu": 0.0865,
+    "sigma": 0.2766
+  },
+  "NI": {
+    "name": "NiSource",
+    "type": "action",
+    "sector": "Utilities",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.1726,
+    "sigma": 0.1997
+  },
+  "NDSN": {
+    "name": "Nordson Corporation",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.1086,
+    "sigma": 0.2483
+  },
+  "NSC": {
+    "name": "Norfolk Southern",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.0742,
+    "sigma": 0.2498
+  },
+  "NTRS": {
+    "name": "Northern Trust",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.1434,
+    "sigma": 0.2947
+  },
+  "NCLH": {
+    "name": "Norwegian Cruise Line Holdings",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": 0.0713,
+    "sigma": 0.5749
+  },
+  "NRG": {
+    "name": "NRG Energy",
+    "type": "action",
+    "sector": "Utilities",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.3739,
+    "sigma": 0.3988
+  },
+  "NVR": {
+    "name": "NVR, Inc.",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": 0.0945,
+    "sigma": 0.275
+  },
+  "NXPI": {
+    "name": "NXP Semiconductors",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.1752,
+    "sigma": 0.4118
+  },
+  "ORLY": {
+    "name": "O’Reilly Automotive",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": 0.2102,
+    "sigma": 0.2256
+  },
+  "OXY": {
+    "name": "Occidental Petroleum",
+    "type": "action",
+    "sector": "Énergie",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.2517,
+    "sigma": 0.3973
+  },
+  "ODFL": {
+    "name": "Old Dominion",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.1916,
+    "sigma": 0.3622
+  },
+  "OMC": {
+    "name": "Omnicom Group",
+    "type": "action",
+    "sector": "Télécom",
+    "themes": [
+      "media"
+    ],
+    "cap": 0,
+    "mu": 0.0561,
+    "sigma": 0.2865
+  },
+  "ON": {
+    "name": "ON Semiconductor",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.3582,
+    "sigma": 0.5304
+  },
+  "OKE": {
+    "name": "Oneok",
+    "type": "action",
+    "sector": "Énergie",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.1928,
+    "sigma": 0.2825
+  },
+  "OTIS": {
+    "name": "Otis Worldwide",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.0194,
+    "sigma": 0.22
+  },
+  "PCAR": {
+    "name": "Paccar",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.1984,
+    "sigma": 0.2566
+  },
+  "PKG": {
+    "name": "Packaging Corporation of America",
+    "type": "action",
+    "sector": "Matériaux",
+    "themes": [
+      "materiaux"
+    ],
+    "cap": 0,
+    "mu": 0.1384,
+    "sigma": 0.2528
+  },
+  "PSKY": {
+    "name": "Paramount Skydance Corporation",
+    "type": "action",
+    "sector": "Télécom",
+    "themes": [
+      "media"
+    ],
+    "cap": 0,
+    "mu": -0.11,
+    "sigma": 0.5436
+  },
+  "PH": {
+    "name": "Parker Hannifin",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.2647,
+    "sigma": 0.2852
+  },
+  "PAYX": {
+    "name": "Paychex",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.0554,
+    "sigma": 0.2365
+  },
+  "PNR": {
+    "name": "Pentair",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.0686,
+    "sigma": 0.2876
+  },
+  "PEP": {
+    "name": "PepsiCo",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge"
+    ],
+    "cap": 0,
+    "mu": 0.0417,
+    "sigma": 0.1832
+  },
+  "PCG": {
+    "name": "PG&E Corporation",
+    "type": "action",
+    "sector": "Utilities",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.1381,
+    "sigma": 0.2802
+  },
+  "PM": {
+    "name": "Philip Morris International",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge"
+    ],
+    "cap": 0,
+    "mu": 0.192,
+    "sigma": 0.2263
+  },
+  "PSX": {
+    "name": "Phillips 66",
+    "type": "action",
+    "sector": "Énergie",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.2448,
+    "sigma": 0.3318
+  },
+  "PNW": {
+    "name": "Pinnacle West Capital",
+    "type": "action",
+    "sector": "Utilities",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.0995,
+    "sigma": 0.2036
+  },
+  "PNC": {
+    "name": "PNC Financial Services",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.1055,
+    "sigma": 0.2705
+  },
+  "POOL": {
+    "name": "Pool Corporation",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": -0.0972,
+    "sigma": 0.3375
+  },
+  "PPG": {
+    "name": "PPG Industries",
+    "type": "action",
+    "sector": "Matériaux",
+    "themes": [
+      "materiaux"
+    ],
+    "cap": 0,
+    "mu": -0.0326,
+    "sigma": 0.2746
+  },
+  "PPL": {
+    "name": "PPL Corporation",
+    "type": "action",
+    "sector": "Utilities",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.093,
+    "sigma": 0.1868
+  },
+  "PFG": {
+    "name": "Principal Financial Group",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.1665,
+    "sigma": 0.2657
+  },
+  "PGR": {
+    "name": "Progressive Corporation",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.1999,
+    "sigma": 0.2452
+  },
+  "PRU": {
+    "name": "Prudential Financial",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.0786,
+    "sigma": 0.2576
+  },
+  "PEG": {
+    "name": "Public Service Enterprise Group",
+    "type": "action",
+    "sector": "Utilities",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.0989,
+    "sigma": 0.2037
+  },
+  "PTC": {
+    "name": "PTC Inc.",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.0512,
+    "sigma": 0.3014
+  },
+  "PHM": {
+    "name": "PulteGroup",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": 0.2182,
+    "sigma": 0.3452
+  },
+  "PWR": {
+    "name": "Quanta Services",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.4672,
+    "sigma": 0.3554
+  },
+  "DGX": {
+    "name": "Quest Diagnostics",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": 0.1285,
+    "sigma": 0.2174
+  },
+  "Q": {
+    "name": "Qnity Electronics",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.8196,
+    "sigma": 0.5551
+  },
+  "RL": {
+    "name": "Ralph Lauren Corporation",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": 0.3119,
+    "sigma": 0.3687
+  },
+  "RJF": {
+    "name": "Raymond James Financial",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.1579,
+    "sigma": 0.2797
+  },
+  "REG": {
+    "name": "Regency Centers",
+    "type": "action",
+    "sector": "Immobilier",
+    "themes": [
+      "immo"
+    ],
+    "cap": 0,
+    "mu": 0.1045,
+    "sigma": 0.2237
+  },
+  "RF": {
+    "name": "Regions Financial Corporation",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.1362,
+    "sigma": 0.3151
+  },
+  "RSG": {
+    "name": "Republic Services",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.1591,
+    "sigma": 0.1802
+  },
+  "RMD": {
+    "name": "ResMed",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": 0.0469,
+    "sigma": 0.31
+  },
+  "RVTY": {
+    "name": "Revvity",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": -0.0169,
+    "sigma": 0.3388
+  },
+  "HOOD": {
+    "name": "Robinhood Markets",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.4453,
+    "sigma": 0.7402
+  },
+  "ROK": {
+    "name": "Rockwell Automation",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.1732,
+    "sigma": 0.3162
+  },
+  "ROL": {
+    "name": "Rollins, Inc.",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.1059,
+    "sigma": 0.2452
+  },
+  "ROP": {
+    "name": "Roper Technologies",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": -0.0291,
+    "sigma": 0.2133
+  },
+  "ROST": {
+    "name": "Ross Stores",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": 0.1795,
+    "sigma": 0.2948
+  },
+  "RCL": {
+    "name": "Royal Caribbean Group",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": 0.3572,
+    "sigma": 0.4828
+  },
+  "SNDK": {
+    "name": "Sandisk",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 3.3995,
+    "sigma": 0.9959
+  },
+  "SBAC": {
+    "name": "SBA Communications",
+    "type": "action",
+    "sector": "Immobilier",
+    "themes": [
+      "immo"
+    ],
+    "cap": 0,
+    "mu": -0.0128,
+    "sigma": 0.2919
+  },
+  "STX": {
+    "name": "Seagate Technology",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.5582,
+    "sigma": 0.4454
+  },
+  "SRE": {
+    "name": "Sempra",
+    "type": "action",
+    "sector": "Utilities",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.1144,
+    "sigma": 0.2277
+  },
+  "SHW": {
+    "name": "Sherwin-Williams",
+    "type": "action",
+    "sector": "Matériaux",
+    "themes": [
+      "materiaux"
+    ],
+    "cap": 0,
+    "mu": 0.0566,
+    "sigma": 0.2604
+  },
+  "SPG": {
+    "name": "Simon Property Group",
+    "type": "action",
+    "sector": "Immobilier",
+    "themes": [
+      "immo"
+    ],
+    "cap": 0,
+    "mu": 0.1926,
+    "sigma": 0.2651
+  },
+  "SWKS": {
+    "name": "Skyworks Solutions",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": -0.0541,
+    "sigma": 0.4045
+  },
+  "SJM": {
+    "name": "J.M. Smucker Company (The)",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge"
+    ],
+    "cap": 0,
+    "mu": 0.0089,
+    "sigma": 0.2374
+  },
+  "SW": {
+    "name": "Smurfit Westrock",
+    "type": "action",
+    "sector": "Matériaux",
+    "themes": [
+      "materiaux"
+    ],
+    "cap": 0,
+    "mu": 0.0991,
+    "sigma": 0.4613
+  },
+  "SNA": {
+    "name": "Snap-on",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.1352,
+    "sigma": 0.2382
+  },
+  "SOLV": {
+    "name": "Solventum",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": 0.0566,
+    "sigma": 0.3192
+  },
+  "LUV": {
+    "name": "Southwest Airlines",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.0122,
+    "sigma": 0.381
+  },
+  "SWK": {
+    "name": "Stanley Black & Decker",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": -0.0932,
+    "sigma": 0.3741
+  },
+  "STT": {
+    "name": "State Street Corporation",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.2032,
+    "sigma": 0.3035
+  },
+  "STLD": {
+    "name": "Steel Dynamics",
+    "type": "action",
+    "sector": "Matériaux",
+    "themes": [
+      "materiaux"
+    ],
+    "cap": 0,
+    "mu": 0.3796,
+    "sigma": 0.3798
+  },
+  "STE": {
+    "name": "Steris",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": 0.0641,
+    "sigma": 0.2572
+  },
+  "SMCI": {
+    "name": "Supermicro",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.8474,
+    "sigma": 0.851
+  },
+  "SYF": {
+    "name": "Synchrony Financial",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.1736,
+    "sigma": 0.3665
+  },
+  "SNPS": {
+    "name": "Synopsys",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.2116,
+    "sigma": 0.4069
+  },
+  "SYY": {
+    "name": "Sysco",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge"
+    ],
+    "cap": 0,
+    "mu": 0.0446,
+    "sigma": 0.239
+  },
+  "TROW": {
+    "name": "T. Rowe Price",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": -0.0228,
+    "sigma": 0.3038
+  },
+  "TPR": {
+    "name": "Tapestry, Inc.",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": 0.3404,
+    "sigma": 0.4018
+  },
+  "TRGP": {
+    "name": "Targa Resources",
+    "type": "action",
+    "sector": "Énergie",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.4568,
+    "sigma": 0.324
+  },
+  "TGT": {
+    "name": "Target Corporation",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge"
+    ],
+    "cap": 0,
+    "mu": -0.0272,
+    "sigma": 0.3531
+  },
+  "TEL": {
+    "name": "TE Connectivity",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.1456,
+    "sigma": 0.2788
+  },
+  "TDY": {
+    "name": "Teledyne Technologies",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.1058,
+    "sigma": 0.2424
+  },
+  "TER": {
+    "name": "Teradyne",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.3338,
+    "sigma": 0.4973
+  },
+  "TPL": {
+    "name": "Texas Pacific Land Corporation",
+    "type": "action",
+    "sector": "Énergie",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.2867,
+    "sigma": 0.4609
+  },
+  "TXT": {
+    "name": "Textron",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.0987,
+    "sigma": 0.2743
+  },
+  "TMO": {
+    "name": "Thermo Fisher Scientific",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": 0.0438,
+    "sigma": 0.2715
+  },
+  "TKO": {
+    "name": "TKO Group Holdings",
+    "type": "action",
+    "sector": "Télécom",
+    "themes": [
+      "media"
+    ],
+    "cap": 0,
+    "mu": 0.3176,
+    "sigma": 0.3261
+  },
+  "TTD": {
+    "name": "Trade Desk (The)",
+    "type": "action",
+    "sector": "Télécom",
+    "themes": [
+      "media"
+    ],
+    "cap": 0,
+    "mu": 0.0233,
+    "sigma": 0.6714
+  },
+  "TSCO": {
+    "name": "Tractor Supply",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": 0.0196,
+    "sigma": 0.2877
+  },
+  "TT": {
+    "name": "Trane Technologies",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.2332,
+    "sigma": 0.2719
+  },
+  "TDG": {
+    "name": "TransDigm Group",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.2154,
+    "sigma": 0.2777
+  },
+  "TRV": {
+    "name": "Travelers Companies (The)",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.1725,
+    "sigma": 0.2179
+  },
+  "TRMB": {
+    "name": "Trimble Inc.",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": -0.019,
+    "sigma": 0.3269
+  },
+  "TFC": {
+    "name": "Truist Financial",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.0551,
+    "sigma": 0.3182
+  },
+  "TYL": {
+    "name": "Tyler Technologies",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": -0.0013,
+    "sigma": 0.3157
+  },
+  "TSN": {
+    "name": "Tyson Foods",
+    "type": "action",
+    "sector": "Conso. déf.",
+    "themes": [
+      "conso",
+      "refuge"
+    ],
+    "cap": 0,
+    "mu": 0.0,
+    "sigma": 0.2474
+  },
+  "USB": {
+    "name": "U.S. Bancorp",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.0713,
+    "sigma": 0.2972
+  },
+  "UDR": {
+    "name": "UDR, Inc.",
+    "type": "action",
+    "sector": "Immobilier",
+    "themes": [
+      "immo"
+    ],
+    "cap": 0,
+    "mu": 0.0295,
+    "sigma": 0.2297
+  },
+  "ULTA": {
+    "name": "Ulta Beauty",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": 0.1368,
+    "sigma": 0.3427
+  },
+  "UNP": {
+    "name": "Union Pacific Corporation",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.0884,
+    "sigma": 0.2271
+  },
+  "UAL": {
+    "name": "United Airlines Holdings",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.2425,
+    "sigma": 0.4845
+  },
+  "URI": {
+    "name": "United Rentals",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.3187,
+    "sigma": 0.3887
+  },
+  "UHS": {
+    "name": "Universal Health Services",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": 0.0376,
+    "sigma": 0.3169
+  },
+  "VEEV": {
+    "name": "Veeva Systems",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": -0.0116,
+    "sigma": 0.3812
+  },
+  "VTR": {
+    "name": "Ventas",
+    "type": "action",
+    "sector": "Immobilier",
+    "themes": [
+      "immo"
+    ],
+    "cap": 0,
+    "mu": 0.1438,
+    "sigma": 0.2491
+  },
+  "VLTO": {
+    "name": "Veralto",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.0678,
+    "sigma": 0.2268
+  },
+  "VRSN": {
+    "name": "Verisign",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.0888,
+    "sigma": 0.2498
+  },
+  "VRSK": {
+    "name": "Verisk Analytics",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.0446,
+    "sigma": 0.2423
+  },
+  "VRT": {
+    "name": "Vertiv",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.6966,
+    "sigma": 0.6157
+  },
+  "VTRS": {
+    "name": "Viatris",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": 0.105,
+    "sigma": 0.3329
+  },
+  "VICI": {
+    "name": "Vici Properties",
+    "type": "action",
+    "sector": "Immobilier",
+    "themes": [
+      "immo"
+    ],
+    "cap": 0,
+    "mu": 0.051,
+    "sigma": 0.2095
+  },
+  "VST": {
+    "name": "Vistra Corp.",
+    "type": "action",
+    "sector": "Utilities",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.5723,
+    "sigma": 0.4776
+  },
+  "VMC": {
+    "name": "Vulcan Materials Company",
+    "type": "action",
+    "sector": "Matériaux",
+    "themes": [
+      "materiaux"
+    ],
+    "cap": 0,
+    "mu": 0.1261,
+    "sigma": 0.2598
+  },
+  "WRB": {
+    "name": "W. R. Berkley Corporation",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.1851,
+    "sigma": 0.2275
+  },
+  "GWW": {
+    "name": "W. W. Grainger",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.2475,
+    "sigma": 0.2458
+  },
+  "WAB": {
+    "name": "Wabtec",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.2718,
+    "sigma": 0.2575
+  },
+  "WBD": {
+    "name": "Warner Bros. Discovery",
+    "type": "action",
+    "sector": "Télécom",
+    "themes": [
+      "media"
+    ],
+    "cap": 0,
+    "mu": 0.1024,
+    "sigma": 0.5267
+  },
+  "WM": {
+    "name": "Waste Management",
+    "type": "action",
+    "sector": "Industrie",
+    "themes": [
+      "industrie"
+    ],
+    "cap": 0,
+    "mu": 0.1224,
+    "sigma": 0.1847
+  },
+  "WAT": {
+    "name": "Waters Corporation",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": 0.0839,
+    "sigma": 0.3346
+  },
+  "WEC": {
+    "name": "WEC Energy Group",
+    "type": "action",
+    "sector": "Utilities",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.0855,
+    "sigma": 0.1897
+  },
+  "WELL": {
+    "name": "Welltower",
+    "type": "action",
+    "sector": "Immobilier",
+    "themes": [
+      "immo"
+    ],
+    "cap": 0,
+    "mu": 0.2559,
+    "sigma": 0.2368
+  },
+  "WST": {
+    "name": "West Pharmaceutical Services",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": 0.0737,
+    "sigma": 0.4043
+  },
+  "WDC": {
+    "name": "Western Digital",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": 0.5596,
+    "sigma": 0.4844
+  },
+  "WY": {
+    "name": "Weyerhaeuser",
+    "type": "action",
+    "sector": "Immobilier",
+    "themes": [
+      "immo"
+    ],
+    "cap": 0,
+    "mu": -0.0064,
+    "sigma": 0.2618
+  },
+  "WSM": {
+    "name": "Williams-Sonoma, Inc.",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": 0.2984,
+    "sigma": 0.4456
+  },
+  "WMB": {
+    "name": "Williams Companies",
+    "type": "action",
+    "sector": "Énergie",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.2743,
+    "sigma": 0.2359
+  },
+  "WTW": {
+    "name": "Willis Towers Watson",
+    "type": "action",
+    "sector": "Finance",
+    "themes": [
+      "finance"
+    ],
+    "cap": 0,
+    "mu": 0.0426,
+    "sigma": 0.2392
+  },
+  "WDAY": {
+    "name": "Workday, Inc.",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": -0.0213,
+    "sigma": 0.3884
+  },
+  "WYNN": {
+    "name": "Wynn Resorts",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": 0.0498,
+    "sigma": 0.4156
+  },
+  "XEL": {
+    "name": "Xcel Energy",
+    "type": "action",
+    "sector": "Utilities",
+    "themes": [
+      "energie"
+    ],
+    "cap": 0,
+    "mu": 0.0727,
+    "sigma": 0.2075
+  },
+  "YUM": {
+    "name": "Yum! Brands",
+    "type": "action",
+    "sector": "Conso.",
+    "themes": [
+      "conso"
+    ],
+    "cap": 0,
+    "mu": 0.0849,
+    "sigma": 0.2033
+  },
+  "ZBRA": {
+    "name": "Zebra Technologies",
+    "type": "action",
+    "sector": "Tech",
+    "themes": [
+      "tech"
+    ],
+    "cap": 0,
+    "mu": -0.0719,
+    "sigma": 0.402
+  },
+  "ZBH": {
+    "name": "Zimmer Biomet",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": -0.0801,
+    "sigma": 0.2659
+  },
+  "ZTS": {
+    "name": "Zoetis",
+    "type": "action",
+    "sector": "Santé",
+    "themes": [
+      "sante"
+    ],
+    "cap": 0,
+    "mu": -0.1068,
+    "sigma": 0.2864
+  }
+}

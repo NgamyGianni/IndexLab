@@ -9,7 +9,7 @@ jobs:
   update-prices:
     runs-on: ubuntu-latest
     permissions:
-      contents: write          # needed to push the updated prices.json
+      contents: write
 
     steps:
       - name: Checkout repo
@@ -21,17 +21,25 @@ jobs:
           python-version: '3.12'
           cache: 'pip'
 
+      - name: Restore SQLite cache
+        uses: actions/cache@v4
+        with:
+          path: scripts/prices.db
+          key: prices-db-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: |
+            prices-db-${{ runner.os }}-
+
       - name: Install dependencies
         run: pip install -r scripts/requirements.txt
 
-      - name: Fetch prices from Yahoo Finance
+      - name: Fetch prices and compute asset params
         run: python scripts/fetch_prices.py
 
-      - name: Commit and push prices.json
+      - name: Commit and push updated files
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add public/prices.json
-          git diff --staged --quiet && echo "No changes – prices already up to date." && exit 0
+          git add public/prices.json public/asset_params.json
+          git diff --staged --quiet && echo "No changes – already up to date." && exit 0
           git commit -m "chore: update prices $(date -u +%Y-%m-%d)"
           git push
