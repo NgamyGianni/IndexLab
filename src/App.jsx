@@ -1,7 +1,10 @@
-import { useState, useMemo, useEffect, useCallback, useRef } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef, lazy, Suspense } from "react";
 import domtoimage from 'dom-to-image-more';
 import { XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, Area, AreaChart, Line, ComposedChart, LineChart, Legend } from "recharts";
 import { I18N } from "./i18n.js";
+import { getTheme, buildCss } from "./theme.js";
+import { Reveal, useCountUp, useReducedMotion, CountNum } from "./motion.jsx";
+const Hero3D = lazy(() => import("./Hero3D.jsx"));
 
 let _priceData = null; // module-level cache for real price data
 
@@ -557,7 +560,7 @@ const TableMetricLabel = ({label, info, T})=>{
           onMouseLeave={()=>setRect(null)}
           onClick={e=>{e.stopPropagation();setRect(r=>r?null:e.currentTarget.getBoundingClientRect());}}
           className="capture-hide"
-          style={{width:13,height:13,borderRadius:"50%",border:`1px solid ${T.b2}`,background:T.bg2,color:T.t4,fontSize:7,cursor:"pointer",display:"inline-flex",alignItems:"center",justifyContent:"center",fontFamily:"serif",fontWeight:700,flexShrink:0,lineHeight:1,padding:0}}
+          style={{width:13,height:13,borderRadius:"50%",border:`1px solid ${T.b2}`,background:T.bg2,color:T.t4,fontSize:7,cursor:"pointer",display:"inline-flex",alignItems:"center",justifyContent:"center",fontWeight:700,flexShrink:0,lineHeight:1,padding:0}}
         >?</button>
       )}
       {rect&&info&&(
@@ -585,7 +588,7 @@ const MetricRow = ({label,val,color,highlight,info,T})=>{
               onMouseLeave={()=>setRect(null)}
               onClick={e=>{e.stopPropagation();setRect(r=>r?null:e.currentTarget.getBoundingClientRect());}}
               className="capture-hide"
-              style={{width:14,height:14,borderRadius:"50%",border:`1px solid ${T.b3}`,background:T.bg2,color:T.t4,fontSize:8,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"serif",fontWeight:700,flexShrink:0,lineHeight:1}}
+              style={{width:14,height:14,borderRadius:"50%",border:`1px solid ${T.b3}`,background:T.bg2,color:T.t4,fontSize:8,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,flexShrink:0,lineHeight:1}}
             >?</button>
           )}
         </div>
@@ -619,7 +622,7 @@ const InfoBubble = ({info,T})=>{
         onMouseLeave={()=>setRect(null)}
         onClick={e=>{e.stopPropagation();setRect(r=>r?null:e.currentTarget.getBoundingClientRect());}}
         className="capture-hide"
-        style={{width:13,height:13,borderRadius:"50%",border:`1px solid ${T.b2}`,background:T.bg2,color:T.t4,fontSize:7,cursor:"pointer",display:"inline-flex",alignItems:"center",justifyContent:"center",fontFamily:"serif",fontWeight:700,flexShrink:0,lineHeight:1,padding:0}}
+        style={{width:13,height:13,borderRadius:"50%",border:`1px solid ${T.b2}`,background:T.bg2,color:T.t4,fontSize:7,cursor:"pointer",display:"inline-flex",alignItems:"center",justifyContent:"center",fontWeight:700,flexShrink:0,lineHeight:1,padding:0}}
       >?</button>
       {rect&&(
         <div style={{position:"fixed",...tipPos(rect),zIndex:9999,width:TIP_W,background:T.bg1||T.bg,border:`1px solid ${T.b2}`,borderRadius:8,padding:"10px 13px",boxShadow:"0 8px 32px #000c",pointerEvents:"none",textTransform:"none",letterSpacing:"normal"}}>
@@ -1081,17 +1084,8 @@ export default function App(){
   },[]);
 
   // ── Theme object ──────────────────────────────────────────────────────────
-  const T = darkMode ? {
-    bg:"#09090b", bg1:"#0f0f11", bg2:"#111113",
-    b1:"#1c1c1f", b2:"#27272a", b3:"#3f3f46",
-    t1:"#fafafa", t2:"#a1a1aa", t3:"#71717a", t4:"#52525b", t5:"#3f3f46", t6:"#27272a",
-    b1_20:"#1c1c1f20", b2_20:"#27272a20", b2_44:"#27272a44",
-  } : {
-    bg:"#fafafa", bg1:"#f4f4f5", bg2:"#ffffff",
-    b1:"#e4e4e7", b2:"#d4d4d8", b3:"#a1a1aa",
-    t1:"#09090b", t2:"#27272a", t3:"#52525b", t4:"#71717a", t5:"#a1a1aa", t6:"#d4d4d8",
-    b1_20:"#e4e4e720", b2_20:"#d4d4d820", b2_44:"#d4d4d844",
-  };
+  const T = getTheme(darkMode);
+  const reducedMotion = useReducedMotion();
 
   const L = I18N[lang] || I18N.fr;
   const t = (key) => L[key] ?? I18N.fr[key] ?? key;
@@ -1431,92 +1425,7 @@ export default function App(){
   },[chartData]);
 
   // ── CSS ──
-  const css=`
-    *{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',-apple-system,sans-serif;}
-    ::-webkit-scrollbar{width:3px;} ::-webkit-scrollbar-thumb{background:${T.b2};}
-    body{background:${T.bg};}
-    .chip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:6px;border:1px solid ${T.b2};background:transparent;color:${T.t3};cursor:pointer;font-size:11px;transition:all .12s;white-space:nowrap;}
-    .chip:hover{border-color:${T.t1};color:${T.t1};}
-    .chip.used{opacity:.2;pointer-events:none;}
-    .pill{padding:5px 12px;border-radius:6px;border:1px solid ${T.b2};background:transparent;color:${T.t4};cursor:pointer;font-size:12px;font-weight:500;transition:all .12s;}
-    .pill.active{background:${T.t1};color:${T.bg};border-color:${T.t1};font-weight:600;}
-    .pill:hover:not(.active){border-color:${T.t2};color:${T.t2};}
-    .w-in{width:62px;background:${T.bg};border:1px solid ${T.b2};color:${T.t1};border-radius:5px;padding:3px 6px;font-size:12px;text-align:right;outline:none;}
-    .w-in:focus{border-color:${T.t1};}
-    .run{width:100%;padding:13px;border:none;border-radius:8px;background:${T.t1};color:${T.bg};font-weight:600;font-size:14px;cursor:pointer;transition:opacity .15s;letter-spacing:-.1px;}
-    .run:hover{opacity:.85;} .run:disabled{opacity:.25;cursor:not-allowed;}
-    .card{background:transparent;border:none;border-radius:0;padding:0 0 16px;}
-    .arow{background:${T.bg2};border:1px solid ${T.b1};border-radius:7px;padding:8px 10px;display:flex;align-items:center;gap:8px;margin-bottom:5px;transition:border-color .12s;}
-    .arow:hover{border-color:${T.b2};}
-    .tag{font-size:9px;padding:2px 6px;border-radius:4px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;}
-    .mode-btn{flex:1;padding:8px 4px;border-radius:7px;border:1px solid ${T.b1};background:transparent;color:${T.t4};cursor:pointer;font-size:10px;transition:all .15s;text-align:center;line-height:1.5;}
-    .mode-btn.active{border-color:${T.t1};background:${T.t1};color:${T.bg};}
-    .mode-btn:hover:not(.active){border-color:${T.b2};color:${T.t2};}
-    .tab-btn{padding:9px 16px;border:none;background:transparent;color:${T.t4};cursor:pointer;font-size:12px;font-weight:500;transition:all .12s;border-bottom:2px solid transparent;white-space:nowrap;}
-    .tab-btn.active{color:${T.t1};border-bottom-color:${T.t1};font-weight:600;}
-    .tab-btn:hover:not(.active){color:${T.t2};}
-    .save-btn{padding:6px 14px;border-radius:6px;border:1px solid ${T.b2};background:transparent;color:${T.t2};cursor:pointer;font-size:11px;font-weight:500;transition:all .12s;white-space:nowrap;}
-    .save-btn:hover{border-color:${T.t1};color:${T.t1};}
-    .save-btn:disabled{opacity:.3;cursor:not-allowed;}
-    .del-btn{background:none;border:none;color:${T.b2};cursor:pointer;font-size:14px;padding:0 4px;transition:color .12s;}
-    .del-btn:hover{color:#ef4444;}
-    .modal-bg{position:fixed;inset:0;background:#000c;z-index:60;display:flex;align-items:center;justify-content:center;padding:16px;}
-    .modal{background:${T.bg2};border:1px solid ${T.b2};border-radius:12px;padding:24px;width:100%;max-width:380px;}
-    .drawer-overlay{position:fixed;inset:0;background:#000a;z-index:40;}
-    .drawer{position:fixed;bottom:0;left:0;right:0;background:${T.bg2};border-top:1px solid ${T.b2};border-radius:16px 16px 0 0;z-index:50;max-height:85vh;overflow-y:auto;padding:16px;}
-    .notif{position:fixed;top:16px;right:16px;z-index:100;padding:10px 16px;border-radius:8px;font-family:'Inter',sans-serif;font-size:11px;animation:fadeIn .2s ease;}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
-    .metric-section{margin-bottom:0;}
-    .metric-group-title{font-size:8px;color:${T.t6};letter-spacing:3px;text-transform:uppercase;padding:8px 0 4px;border-bottom:1px solid ${T.b2};margin-bottom:4px;}
-    input[type=number]::-webkit-inner-spin-button{opacity:.4;}
-    @media(max-width:480px){
-      .card{padding:9px 11px;}
-      .pill{padding:3px 8px;font-size:10px;}
-      .tab-btn{padding:8px 10px;font-size:10px;}
-    }
-    @media(max-width:420px){
-      .tab-btn{padding:8px 7px;font-size:9px;}
-    }
-
-    /* ── Sidebar (desktop) ── */
-    .sidebar{position:fixed;top:0;left:0;width:200px;height:100vh;background:${T.bg2};border-right:1px solid ${T.b1};display:flex;flex-direction:column;z-index:20;overflow:hidden;}
-    .sidebar-logo{padding:22px 18px 18px;border-bottom:1px solid ${T.b1};flex-shrink:0;}
-    .sidebar-nav{flex:1;padding:10px 0;overflow-y:auto;}
-    .nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;cursor:pointer;font-family:'Inter',sans-serif;font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:${T.t5};transition:all .15s;border-left:2px solid transparent;border-top:none;border-right:none;border-bottom:none;background:none;width:100%;text-align:left;}
-    .nav-item:hover{color:${T.t2};background:${T.b1};}
-    .nav-item.active{color:${T.t1};border-left-color:${T.t1};background:${T.b1};font-weight:600;}
-    .sidebar-bottom{padding:6px 0 8px;border-top:1px solid ${T.b1};flex-shrink:0;}
-    .sidebar-btn{display:flex;align-items:center;gap:9px;padding:9px 18px;cursor:pointer;font-family:'Inter',sans-serif;font-size:9px;letter-spacing:.5px;color:${T.t5};background:none;border:none;width:100%;text-align:left;transition:color .12s;white-space:nowrap;}
-    .sidebar-btn:hover{color:${T.t2};}
-
-    /* ── Mobile header ── */
-    .mobile-header{position:sticky;top:0;z-index:20;background:${T.bg2};border-bottom:1px solid ${T.b1};padding:10px 14px;display:flex;align-items:center;gap:8px;flex-shrink:0;}
-
-    /* ── Bottom nav (mobile) ── */
-    .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:${T.bg2};border-top:1px solid ${T.b1};display:flex;z-index:20;padding-bottom:env(safe-area-inset-bottom,0px);}
-    .bottom-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px 8px;cursor:pointer;font-size:8px;letter-spacing:.5px;text-transform:uppercase;color:${T.t5};background:none;border:none;transition:color .15s;}
-    .bottom-nav-item.active{color:${T.t1};}
-
-    /* ── Compact (Bloomberg) mode ── */
-    .compact .card{padding:0 0 16px;}
-    .compact .arow{padding:5px 8px;margin-bottom:3px;}
-    .compact .chip{padding:2px 7px;font-size:9px;}
-    .compact .pill{padding:2px 8px;font-size:10px;}
-    .compact .metric-group-title{padding:4px 0 2px;font-size:7px;}
-    .compact .kpi-value{font-size:24px !important;}
-    .compact .kpi-secondary{font-size:13px !important;}
-
-    /* ── KPI numbers ── */
-    .kpi-hero{font-size:36px;font-weight:700;letter-spacing:-1px;line-height:1;font-variant-numeric:tabular-nums;}
-    .kpi-sub{font-size:11px;color:${T.t4};font-weight:400;letter-spacing:.3px;text-transform:uppercase;margin-top:4px;}
-    .kpi-grid{display:flex;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid ${T.b1};}
-    .kpi-cell{flex:1;padding:0 20px;border-right:1px solid ${T.b1};}
-    .kpi-cell:first-child{padding-left:0;}
-    .kpi-cell:last-child{border-right:none;}
-    .kpi-val{font-size:24px;font-weight:600;letter-spacing:-.5px;font-variant-numeric:tabular-nums;line-height:1;}
-    .kpi-lbl{font-size:10px;color:${T.t4};font-weight:400;letter-spacing:.4px;text-transform:uppercase;margin-bottom:6px;}
-    @media(max-width:900px){.kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0;padding-bottom:0;border-bottom:none;border:1px solid ${T.b1};border-radius:8px;overflow:hidden;} .kpi-cell{padding:14px 16px;border-right:1px solid ${T.b1};border-bottom:1px solid ${T.b1};} .kpi-cell:nth-child(2){border-right:none;} .kpi-cell:nth-child(3){border-bottom:none;} .kpi-cell:last-child{border-right:none;border-bottom:none;}}
-  `;
+  const css = buildCss(T);
 
   const MonthlyHeatmap = ({data, compact=false})=>{
     if(!data||!data.years.length) return null;
@@ -2018,6 +1927,41 @@ export default function App(){
     </div>
   );};
 
+  // ── Editorial 3D hero band (desktop builder) ──
+  const HeroBand = ()=>{
+    const heroPath = mode==="backtest"
+      ? chartData.map(d=>d.value)
+      : mcData.map(d=>d.median);
+    const ret = mode==="backtest"
+      ? parseFloat(metrics?.totalReturn||0)
+      : (mcData.length ? mcData[mcData.length-1].median : 0);
+    const pos = ret>=0;
+    const numRef = useCountUp(ret, (n)=>`${n>=0?"+":""}${n.toFixed(2)}%`, 1.1);
+    if(heroPath.length<3) return null;
+    return(
+      <Reveal y={26} duration={0.9}
+        style={{position:"relative",display:"flex",alignItems:"stretch",marginBottom:20,paddingBottom:20,borderBottom:`1px solid ${T.b1}`,minHeight:212,overflow:"hidden"}}>
+        <div style={{width:"38%",flexShrink:0,display:"flex",flexDirection:"column",justifyContent:"center",paddingRight:28,zIndex:2}}>
+          <div className="eyebrow" style={{marginBottom:16}}>
+            {mode==="backtest"?t('mode_backtest'):t('mode_mc')} · {mode==="backtest"?period:horizon}
+          </div>
+          <span ref={numRef} className="display"
+            style={{fontSize:64,color:pos?"#22c55e":"#ef4444",letterSpacing:"-.03em",fontVariantNumeric:"tabular-nums"}}/>
+          <div className="serif" style={{marginTop:18,fontSize:15,color:T.t3,maxWidth:300,lineHeight:1.45,fontStyle:"italic"}}>
+            {mode==="backtest"
+              ? `${t('my_index')} — ${t('ch_perf_vs_sp')(benchmarkLabel)}`
+              : t('mc_med')}
+          </div>
+        </div>
+        <div style={{flex:1,minWidth:0,alignSelf:"center"}}>
+          <Suspense fallback={null}>
+            <Hero3D path={heroPath} accent={T.accent} dark={darkMode} height={212} reduced={reducedMotion}/>
+          </Suspense>
+        </div>
+      </Reveal>
+    );
+  };
+
   return(
     <div className={compact?"compact":""} style={{minHeight:"100vh",background:T.bg,color:T.t1,fontFamily:"'Inter',-apple-system,sans-serif",paddingLeft:isMobile?0:200}}>
       <style>{css}</style>
@@ -2127,7 +2071,7 @@ export default function App(){
               <span>{compact?"Apple":"Bloomberg"}</span>
             </button>
             <button className="sidebar-btn" onClick={()=>setTutorialOpen(true)}>
-              <span style={{fontSize:12,lineHeight:1,fontFamily:"serif"}}>?</span>
+              <span style={{fontSize:12,lineHeight:1}}>?</span>
               <span>Tuto</span>
             </button>
             <button className="sidebar-btn" onClick={()=>setContactOpen(true)}>
@@ -2196,6 +2140,9 @@ export default function App(){
               </div>
             )}
 
+            {/* ── 3D HERO BAND (desktop builder, chart tab) ── */}
+            {!isMobile&&builderTab==="chart"&&<HeroBand/>}
+
             {/* ── MOBILE: bouton configuration (uniquement onglet builder) ── */}
             {isMobile&&<button onClick={()=>setPanelOpen(true)} style={{width:"100%",marginBottom:10,background:T.b1,border:`1px solid ${T.b2}`,color:T.t2,borderRadius:7,padding:"9px",cursor:"pointer",fontFamily:"'Inter',sans-serif",fontSize:11,fontWeight:600,display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>⚙ {t('drawer_title')}</button>}
 
@@ -2241,14 +2188,14 @@ export default function App(){
               {/* KPIs top row */}
               <div className="kpi-grid">
                 {[
-                  {l:t('kpi_perf'),  mk:"perf",   v:`${parseFloat(metrics?.totalReturn||0)>=0?"+":""}${metrics?.totalReturn||"—"}%`,c:parseFloat(metrics?.totalReturn||0)>=0?"#22c55e":"#ef4444",s:invest>0?`→ ${(invest*(1+parseFloat(metrics?.totalReturn||0)/100)).toFixed(0)} €`:period},
-                  {l:t('kpi_sharpe'),mk:"sharpe",  v:metrics?.sharpe||"—",c:parseFloat(metrics?.sharpe||0)>1?"#22c55e":parseFloat(metrics?.sharpe||0)>0?T.t2:"#ef4444",s:t('kpi_sharpe_sub')},
-                  {l:t('kpi_maxdd'), mk:"maxdd",   v:`${metrics?.maxDD||"—"}%`,c:"#ef4444",s:t('kpi_maxdd_sub')},
-                  {l:t('kpi_alpha'), mk:"alpha",   v:`${parseFloat(metrics?.alpha||0)>=0?"+":""}${metrics?.alpha||"—"}%`,c:parseFloat(metrics?.alpha||0)>=0?"#22c55e":"#ef4444",s:t('kpi_alpha_sub')(benchmarkLabel)},
-                ].map(({l,v,c,s,mk})=>(
+                  {l:t('kpi_perf'),  mk:"perf",   n:parseFloat(metrics?.totalReturn||0), fmt:(x)=>`${x>=0?"+":""}${x.toFixed(2)}%`, c:parseFloat(metrics?.totalReturn||0)>=0?"#22c55e":"#ef4444",s:invest>0?`→ ${(invest*(1+parseFloat(metrics?.totalReturn||0)/100)).toFixed(0)} €`:period},
+                  {l:t('kpi_sharpe'),mk:"sharpe",  n:parseFloat(metrics?.sharpe||0), fmt:(x)=>x.toFixed(3), c:parseFloat(metrics?.sharpe||0)>1?"#22c55e":parseFloat(metrics?.sharpe||0)>0?T.t2:"#ef4444",s:t('kpi_sharpe_sub')},
+                  {l:t('kpi_maxdd'), mk:"maxdd",   n:parseFloat(metrics?.maxDD||0), fmt:(x)=>`${x.toFixed(2)}%`, c:"#ef4444",s:t('kpi_maxdd_sub')},
+                  {l:t('kpi_alpha'), mk:"alpha",   n:parseFloat(metrics?.alpha||0), fmt:(x)=>`${x>=0?"+":""}${x.toFixed(2)}%`, c:parseFloat(metrics?.alpha||0)>=0?"#22c55e":"#ef4444",s:t('kpi_alpha_sub')(benchmarkLabel)},
+                ].map(({l,n,fmt,c,s,mk})=>(
                   <div key={l} className="kpi-cell">
                     <div className="kpi-lbl" style={{display:"flex",alignItems:"center",gap:4}}>{l}<InfoBubble info={mi(mk)} T={T}/></div>
-                    <div className="kpi-val" style={{color:c}}>{v}</div>
+                    <CountNum value={n} format={fmt} duration={1.0} className="kpi-val" style={{color:c,display:"block"}}/>
                     <div style={{fontSize:9,color:T.t5,marginTop:2}}>{s}</div>
                   </div>
                 ))}
